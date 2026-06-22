@@ -13,4 +13,3 @@ class WorkableDepartment(models.Model):
     parent_id = fields.Char(string='Parent ID', store=True)
     sample = fields.Char(string='Sample', store=True)
     parent_department = fields.Many2one('workable.department', string='Parent Department', store=True)
-    test = fields.Text("Text")
