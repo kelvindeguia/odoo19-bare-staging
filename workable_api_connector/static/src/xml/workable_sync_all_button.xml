@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="workable_api_connector.WorkableSyncAllListView"
+       t-inherit="web.ListView"
+       t-inherit-mode="primary">
+
+        <xpath expr="//t[@t-set-slot='control-panel-always-buttons']" position="replace">
+            <t t-set-slot="control-panel-always-buttons">
+                <button class="btn btn-primary o_workable_sync_all_btn"
+                        t-on-click="onSyncAllFromWorkable">
+                    <i class="fa fa-refresh me-1"/>
+                    Sync All Workable Data
+                </button>
+            </t>
+        </xpath>
+
+    </t>
+
+
+    <t t-name="workable_api_connector.WorkableSyncProgressDialog">
+        <Dialog title="props.state.title" size="'md'">
+
+            <div class="o_workable_sync_dialog_header mb-3">
+                <div class="text-muted">
+                    <t t-esc="props.state.currentStep"/>
+                </div>
+            </div>
+
+            <t t-if="props.state.mode === 'confirm'">
+                <div class="alert alert-warning">
+                    <i class="fa fa-info-circle me-1"/>
+                    <t t-esc="props.state.message"/>
+                </div>
+
+                <div class="o_workable_sync_order_card border rounded p-3 bg-light">
+                    <strong>Sync order:</strong>
+                    <ol class="mb-0 mt-2">
+                        <li>Departments</li>
+                        <li>Jobs</li>
+                        <li>Hiring Plans</li>
+                        <li>Employees</li>
+                    </ol>
+                </div>
+            </t>
+
+            <t t-if="props.state.mode === 'progress'">
+                <div class="progress o_workable_sync_progress mb-3" style="height: 22px;">
+                    <div class="progress-bar"
+                        role="progressbar"
+                        t-att-style="'width: ' + props.state.progress + '%;'">
+                        <t t-esc="props.state.progress"/>%
+                    </div>
+                </div>
+
+                <div class="alert alert-secondary">
+                    <strong>Current Fetch:</strong>
+                    <br/>
+                    Model:
+                    <t t-esc="props.state.currentModel || '-'"/>
+                    <br/>
+                    Page:
+                    <t t-esc="props.state.currentPage || 0"/>
+                    <br/>
+                    Current Batch:
+                    <t t-esc="props.state.currentBatchCount || 0"/>
+                    <br/>
+                    Total Fetched:
+                    <t t-esc="props.state.currentTotalFetched || 0"/>
+                </div>
+
+                <div t-att-class="props.state.status === 'failed'
+                    ? 'alert alert-danger'
+                    : props.state.status === 'done'
+                        ? 'alert alert-success'
+                        : 'alert alert-info'">
+
+                    <t t-if="props.state.status === 'running'">
+                        <i class="fa fa-spinner fa-spin me-1"/>
+                    </t>
+
+                    <t t-if="props.state.status === 'done'">
+                        <i class="fa fa-check-circle me-1"/>
+                    </t>
+
+                    <t t-if="props.state.status === 'failed'">
+                        <i class="fa fa-exclamation-triangle me-1"/>
+                    </t>
+
+                    <t t-esc="props.state.message"/>
+                </div>
+                
+                <div t-if="props.state.logs.length" class="mt-3">
+                    <strong>Sync Summary</strong>
+                    <ul class="mt-2 mb-0">
+                        <t t-foreach="props.state.logs" t-as="log" t-key="log_index">
+                            <li>
+                                <t t-esc="log"/>
+                            </li>
+                        </t>
+                    </ul>
+                </div>
+                
+                <div t-if="props.state.reportVisible" class="mt-4 border rounded p-3 bg-light">
+                    <h5 class="mb-3">Overall Sync Report</h5>
+
+                    <t t-foreach="Object.values(props.state.reportData)" t-as="report" t-key="report.label">
+                        <div class="mb-3 p-2 border rounded bg-white">
+                            <strong>
+                                <t t-esc="report.label"/>
+                            </strong>
+
+                            <div class="mt-2">
+                                Created:
+                                <strong><t t-esc="report.created"/></strong>
+                                <br/>
+
+                                Updated:
+                                <strong><t t-esc="report.updated"/></strong>
+                                <br/>
+
+                                Field Changes:
+                                <strong><t t-esc="report.field_changes"/></strong>
+                            </div>
+
+                            <div t-if="report.updated_fields &amp;&amp; report.updated_fields.length" class="mt-2">
+                                <strong>Updated Fields:</strong>
+                                <ul class="mb-0 mt-1">
+                                    <t t-foreach="report.updated_fields" t-as="field" t-key="field">
+                                        <li>
+                                            <t t-esc="field"/>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+
+                            <div t-if="!report.updated_fields || !report.updated_fields.length" class="text-muted mt-2">
+                                No specific fields changed.
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <t t-set-slot="footer">
+                <button t-if="props.state.showReport"
+                        class="btn btn-info"
+                        t-on-click="props.toggleReport">
+                    <i class="fa fa-list me-1"/>
+                    <t t-if="!props.state.reportVisible">View Sync Report</t>
+                    <t t-if="props.state.reportVisible">Hide Sync Report</t>
+                </button>
+
+                <button class="btn btn-secondary"
+                        t-att-disabled="props.state.status === 'running'"
+                        t-on-click="props.close">
+                    Close
+                </button>
+
+                <button t-if="props.state.mode === 'confirm'"
+                        class="btn btn-primary"
+                        t-on-click="props.startSync">
+                    <i class="fa fa-play me-1"/>
+                    Start Sync
+                </button>
+            </t>
+
+        </Dialog>
+    </t>
+
+</templates>

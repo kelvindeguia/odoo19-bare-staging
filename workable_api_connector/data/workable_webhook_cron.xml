@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_process_workable_webhooks" model="ir.cron">
+        <field name="name">Workable: Process Webhook Queue</field>
+        <field name="model_id" ref="model_workable_webhook_event"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_process_pending_events()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+
+    <record id="ir_cron_reconcile_workable_hiring_plans" model="ir.cron">
+        <field name="name">Workable: Reconcile Hiring Plans</field>
+        <field name="model_id" ref="model_workable_hiring_plan"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_from_workable()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">False</field>
+    </record>
+</odoo>

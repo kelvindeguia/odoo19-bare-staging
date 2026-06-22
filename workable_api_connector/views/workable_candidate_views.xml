@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_workable_candidate_tree" model="ir.ui.view">
+        <field name="name">workable.candidate.list</field>
+        <field name="model">workable.candidate</field>
+        <field name="arch" type="xml">
+            <list string="Workable Candidates"
+                  create="false"
+                  js_class="workable_modern_list"
+                  class="o_workable_list_view o_workable_candidate_list"
+                  decoration-success="status in ('hired', 'accepted')"
+                  decoration-warning="status in ('pending', 'active')"
+                  decoration-muted="status in ('rejected', 'disqualified', 'archived')"
+                  default_order="workable_updated_at desc, display_name asc">
+                <field name="display_name" string="Candidate"/>
+                <field name="email" optional="show"/>
+                <field name="phone" optional="show"/>
+                <field name="job_title" optional="show"/>
+                <field name="stage" optional="show"/>
+                <field name="is_hired" optional="show"/>
+                <field name="status" widget="badge" optional="show"
+                       decoration-success="status in ('hired', 'accepted')"
+                       decoration-warning="status in ('pending', 'active')"
+                       decoration-danger="status in ('rejected', 'disqualified')"
+                       decoration-muted="status in ('archived', 'inactive')"/>
+                <field name="sourced" optional="hide"/>
+                <field name="workable_updated_at" optional="show"/>
+                <field name="last_synced_at" optional="hide"/>
+                <field name="last_sync_source" widget="badge" optional="show"
+                       decoration-info="last_sync_source == 'api'"
+                       decoration-success="last_sync_source == 'webhook'"
+                       decoration-warning="last_sync_source == 'manual'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_workable_candidate_kanban" model="ir.ui.view">
+        <field name="name">workable.candidate.kanban</field>
+        <field name="model">workable.candidate</field>
+        <field name="arch" type="xml">
+            <kanban string="Workable Candidates" class="o_workable_candidate_kanban" default_group_by="stage">
+                <field name="display_name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="job_title"/>
+                <field name="stage"/>
+                <field name="status"/>
+                <field name="last_sync_source"/>
+                <field name="is_hired"/>
+                <field name="workable_updated_at"/>
+                <field name="profile_url"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_workable_candidate_card">
+                            <div class="o_workable_candidate_card_header">
+                                <div class="o_workable_candidate_avatar">
+                                    <i class="fa fa-user" aria-hidden="true"/>
+                                </div>
+                                <div class="o_workable_candidate_card_title">
+                                    <strong><field name="display_name"/></strong>
+                                    <span><field name="job_title"/></span>
+                                </div>
+                            </div>
+                            <div class="o_workable_candidate_card_meta">
+                                <span t-if="record.email.raw_value"><i class="fa fa-envelope-o"/> <field name="email"/></span>
+                                <span t-if="record.phone.raw_value"><i class="fa fa-phone"/> <field name="phone"/></span>
+                            </div>
+                            <div class="o_workable_candidate_card_footer">
+                                <span class="badge rounded-pill text-bg-light"><field name="status"/></span>
+                                <span class="badge rounded-pill text-bg-info"><field name="last_sync_source"/></span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_workable_candidate_form" model="ir.ui.view">
+        <field name="name">workable.candidate.form</field>
+        <field name="model">workable.candidate</field>
+        <field name="arch" type="xml">
+            <form string="Workable Candidate" class="o_workable_modern_form_view o_workable_candidate_form">
+                <header>
+                    <button name="action_sync_candidates_from_workable" string="Sync Candidates" type="object" class="btn-primary"/>
+                </header>
+                <sheet class="o_workable_form_sheet">
+                    <div class="oe_title o_workable_title_block">
+                        <div class="o_workable_kicker">Workable Candidate</div>
+                        <h1>
+                            <field name="display_name" readonly="1" placeholder="Candidate Name"/>
+                        </h1>
+                        <h2>
+                            <field name="job_title" readonly="1" placeholder="Job / Requisition"/>
+                        </h2>
+                    </div>
+
+                    <div class="o_workable_quick_info">
+                        <div class="o_workable_metric">
+                            <div class="o_workable_metric_label">Status</div>
+                            <div class="o_workable_metric_value">
+                                <field name="status" readonly="1"/>
+                            </div>
+                        </div>
+                        <div class="o_workable_metric">
+                            <div class="o_workable_metric_label">Stage</div>
+                            <div class="o_workable_metric_value">
+                                <field name="stage" readonly="1"/>
+                            </div>
+                        </div>
+                        <div class="o_workable_metric">
+                            <div class="o_workable_metric_label">Email</div>
+                            <div class="o_workable_metric_value">
+                                <field name="email" readonly="1" widget="email"/>
+                            </div>
+                        </div>
+                        <div class="o_workable_metric">
+                            <div class="o_workable_metric_label">Last Synced</div>
+                            <div class="o_workable_metric_value">
+                                <field name="last_synced_at" readonly="1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Candidate Profile">
+                            <p class="o_workable_section_hint">Core candidate profile information synchronized from Workable.</p>
+                            <group>
+                                <group string="Personal Information">
+                                    <field name="workable_candidate_id" readonly="1"/>
+                                    <field name="name"/>
+                                    <field name="firstname"/>
+                                    <field name="lastname"/>
+                                    <field name="email" widget="email"/>
+                                    <field name="phone" widget="phone"/>
+                                    <field name="profile_url" widget="url"/>
+                                </group>
+                                <group string="Current ATS Position">
+                                    <field name="job_title"/>
+                                    <field name="job_shortcode"/>
+                                    <field name="stage"/>
+                                    <field name="status"/>
+                                    <field name="is_hired"/>
+                                    <field name="hired_at" readonly="1"/>
+                                    <field name="sourced"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Summary">
+                            <p class="o_workable_section_hint">Headline, address, and summary pulled from the candidate payload.</p>
+                            <group>
+                                <group string="Profile Summary">
+                                    <field name="headline"/>
+                                    <field name="address"/>
+                                </group>
+                                <group string="Sync Dates">
+                                    <field name="workable_created_at" readonly="1"/>
+                                    <field name="workable_updated_at" readonly="1"/>
+                                    <field name="last_synced_at" readonly="1"/>
+                                    <field name="last_sync_source" readonly="1"/>
+                                    <field name="last_webhook_event_id" readonly="1" groups="base.group_system"/>
+                                </group>
+                            </group>
+                            <group string="Candidate Summary">
+                                <field name="summary" nolabel="1" placeholder="Candidate summary from Workable..."/>
+                            </group>
+                        </page>
+                        <page string="Custom Answers">
+                            <p class="o_workable_section_hint">Candidate custom answers captured from the Workable candidate detail API or webhook refresh.</p>
+                            <field name="answer_ids" readonly="1">
+                                <list class="o_workable_embedded_list">
+                                    <field name="question"/>
+                                    <field name="answer_text"/>
+                                    <field name="answer_number" optional="hide"/>
+                                    <field name="answer_boolean" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Raw JSON" groups="base.group_system">
+                            <p class="o_workable_section_hint">Technical payload stored for troubleshooting and mapping validation.</p>
+                            <field name="raw_json" widget="json" nolabel="1"/>
+                        </page>
+                    </notebook>
+
+                    <div class="o_workable_manual_onepage_container">
+                        <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+                            <div class="o_workable_onepage_section_header">
+                                <span>Candidate Profile</span>
+                                <i class="fa fa-chevron-up" aria-hidden="true"/>
+                            </div>
+                            <p class="o_workable_section_hint">Core candidate profile information synchronized from Workable.</p>
+                            <group>
+                                <group string="Personal Information">
+                                    <field name="workable_candidate_id" readonly="1"/>
+                                    <field name="name"/>
+                                    <field name="firstname"/>
+                                    <field name="lastname"/>
+                                    <field name="email" widget="email"/>
+                                    <field name="phone" widget="phone"/>
+                                    <field name="profile_url" widget="url"/>
+                                </group>
+                                <group string="Current ATS Position">
+                                    <field name="job_title"/>
+                                    <field name="job_shortcode"/>
+                                    <field name="stage"/>
+                                    <field name="status"/>
+                                    <field name="is_hired"/>
+                                    <field name="hired_at" readonly="1"/>
+                                    <field name="sourced"/>
+                                </group>
+                            </group>
+                        </div>
+                        <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+                            <div class="o_workable_onepage_section_header">
+                                <span>Summary and Sync</span>
+                                <i class="fa fa-chevron-up" aria-hidden="true"/>
+                            </div>
+                            <p class="o_workable_section_hint">Candidate summary and synchronization metadata.</p>
+                            <group>
+                                <group string="Profile Summary">
+                                    <field name="headline"/>
+                                    <field name="address"/>
+                                </group>
+                                <group string="Sync Dates">
+                                    <field name="workable_created_at" readonly="1"/>
+                                    <field name="workable_updated_at" readonly="1"/>
+                                    <field name="last_synced_at" readonly="1"/>
+                                    <field name="last_sync_source" readonly="1"/>
+                                    <field name="last_webhook_event_id" readonly="1" groups="base.group_system"/>
+                                </group>
+                            </group>
+                            <group string="Candidate Summary">
+                                <field name="summary" nolabel="1" placeholder="Candidate summary from Workable..."/>
+                            </group>
+                        </div>
+                        <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+                            <div class="o_workable_onepage_section_header">
+                                <span>Custom Answers</span>
+                                <i class="fa fa-chevron-up" aria-hidden="true"/>
+                            </div>
+                            <p class="o_workable_section_hint">Candidate custom answers captured from Workable candidate detail records.</p>
+                            <field name="answer_ids" readonly="1">
+                                <list class="o_workable_embedded_list">
+                                    <field name="question"/>
+                                    <field name="answer_text"/>
+                                    <field name="answer_number" optional="hide"/>
+                                    <field name="answer_boolean" optional="hide"/>
+                                </list>
+                            </field>
+                        </div>
+                        <div class="o_workable_onepage_section o_workable_manual_onepage_section" groups="base.group_system">
+                            <div class="o_workable_onepage_section_header">
+                                <span>Raw JSON</span>
+                                <i class="fa fa-chevron-up" aria-hidden="true"/>
+                            </div>
+                            <p class="o_workable_section_hint">Technical payload stored for troubleshooting and mapping validation.</p>
+                            <field name="raw_json" widget="json" nolabel="1"/>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_workable_candidate_search" model="ir.ui.view">
+        <field name="name">workable.candidate.search</field>
+        <field name="model">workable.candidate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="job_title"/>
+                <field name="stage"/>
+                <field name="status"/>
+                <filter string="With Email" name="with_email" domain="[('email','!=',False)]"/>
+                <filter string="Sourced" name="sourced" domain="[('sourced','=',True)]"/>
+                <filter string="Hired" name="hired" domain="[('is_hired','=',True)]"/>
+                <filter string="Webhook Updated" name="webhook_updated" domain="[('last_sync_source','=','webhook')]"/>
+                <filter string="API Updated" name="api_updated" domain="[('last_sync_source','=','api')]"/>
+                <group>
+                    <filter string="Job" name="group_job" context="{'group_by':'job_title'}"/>
+                    <filter string="Stage" name="group_stage" context="{'group_by':'stage'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by':'status'}"/>
+                    <filter string="Hired" name="group_hired" context="{'group_by':'is_hired'}"/>
+                    <filter string="Sync Source" name="group_sync_source" context="{'group_by':'last_sync_source'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_workable_candidate" model="ir.actions.act_window">
+        <field name="name">Candidates</field>
+        <field name="res_model">workable.candidate</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_workable_candidate_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No candidates found. Run the Workable sync to fetch candidate records.
+            </p>
+        </field>
+    </record>
+</odoo>

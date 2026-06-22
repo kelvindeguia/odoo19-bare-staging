@@ -1,0 +1,187 @@
+<odoo>
+  <record id="action_workable_job" model="ir.actions.act_window">
+    <field name="name">Workable Jobs</field>
+    <field name="res_model">workable.job</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+                No jobs found. Use Sync All Workable Data from Hiring Plan to fetch records from Workable.
+            </p>
+    </field>
+  </record>
+  <record id="view_workable_job_list" model="ir.ui.view">
+    <field name="name">workable.job.list</field>
+    <field name="model">workable.job</field>
+    <field name="arch" type="xml">
+      <list string="Workable Jobs" js_class="workable_modern_list" class="o_workable_list_view o_workable_job_list" decoration-success="state == 'published'" decoration-muted="state in ('closed', 'archived')" default_order="updated_at desc, title asc">
+        <field name="title"/>
+        <field name="code" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'published'" decoration-warning="state == 'draft'" decoration-danger="state == 'closed'" decoration-muted="state == 'archived'"/>
+        <field name="workplace_type" widget="badge" decoration-info="workplace_type == 'remote'" decoration-primary="workplace_type == 'hybrid'"/>
+        <field name="department_id" optional="show"/>
+        <field name="job_location" optional="show"/>
+        <field name="updated_at" optional="show"/>
+        <field name="created_at" optional="hide"/>
+        <field name="workable_job_id" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_workable_job_form" model="ir.ui.view">
+    <field name="name">workable.job.form</field>
+    <field name="model">workable.job</field>
+    <field name="arch" type="xml">
+      <form string="Workable Job" class="o_workable_modern_form_view">
+        <header>
+          <field name="state" widget="statusbar" statusbar_visible="draft,published,closed,archived"/>
+        </header>
+        <sheet class="o_workable_form_sheet">
+          <div class="oe_title o_workable_title_block">
+            <div class="o_workable_kicker">Workable Job</div>
+            <h1>
+              <field name="title" placeholder="Job Title"/>
+            </h1>
+            <h2>
+              <field name="full_title" placeholder="Full Title"/>
+            </h2>
+          </div>
+          <div class="o_workable_quick_info">
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Status</div>
+              <div class="o_workable_metric_value">
+                <field name="state" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Workplace</div>
+              <div class="o_workable_metric_value">
+                <field name="workplace_type" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Department</div>
+              <div class="o_workable_metric_value">
+                <field name="department_id" readonly="1"/>
+              </div>
+            </div>
+          </div>
+          <notebook>
+            <page string="Overview">
+              <p class="o_workable_section_hint">Main job information synchronized from Workable.</p>
+              <group>
+                <group string="Core Information">
+                  <field name="workable_job_id" readonly="1"/>
+                  <field name="job_id" readonly="1"/>
+                  <field name="code"/>
+                  <field name="state"/>
+                  <field name="confidential"/>
+                </group>
+                <group string="Publishing Details">
+                  <field name="workplace_type"/>
+                  <field name="created_at" readonly="1"/>
+                  <field name="updated_at" readonly="1"/>
+                  <field name="keywords"/>
+                </group>
+              </group>
+            </page>
+            <page string="Department">
+              <group>
+                <group string="Linked Department">
+                  <field name="department" invisible="1"/>
+                  <field name="department_id" placeholder="Select Department"/>
+                </group>
+                <group string="Hierarchy">
+                  <field name="department_hierarchy_id" nolabel="1" placeholder="Department hierarchy"/>
+                </group>
+              </group>
+            </page>
+            <page string="Links">
+              <group>
+                <group string="Candidate Links">
+                  <field name="url" widget="url"/>
+                  <field name="application_url" widget="url"/>
+                </group>
+                <group string="Short Link">
+                  <field name="shortlink" widget="url"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+          <div class="o_workable_manual_onepage_container">
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Overview</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <p class="o_workable_section_hint">Main job information synchronized from Workable.</p>
+              <group>
+                <group string="Core Information">
+                  <field name="workable_job_id" readonly="1"/>
+                  <field name="job_id" readonly="1"/>
+                  <field name="code"/>
+                  <field name="state"/>
+                  <field name="confidential"/>
+                </group>
+                <group string="Publishing Details">
+                  <field name="workplace_type"/>
+                  <field name="created_at" readonly="1"/>
+                  <field name="updated_at" readonly="1"/>
+                  <field name="keywords"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Department</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Linked Department">
+                  <field name="department" invisible="1"/>
+                  <field name="department_id" placeholder="Select Department"/>
+                </group>
+                <group string="Hierarchy">
+                  <field name="department_hierarchy_id" nolabel="1" placeholder="Department hierarchy"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Links</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Candidate Links">
+                  <field name="url" widget="url"/>
+                  <field name="application_url" widget="url"/>
+                </group>
+                <group string="Short Link">
+                  <field name="shortlink" widget="url"/>
+                </group>
+              </group>
+            </div>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_workable_job_search" model="ir.ui.view">
+    <field name="name">workable.job.search</field>
+    <field name="model">workable.job</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="title"/>
+        <field name="full_title"/>
+        <field name="code"/>
+        <field name="department_id"/>
+        <filter name="published" string="Published" domain="[('state','=','published')]"/>
+        <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
+        <filter name="remote" string="Remote" domain="[('workplace_type','=','remote')]"/>
+        <group>
+          <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+          <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+          <filter name="group_workplace" string="Workplace" context="{'group_by': 'workplace_type'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+</odoo>

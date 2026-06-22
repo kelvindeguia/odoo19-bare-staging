@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Security Category -->
+    <record id="module_category_workable_ats" model="ir.module.category">
+        <field name="name">Workable ATS</field>
+        <field name="description">Manage integration with Workable Applicant Tracking System.</field>
+        <field name="sequence">85</field>
+    </record>
+
+    <!-- Odoo 19 Security Privilege
+         In Odoo 19, res.groups no longer uses category_id directly.
+         Groups are linked to res.groups.privilege through privilege_id. -->
+    <record id="res_groups_privilege_workable_ats" model="res.groups.privilege">
+        <field name="name">Workable ATS</field>
+        <field name="description">Manage integration with Workable Applicant Tracking System.</field>
+        <field name="sequence">85</field>
+        <field name="category_id" ref="module_category_workable_ats"/>
+    </record>
+
+    <!-- User Group -->
+    <record id="group_workable_ats_user" model="res.groups">
+        <field name="name">Workable ATS User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_workable_ats"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Manager Group -->
+    <record id="group_workable_ats_manager" model="res.groups">
+        <field name="name">Workable ATS Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_workable_ats"/>
+        <field name="implied_ids" eval="[(4, ref('group_workable_ats_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

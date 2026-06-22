@@ -1,0 +1,21 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_workable_hiring_plan_user,workable.hiring.plan.user,model_workable_hiring_plan,group_workable_ats_user,1,1,1,0
+access_workable_hiring_plan_manager,workable.hiring.plan.manager,model_workable_hiring_plan,group_workable_ats_manager,1,1,1,1
+
+access_workable_department_user,workable.department user,model_workable_department,group_workable_ats_user,1,0,0,0
+access_workable_department_manager,workable.department manager,model_workable_department,group_workable_ats_manager,1,1,1,1
+
+access_workable_employees_user,workable.employees user,model_workable_employees,group_workable_ats_user,1,0,0,0
+access_workable_employees_manager,workable.employees manager,model_workable_employees,group_workable_ats_manager,1,1,1,1
+
+access_workable_jobs_user,workable.jobs user,model_workable_job,group_workable_ats_user,1,0,0,0
+access_workable_jobs_manager,workable.jobs manager,model_workable_job,group_workable_ats_manager,1,1,1,1
+
+access_workable_sync_service,access_workable_sync_service,model_workable_sync_service,base.group_user,1,1,1,1
+
+access_workable_sync_progress_user,workable.sync.progress.user,model_workable_sync_progress,base.group_user,1,1,1,1
+access_workable_candidate_user,workable.candidate.user,model_workable_candidate,group_workable_ats_user,1,1,1,0
+access_workable_candidate_manager,workable.candidate.manager,model_workable_candidate,group_workable_ats_manager,1,1,1,1
+access_workable_candidate_answer_user,workable.candidate.answer.user,model_workable_candidate_answer,group_workable_ats_user,1,0,0,0
+access_workable_candidate_answer_manager,workable.candidate.answer.manager,model_workable_candidate_answer,group_workable_ats_manager,1,1,1,1
+access_workable_webhook_event_admin,workable.webhook.event.admin,model_workable_webhook_event,base.group_system,1,1,1,1

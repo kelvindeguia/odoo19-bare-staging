@@ -1,0 +1,57 @@
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.workable</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="75" />
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Workable" string="Workable" name="workable_api_connector"
+                    groups="base.group_system">
+                    <block title="Workable Integration" name="workable_integration">
+                        <setting id="workable_subdomain_setting" string="Workable Subdomain"
+                            help="Your company's Workable subdomain (e.g. 'mycompany' if your Workable account is mycompany.workable.com)">
+                            <field name="workable_subdomain" placeholder="mycompany" />
+                        </setting>
+                        <setting id="workable_api_token_setting" string="API Token/Key"
+                            help="Your Workable API token">
+                            <field name="workable_api_token" password="True" />
+                        </setting>
+                        <setting id="workable_webhook_url_setting" string="Webhook URL"
+                            help="Use this public URL in Workable webhook subscriptions.">
+                            <field name="workable_public_webhook_url" readonly="1" />
+                        </setting>
+                        <setting id="workable_candidate_hired_webhook_url_setting" string="Candidate Hired Webhook"
+                            help="Use this URL for the Workable candidate_moved subscription filtered to the Hired stage. If a webhook secret is configured, the URL includes it as a query parameter.">
+                            <field name="workable_candidate_hired_webhook_url" readonly="1" />
+                            <button name="action_register_candidate_moved_hired_webhook"
+                                string="Register Hired Candidate Webhook"
+                                type="object"
+                                class="btn-primary mt-2"/>
+                        </setting>
+                        <setting id="workable_webhook_secret_setting" string="Webhook Secret"
+                            help="Shared secret for validating inbound webhook requests. Send it as X-Workable-Webhook-Secret or ?secret=...">
+                            <field name="workable_webhook_secret" password="True" />
+                        </setting>
+                        <setting id="workable_webhook_auto_process_setting" string="Auto-process Webhook Immediately"
+                            help="For production, keep this disabled and let the webhook queue cron process events.">
+                            <field name="workable_webhook_auto_process" />
+                        </setting>
+                        <setting id="workable_outbound_sync_enabled_setting" string="Enable Odoo to Workable Outbound Sync"
+                            help="Feature flag for future Odoo-to-Workable updates. Keep disabled until field-level rules are finalized.">
+                            <field name="workable_outbound_sync_enabled" />
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_workable_configuration" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module' : 'workable_api_connector', 'bin_size': False}</field>
+    </record>
+</odoo>

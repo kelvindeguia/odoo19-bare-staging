@@ -1,0 +1,103 @@
+<odoo>
+  <record id="action_workable_department" model="ir.actions.act_window">
+    <field name="name">Workable Departments</field>
+    <field name="res_model">workable.department</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_group_parent': 0}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+                No departments found. Use Sync All Workable Data from Hiring Plan to fetch records from Workable.
+            </p>
+    </field>
+  </record>
+  <record id="view_workable_department_list" model="ir.ui.view">
+    <field name="name">workable.department.list</field>
+    <field name="model">workable.department</field>
+    <field name="arch" type="xml">
+      <list string="Workable Departments" js_class="workable_modern_list" class="o_workable_list_view o_workable_department_list" default_order="name asc">
+        <field name="name"/>
+        <field name="parent_id" optional="show"/>
+        <field name="department_id" optional="show"/>
+        <field name="sample" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_workable_department_form" model="ir.ui.view">
+    <field name="name">workable.department.form</field>
+    <field name="model">workable.department</field>
+    <field name="arch" type="xml">
+      <form string="Workable Department" class="o_workable_modern_form_view">
+        <sheet class="o_workable_form_sheet">
+          <div class="oe_title o_workable_title_block">
+            <div class="o_workable_kicker">Workable Department</div>
+            <h1>
+              <field name="name" placeholder="Department Name"/>
+            </h1>
+          </div>
+          <div class="o_workable_quick_info">
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Department ID</div>
+              <div class="o_workable_metric_value">
+                <field name="department_id" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Parent ID</div>
+              <div class="o_workable_metric_value">
+                <field name="parent_id" readonly="1"/>
+              </div>
+            </div>
+          </div>
+          <notebook>
+            <page string="Overview">
+              <p class="o_workable_section_hint">Department details synchronized from Workable.</p>
+              <group>
+                <group string="Department Information">
+                  <field name="name"/>
+                  <field name="parent_id" readonly="1"/>
+                </group>
+                <group string="Reference">
+                  <field name="department_id" readonly="1"/>
+                  <field name="sample"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+          <div class="o_workable_manual_onepage_container">
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Overview</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <p class="o_workable_section_hint">Department details synchronized from Workable.</p>
+              <group>
+                <group string="Department Information">
+                  <field name="name"/>
+                  <field name="parent_id" readonly="1"/>
+                </group>
+                <group string="Reference">
+                  <field name="department_id" readonly="1"/>
+                  <field name="sample"/>
+                </group>
+              </group>
+            </div>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_workable_department_search" model="ir.ui.view">
+    <field name="name">workable.department.search</field>
+    <field name="model">workable.department</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="department_id"/>
+        <field name="parent_id"/>
+        <group>
+          <filter name="group_parent" string="Parent" context="{'group_by': 'parent_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+</odoo>

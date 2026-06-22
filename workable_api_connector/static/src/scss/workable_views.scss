@@ -1,0 +1,953 @@
+
+/* Workable Connector - modern UI layer for Odoo 18 backend views */
+
+.o_form_view .o_workable_form_sheet {
+    max-width: 1280px;
+}
+
+.o_workable_title_block {
+    border-left: 4px solid #0d6efd;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, rgba(13, 110, 253, 0.09), rgba(13, 110, 253, 0));
+    border-radius: 0.75rem;
+}
+
+.o_workable_title_block .o_workable_kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.o_workable_title_block h1,
+.o_workable_title_block h2,
+.o_workable_title_block h3 {
+    margin-bottom: 0.25rem;
+}
+
+.o_workable_quick_info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin: 0.75rem 0 1.25rem;
+}
+
+.o_workable_quick_info .o_workable_metric {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.85rem;
+    padding: 0.85rem 1rem;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.045);
+}
+
+.o_workable_metric_label {
+    font-size: 0.73rem;
+    color: #6c757d;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.o_workable_metric_value {
+    margin-top: 0.25rem;
+    font-weight: 650;
+}
+
+.o_workable_section_hint {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin: -0.25rem 0 0.75rem;
+}
+
+.o_workable_sync_all_btn {
+    border-radius: 999px;
+    font-weight: 700;
+    padding-inline: 1rem;
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.24);
+}
+
+.o_list_view.o_workable_list_view {
+    --workable-row-radius: 0.7rem;
+    --workable-row-border: rgba(15, 23, 42, 0.08);
+    --workable-row-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
+}
+
+.o_list_view.o_workable_list_view .o_list_renderer,
+.o_list_view.o_workable_list_view .o_content {
+    background: #f8fafc;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table {
+    border-collapse: separate;
+    border-spacing: 0 0.42rem;
+    padding: 0.35rem 0.45rem 0.75rem;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table thead th {
+    border-bottom: 0;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    background: transparent;
+    padding-top: 0.75rem;
+    padding-bottom: 0.55rem;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row {
+    background: #fff;
+    box-shadow: var(--workable-row-shadow);
+    transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row:hover {
+    background-color: #f8fbff;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.075);
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td {
+    border-top: 1px solid var(--workable-row-border);
+    border-bottom: 1px solid var(--workable-row-border);
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    vertical-align: middle;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td:first-child {
+    border-left: 1px solid var(--workable-row-border);
+    border-top-left-radius: var(--workable-row-radius);
+    border-bottom-left-radius: var(--workable-row-radius);
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td:last-child {
+    border-right: 1px solid var(--workable-row-border);
+    border-top-right-radius: var(--workable-row-radius);
+    border-bottom-right-radius: var(--workable-row-radius);
+}
+
+.o_list_view.o_workable_list_view .o_data_cell:first-of-type {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.o_list_view.o_workable_list_view .o_workable_modern_badge,
+.o_list_view.o_workable_list_view .badge {
+    border-radius: 999px;
+    padding: 0.32rem 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.o_list_view.o_workable_list_view .o_optional_columns_dropdown_toggle {
+    border-radius: 999px;
+}
+
+.o_workable_department_list .o_data_cell:first-of-type::before,
+.o_workable_job_list .o_data_cell:first-of-type::before,
+.o_workable_employee_list .o_data_cell:first-of-type::before,
+.o_workable_hiring_plan_list .o_data_cell:first-of-type::before,
+.o_workable_candidate_list .o_data_cell:first-of-type::before {
+    display: inline-flex;
+    width: 1.65rem;
+    height: 1.65rem;
+    margin-right: 0.45rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    font-family: FontAwesome;
+    font-size: 0.78rem;
+    font-weight: normal;
+}
+
+.o_workable_department_list .o_data_cell:first-of-type::before { content: "\f0e8"; }
+.o_workable_job_list .o_data_cell:first-of-type::before { content: "\f0b1"; }
+.o_workable_employee_list .o_data_cell:first-of-type::before { content: "\f007"; }
+.o_workable_hiring_plan_list .o_data_cell:first-of-type::before { content: "\f073"; }
+.o_workable_candidate_list .o_data_cell:first-of-type::before { content: "\f2bd"; }
+
+.o_workable_sync_dialog_header {
+    border-left: 4px solid #0d6efd;
+    padding-left: 0.75rem;
+}
+
+.o_workable_sync_order_card {
+    border-radius: 0.85rem !important;
+}
+
+.o_workable_sync_progress {
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.o_form_view .o_notebook .nav-link {
+    font-weight: 650;
+}
+
+/* Modern Workable form layout switcher and one-page mode */
+.o_workable_modern_form_root .o_workable_form_sheet {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.o_workable_form_mode_switcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 1rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid rgba(13, 110, 253, 0.12);
+    border-radius: 1rem;
+    background: rgba(248, 250, 252, 0.95);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.o_workable_form_mode_text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.o_workable_form_mode_label {
+    color: #0f172a;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+}
+
+.o_workable_form_mode_hint {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.o_workable_form_mode_buttons {
+    flex: 0 0 auto;
+    padding: 0.18rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.o_workable_form_mode_buttons .btn {
+    border: 0;
+    border-radius: 999px !important;
+    font-weight: 750;
+    color: #64748b;
+    padding: 0.42rem 0.85rem;
+}
+
+.o_workable_form_mode_buttons .btn.active {
+    color: #ffffff;
+    background: #0d6efd;
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.22);
+}
+
+.o_workable_modern_form_root .o_notebook {
+    margin-top: 1rem;
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs {
+    gap: 0.35rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-radius: 999px 999px 0 0;
+    color: #64748b;
+    padding: 0.55rem 0.85rem;
+    transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs .nav-link:hover {
+    background: rgba(13, 110, 253, 0.06);
+    color: #0d6efd;
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-color: rgba(13, 110, 253, 0.16);
+    background: #ffffff;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.04);
+}
+
+.o_workable_modern_form_root .o_notebook .tab-content {
+    padding-top: 1rem;
+}
+
+.o_workable_modern_form_root .o_group {
+    border-radius: 0.9rem;
+}
+
+.o_workable_modern_form_root .o_inner_group > tbody > tr > td.o_td_label {
+    color: #64748b;
+    font-weight: 650;
+}
+
+.o_workable_form_onepage_mode .o_notebook .nav-tabs {
+    display: none !important;
+}
+
+.o_workable_form_onepage_mode .o_notebook .tab-content {
+    display: grid;
+    gap: 1rem;
+    padding-top: 0;
+}
+
+.o_workable_form_onepage_mode .o_notebook .tab-content > .tab-pane,
+.o_workable_form_onepage_mode .o_notebook .tab-content > .tab-pane.fade,
+.o_workable_form_onepage_mode .o_notebook .tab-content > .tab-pane:not(.active) {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section {
+    position: relative;
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.o_workable_onepage_section_header {
+    display: none;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header {
+    display: flex;
+    align-items: center;
+    margin: -0.15rem 0 0.9rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header::before {
+    content: "";
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-right: 0.55rem;
+    border-radius: 999px;
+    background: #0d6efd;
+    box-shadow: 0 0 0 0.22rem rgba(13, 110, 253, 0.12);
+}
+
+.o_workable_form_onepage_mode .o_workable_section_hint {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .o_workable_form_mode_switcher {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .o_workable_form_mode_buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
+
+    .o_workable_form_mode_buttons .btn {
+        width: 100%;
+    }
+}
+
+/* Screenshot-inspired Workable UI refresh */
+.o_list_view.o_workable_list_view {
+    --workable-primary: #008aa3;
+    --workable-primary-soft: rgba(0, 138, 163, 0.12);
+    --workable-success: #00a66c;
+    --workable-success-soft: rgba(0, 166, 108, 0.12);
+    --workable-warning: #f59e0b;
+    --workable-warning-soft: rgba(245, 158, 11, 0.14);
+    --workable-purple: #7c3aed;
+    --workable-purple-soft: rgba(124, 58, 237, 0.12);
+    background: #f6f9fc;
+}
+
+.o_workable_list_dashboard {
+    padding: 1rem 1rem 0.35rem;
+    background: #f6f9fc;
+}
+
+.o_workable_list_hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.055);
+}
+
+.o_workable_list_kicker {
+    color: var(--workable-primary);
+    font-size: 0.72rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.o_workable_list_hero h2 {
+    margin: 0.1rem 0 0.15rem;
+    color: #06182f;
+    font-size: 1.35rem;
+    font-weight: 850;
+}
+
+.o_workable_list_hero p {
+    margin: 0;
+    color: #53627a;
+    font-size: 0.9rem;
+}
+
+.o_workable_list_hero_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 999px;
+    color: var(--workable-primary);
+    font-weight: 800;
+    background: var(--workable-primary-soft);
+    white-space: nowrap;
+}
+
+.o_workable_list_cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 0.95rem;
+}
+
+.o_workable_list_card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 96px;
+    padding: 1rem 1.1rem;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.o_workable_list_card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--workable-primary);
+}
+
+.o_workable_list_card_icon {
+    display: inline-flex;
+    width: 3.1rem;
+    height: 3.1rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--workable-primary);
+    background: var(--workable-primary-soft);
+    font-size: 1.05rem;
+}
+
+.o_workable_list_card_value {
+    color: var(--workable-primary);
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.o_workable_list_card_label {
+    margin-top: 0.25rem;
+    color: #06182f;
+    font-weight: 850;
+}
+
+.o_workable_list_card_hint {
+    margin-top: 0.18rem;
+    color: #53627a;
+    font-size: 0.82rem;
+}
+
+.o_workable_list_card.tone-success::before { background: var(--workable-success); }
+.o_workable_list_card.tone-success .o_workable_list_card_icon { color: var(--workable-success); background: var(--workable-success-soft); }
+.o_workable_list_card.tone-success .o_workable_list_card_value { color: var(--workable-success); }
+
+.o_workable_list_card.tone-warning::before { background: var(--workable-warning); }
+.o_workable_list_card.tone-warning .o_workable_list_card_icon { color: var(--workable-warning); background: var(--workable-warning-soft); }
+.o_workable_list_card.tone-warning .o_workable_list_card_value { color: var(--workable-warning); }
+
+.o_workable_list_card.tone-purple::before { background: var(--workable-purple); }
+.o_workable_list_card.tone-purple .o_workable_list_card_icon { color: var(--workable-purple); background: var(--workable-purple-soft); }
+.o_workable_list_card.tone-purple .o_workable_list_card_value { color: var(--workable-purple); }
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table {
+    margin: 0 1rem 1rem;
+    width: calc(100% - 2rem);
+    border-collapse: separate;
+    border-spacing: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.055);
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table thead th {
+    color: #06182f;
+    background: #f2fbfc;
+    border-bottom: 1px solid rgba(0, 138, 163, 0.12);
+    font-size: 0.73rem;
+    font-weight: 900;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row {
+    box-shadow: none;
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row:hover {
+    background: #fbfeff;
+    transform: none;
+    box-shadow: inset 4px 0 0 var(--workable-primary);
+}
+
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td,
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td:first-child,
+.o_list_view.o_workable_list_view table.o_workable_modern_table tbody tr.o_data_row > td:last-child {
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+    border-radius: 0;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.o_list_view.o_workable_list_view .o_workable_modern_badge,
+.o_list_view.o_workable_list_view .badge {
+    border-radius: 999px;
+    border: 0;
+    padding: 0.34rem 0.72rem;
+    font-size: 0.78rem;
+    font-weight: 850;
+}
+
+/* Form UI aligned with the second screenshot */
+.o_workable_modern_form_root {
+    background: #f6f9fc;
+}
+
+.o_form_view.o_workable_modern_form_root .o_workable_form_sheet {
+    max-width: 100%;
+    margin: 0;
+    padding: 1rem 1.3rem 2rem;
+    background: #f6f9fc;
+}
+
+.o_workable_record_header_card {
+    position: relative;
+    margin: 0.35rem 0 1rem;
+    padding: 1.15rem 1.3rem;
+    border: 1px solid rgba(0, 138, 163, 0.16);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.07);
+}
+
+.o_workable_record_header_card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 1rem 1rem 0 0;
+    background: linear-gradient(90deg, #008aa3, #00a66c, #7c3aed);
+}
+
+.o_workable_record_toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    margin-bottom: 0.8rem;
+}
+
+.o_workable_record_pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid rgba(0, 138, 163, 0.16);
+    border-radius: 999px;
+    color: #006a7c;
+    background: rgba(0, 138, 163, 0.08);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.o_workable_record_pill .fa-circle {
+    color: #00c875;
+    font-size: 0.58rem;
+}
+
+.o_workable_record_pill.muted {
+    color: #53627a;
+    background: #f5f7fb;
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+.o_workable_record_header_card .o_workable_title_block {
+    margin: 0 0 1rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.o_workable_record_header_card .o_workable_kicker {
+    color: #008aa3;
+    font-weight: 900;
+}
+
+.o_workable_record_header_card h1,
+.o_workable_record_header_card h2,
+.o_workable_record_header_card h3 {
+    color: #06182f;
+    font-weight: 900;
+}
+
+.o_workable_record_header_card .o_workable_quick_info {
+    margin: 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.o_workable_record_header_card .o_workable_metric {
+    border: 0;
+    border-right: 1px solid rgba(15, 23, 42, 0.09);
+    border-radius: 0;
+    padding: 0.35rem 0.85rem 0.35rem 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.o_workable_record_header_card .o_workable_metric:last-child {
+    border-right: 0;
+}
+
+.o_workable_record_header_card .o_workable_metric_label {
+    color: #53627a;
+    font-size: 0.68rem;
+    font-weight: 900;
+}
+
+.o_workable_record_header_card .o_workable_metric_value {
+    color: #06182f;
+    font-weight: 800;
+}
+
+.o_workable_form_mode_switcher {
+    margin: 0 0 1rem;
+    border-color: rgba(0, 138, 163, 0.14);
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.055);
+}
+
+.o_workable_form_mode_buttons .btn.active {
+    background: #008aa3;
+    box-shadow: 0 8px 18px rgba(0, 138, 163, 0.24);
+}
+
+.o_workable_modern_form_root .o_notebook {
+    padding: 0.7rem 1rem 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.055);
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs {
+    gap: 0.55rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs .nav-link {
+    border-radius: 0.75rem 0.75rem 0 0;
+    color: #334155;
+    font-weight: 850;
+}
+
+.o_workable_modern_form_root .o_notebook .nav-tabs .nav-link.active {
+    color: #008aa3;
+    border-color: rgba(0, 138, 163, 0.2);
+    border-bottom-color: #ffffff;
+}
+
+.o_workable_modern_form_root .o_notebook .o_group {
+    padding: 0.65rem;
+    border-radius: 0.9rem;
+}
+
+.o_workable_modern_form_root .o_inner_group > tbody > tr > td.o_td_label {
+    color: #06182f;
+    font-weight: 850;
+}
+
+.o_workable_form_onepage_mode .o_notebook {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section {
+    border-color: rgba(0, 138, 163, 0.12);
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header {
+    width: 100%;
+    justify-content: space-between;
+    border: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header span {
+    display: inline-flex;
+    align-items: center;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header span::before {
+    content: "";
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-right: 0.55rem;
+    border-radius: 999px;
+    background: #008aa3;
+    box-shadow: 0 0 0 0.22rem rgba(0, 138, 163, 0.12);
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section_header::before {
+    display: none;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section.is-collapsed > *:not(.o_workable_onepage_section_header) {
+    display: none !important;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section.is-collapsed .o_workable_onepage_section_header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.o_workable_form_onepage_mode .o_workable_onepage_section.is-collapsed .o_workable_onepage_section_header .fa {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 1200px) {
+    .o_workable_list_cards {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .o_workable_list_hero,
+    .o_workable_record_toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .o_workable_list_cards {
+        grid-template-columns: 1fr;
+    }
+
+    .o_workable_record_header_card .o_workable_metric {
+        border-right: 0;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+}
+
+/* Full-width Workable forms without chatter panel */
+.o_form_view.o_workable_modern_form_root,
+.o_form_view.o_workable_modern_form_view {
+    --workable-form-max-width: 100%;
+}
+
+.o_form_view.o_workable_modern_form_root .o_form_sheet_bg,
+.o_form_view.o_workable_modern_form_view .o_form_sheet_bg {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 0 !important;
+}
+
+.o_form_view.o_workable_modern_form_root .o_form_sheet,
+.o_form_view.o_workable_modern_form_view .o_form_sheet,
+.o_form_view.o_workable_modern_form_root .o_workable_form_sheet,
+.o_form_view.o_workable_modern_form_view .o_workable_form_sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-right: 0 !important;
+}
+
+.o_form_view.o_workable_modern_form_root .o-mail-Chatter,
+.o_form_view.o_workable_modern_form_root .o_Chatter,
+.o_form_view.o_workable_modern_form_root .oe_chatter,
+.o_form_view.o_workable_modern_form_view .o-mail-Chatter,
+.o_form_view.o_workable_modern_form_view .o_Chatter,
+.o_form_view.o_workable_modern_form_view .oe_chatter {
+    display: none !important;
+}
+
+.o_form_view.o_workable_modern_form_root .o_workable_title_block.o_workable_record_header_card,
+.o_form_view.o_workable_modern_form_view .o_workable_title_block.o_workable_record_header_card,
+.o_form_view.o_workable_modern_form_root .o_workable_title_block,
+.o_form_view.o_workable_modern_form_view .o_workable_title_block {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.o_form_view.o_workable_modern_form_root .o_workable_quick_info,
+.o_form_view.o_workable_modern_form_view .o_workable_quick_info {
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* Odoo 19 one-page form mode: use generated section containers so every notebook page is visible. */
+.o_workable_manual_onepage_container {
+    display: none;
+}
+
+.o_workable_form_onepage_mode .o_workable_manual_onepage_container {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.o_workable_form_onepage_mode .o_workable_manual_onepage_container + .o_workable_manual_onepage_container {
+    margin-top: 1rem;
+}
+
+.o_workable_form_onepage_mode .o_notebook {
+    display: none !important;
+}
+
+.o_workable_form_tabbed_mode .o_workable_manual_onepage_container {
+    display: none !important;
+}
+
+.o_workable_manual_onepage_section {
+    position: relative;
+}
+
+.o_workable_form_onepage_mode .o_workable_manual_onepage_section {
+    padding: 1rem;
+    border: 1px solid rgba(0, 138, 163, 0.12);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+
+/* Candidate-specific modern cards */
+.o_workable_candidate_kanban .o_kanban_record {
+    border-radius: 1rem;
+}
+
+.o_workable_candidate_card {
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.055);
+}
+
+.o_workable_candidate_card_header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.o_workable_candidate_avatar {
+    display: inline-flex;
+    width: 2.7rem;
+    height: 2.7rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: var(--workable-primary, #0d6efd);
+    background: var(--workable-primary-soft, rgba(13, 110, 253, 0.1));
+    font-size: 1.05rem;
+}
+
+.o_workable_candidate_card_title {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.o_workable_candidate_card_title strong {
+    color: #0f172a;
+    font-size: 0.98rem;
+}
+
+.o_workable_candidate_card_title span,
+.o_workable_candidate_card_meta {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.o_workable_candidate_card_meta {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0.8rem;
+}
+
+.o_workable_candidate_card_footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.o_workable_candidate_form .o_workable_title_block {
+    border-left-color: #14b8a6;
+    background: linear-gradient(90deg, rgba(20, 184, 166, 0.12), rgba(20, 184, 166, 0));
+}
+
+.o_workable_candidate_form .o_workable_record_pill:first-child i,
+.o_workable_candidate_list .o_data_cell:first-of-type::before {
+    color: #0f9f8f;
+    background: rgba(20, 184, 166, 0.12);
+}

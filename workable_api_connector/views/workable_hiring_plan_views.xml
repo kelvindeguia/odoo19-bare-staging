@@ -1,0 +1,410 @@
+<odoo>
+  <record id="action_workable_hiring_plan" model="ir.actions.act_window">
+    <field name="name">Hiring Plan</field>
+    <field name="res_model">workable.hiring.plan</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+                No hiring plans found. Sync Workable data to fetch requisitions and hiring plans.
+            </p>
+    </field>
+  </record>
+  <record id="view_workable_hiring_plan_list" model="ir.ui.view">
+    <field name="name">workable.hiring.plan.list</field>
+    <field name="model">workable.hiring.plan</field>
+    <field name="arch" type="xml">
+      <list string="Hiring Plans" js_class="workable_sync_all_list" class="o_workable_list_view o_workable_hiring_plan_list" decoration-success="status in ('open', 'approved')" decoration-warning="status in ('pending', 'processing', 'on_hold', 'reserved')" decoration-muted="status in ('closed', 'cancelled', 'filled')" decoration-danger="status == 'rejected'" default_order="plan_date desc, requisition_id asc">
+        <field name="requisition_id"/>
+        <field name="job_id" optional="show"/>
+        <field name="job_title" optional="hide"/>
+        <field name="requisition_location" optional="show"/>
+        <field name="department_id" optional="show"/>
+        <field name="hiring_manager" optional="show"/>
+        <field name="requisition_owner" optional="show"/>
+        <field name="salary_package" optional="show"/>
+        <field name="plan_date" optional="show"/>
+        <field name="target_start_date" optional="hide"/>
+        <field name="status" widget="badge" decoration-success="status in ('open', 'approved')" decoration-info="status in ('draft', 'processing')" decoration-warning="status in ('pending', 'on_hold', 'reserved')" decoration-danger="status == 'rejected'" decoration-muted="status in ('closed', 'cancelled', 'filled')"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_workable_hiring_plan_form" model="ir.ui.view">
+    <field name="name">workable.hiring.plan.form</field>
+    <field name="model">workable.hiring.plan</field>
+    <field name="arch" type="xml">
+      <form string="Job Requisition" class="o_workable_modern_form_view">
+        <header>
+          <field name="status" widget="statusbar" statusbar_visible="draft,pending,approved,open,processing,on_hold,reserved,filled,closed,rejected,cancelled"/>
+        </header>
+        <sheet class="o_workable_form_sheet">
+          <div class="oe_title o_workable_title_block">
+            <div class="o_workable_kicker">Workable Hiring Plan</div>
+            <h1>
+              <field name="requisition_id" placeholder="Requisition ID"/>
+            </h1>
+            <h2>
+              <field name="job_title" placeholder="Job Title" invisible="1"/>
+              <field name="job_id" placeholder="Job Title"/>
+            </h2>
+          </div>
+          <div class="o_workable_quick_info">
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Status</div>
+              <div class="o_workable_metric_value">
+                <field name="status" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Department</div>
+              <div class="o_workable_metric_value">
+                <field name="department_id" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Hiring Manager</div>
+              <div class="o_workable_metric_value">
+                <field name="hiring_manager" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Target Start</div>
+              <div class="o_workable_metric_value">
+                <field name="target_start_date" readonly="1"/>
+              </div>
+            </div>
+          </div>
+          <notebook>
+            <page string="Basic Information">
+              <p class="o_workable_section_hint">Core requisition fields from Workable.</p>
+              <group>
+                <group string="Role and Ownership">
+                  <field name="department" invisible="1"/>
+                  <field name="department_id"/>
+                  <field name="requisition_location"/>
+                  <field name="hiring_manager"/>
+                  <field name="requisition_owner"/>
+                  <field name="reason"/>
+                  <field name="employment_type"/>
+                </group>
+                <group string="Dates and Experience">
+                  <field name="experience"/>
+                  <field name="plan_date"/>
+                  <field name="created_on"/>
+                  <field name="sourcing_date"/>
+                  <field name="calibration_date"/>
+                  <field name="target_start_date"/>
+                </group>
+              </group>
+            </page>
+            <page string="Client and Classification">
+              <group>
+                <group string="Classification">
+                  <field name="company"/>
+                  <field name="client_business_category"/>
+                  <field name="career_level"/>
+                  <field name="client_classification"/>
+                  <field name="job_classification"/>
+                  <field name="position_classification"/>
+                </group>
+                <group string="Client Details">
+                  <field name="industry"/>
+                  <field name="client_website" widget="url"/>
+                </group>
+              </group>
+            </page>
+            <page string="Headcount and Vacancy">
+              <group>
+                <group string="Headcount">
+                  <field name="headcount_demand"/>
+                  <field name="headcount"/>
+                  <field name="remaining_vacancy"/>
+                </group>
+                <group string="Approval and Progress">
+                  <field name="requisition_age"/>
+                  <field name="candidate"/>
+                  <field name="approved_by"/>
+                </group>
+              </group>
+            </page>
+            <page string="Salary Range">
+              <group>
+                <group string="Range">
+                  <field name="salary_from"/>
+                  <field name="salary_to"/>
+                </group>
+                <group string="Currency and Frequency">
+                  <field name="salary_currency"/>
+                  <field name="salary_frequency"/>
+                </group>
+              </group>
+            </page>
+            <page string="Compensation Package">
+              <group>
+                <group string="Package">
+                  <field name="salary_package"/>
+                  <field name="salary_package_currency"/>
+                  <field name="salary_package_frequency"/>
+                  <field name="allowances"/>
+                  <field name="bonuses"/>
+                </group>
+                <group string="Additional Benefits">
+                  <field name="incentives"/>
+                  <field name="life_insurance"/>
+                  <field name="night_differential"/>
+                </group>
+              </group>
+              <group string="Remarks">
+                <field name="salary_package_remarks" placeholder="Additional notes on the salary package..." nolabel="1"/>
+              </group>
+            </page>
+            <page string="Internal Contacts">
+              <group>
+                <group string="Internal Ownership">
+                  <field name="department_head"/>
+                  <field name="requestor"/>
+                  <field name="sales_lead"/>
+                </group>
+                <group string="Additional POC">
+                  <field name="secondary_hiring_manager_poc"/>
+                </group>
+              </group>
+            </page>
+            <page string="Client Contacts">
+              <group>
+                <group string="Primary Client Hiring Manager">
+                  <field name="hiring_manager_client"/>
+                  <field name="hiring_manager_email_client" widget="email"/>
+                </group>
+                <group string="Secondary Client Hiring Manager">
+                  <field name="hiring_manager_client_2"/>
+                  <field name="hiring_manager_email_client_2" widget="email"/>
+                </group>
+                <group string="Tertiary Client Hiring Manager">
+                  <field name="hiring_manager_client_3"/>
+                  <field name="hiring_manager_email_client_3" widget="email"/>
+                </group>
+              </group>
+            </page>
+            <page string="Attachments">
+              <group>
+                <group string="Job Description">
+                  <field name="job_description" widget="binary"/>
+                </group>
+                <group string="Calibration Notes">
+                  <field name="calibration_notes" widget="binary"/>
+                  <field name="calibration_notes_url" widget="url"/>
+                </group>
+              </group>
+            </page>
+            <page string="Admin Fields" groups="base.group_system">
+              <group>
+                <group string="Workable References">
+                  <field name="workable_requisition_id" readonly="1"/>
+                  <field name="workable_job_id" readonly="1"/>
+                  <field name="workable_department_id" readonly="1"/>
+                  <field name="workable_shortcode" readonly="1"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+          <div class="o_workable_manual_onepage_container">
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Basic Information</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <p class="o_workable_section_hint">Core requisition fields from Workable.</p>
+              <group>
+                <group string="Role and Ownership">
+                  <field name="department" invisible="1"/>
+                  <field name="department_id"/>
+                  <field name="requisition_location"/>
+                  <field name="hiring_manager"/>
+                  <field name="requisition_owner"/>
+                  <field name="reason"/>
+                  <field name="employment_type"/>
+                </group>
+                <group string="Dates and Experience">
+                  <field name="experience"/>
+                  <field name="plan_date"/>
+                  <field name="created_on"/>
+                  <field name="sourcing_date"/>
+                  <field name="calibration_date"/>
+                  <field name="target_start_date"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Client and Classification</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Classification">
+                  <field name="company"/>
+                  <field name="client_business_category"/>
+                  <field name="career_level"/>
+                  <field name="client_classification"/>
+                  <field name="job_classification"/>
+                  <field name="position_classification"/>
+                </group>
+                <group string="Client Details">
+                  <field name="industry"/>
+                  <field name="client_website" widget="url"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Headcount and Vacancy</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Headcount">
+                  <field name="headcount_demand"/>
+                  <field name="headcount"/>
+                  <field name="remaining_vacancy"/>
+                </group>
+                <group string="Approval and Progress">
+                  <field name="requisition_age"/>
+                  <field name="candidate"/>
+                  <field name="approved_by"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Salary Range</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Range">
+                  <field name="salary_from"/>
+                  <field name="salary_to"/>
+                </group>
+                <group string="Currency and Frequency">
+                  <field name="salary_currency"/>
+                  <field name="salary_frequency"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Compensation Package</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Package">
+                  <field name="salary_package"/>
+                  <field name="salary_package_currency"/>
+                  <field name="salary_package_frequency"/>
+                  <field name="allowances"/>
+                  <field name="bonuses"/>
+                </group>
+                <group string="Additional Benefits">
+                  <field name="incentives"/>
+                  <field name="life_insurance"/>
+                  <field name="night_differential"/>
+                </group>
+              </group>
+              <group string="Remarks">
+                <field name="salary_package_remarks" placeholder="Additional notes on the salary package..." nolabel="1"/>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Internal Contacts</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Internal Ownership">
+                  <field name="department_head"/>
+                  <field name="requestor"/>
+                  <field name="sales_lead"/>
+                </group>
+                <group string="Additional POC">
+                  <field name="secondary_hiring_manager_poc"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Client Contacts</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Primary Client Hiring Manager">
+                  <field name="hiring_manager_client"/>
+                  <field name="hiring_manager_email_client" widget="email"/>
+                </group>
+                <group string="Secondary Client Hiring Manager">
+                  <field name="hiring_manager_client_2"/>
+                  <field name="hiring_manager_email_client_2" widget="email"/>
+                </group>
+                <group string="Tertiary Client Hiring Manager">
+                  <field name="hiring_manager_client_3"/>
+                  <field name="hiring_manager_email_client_3" widget="email"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Attachments</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Job Description">
+                  <field name="job_description" widget="binary"/>
+                </group>
+                <group string="Calibration Notes">
+                  <field name="calibration_notes" widget="binary"/>
+                  <field name="calibration_notes_url" widget="url"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section" groups="base.group_system">
+              <div class="o_workable_onepage_section_header">
+                <span>Admin Fields</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Workable References">
+                  <field name="workable_requisition_id" readonly="1"/>
+                  <field name="workable_job_id" readonly="1"/>
+                  <field name="workable_department_id" readonly="1"/>
+                  <field name="workable_shortcode" readonly="1"/>
+                </group>
+              </group>
+            </div>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_workable_hiring_plan_search" model="ir.ui.view">
+    <field name="name">workable.hiring.plan.search</field>
+    <field name="model">workable.hiring.plan</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="requisition_id"/>
+        <field name="job_title"/>
+        <field name="job_id"/>
+        <field name="department_id"/>
+        <field name="hiring_manager"/>
+        <field name="requisition_owner"/>
+        <filter name="open" string="Open" domain="[('status','=','open')]"/>
+        <filter name="approved" string="Approved" domain="[('status','=','approved')]"/>
+        <filter name="pending" string="Pending" domain="[('status','=','pending')]"/>
+        <filter name="closed" string="Closed" domain="[('status','=','closed')]"/>
+        <filter name="on_hold" string="On Hold" domain="[('status','=','on_hold')]"/>
+        <group>
+          <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+          <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+          <filter name="group_job" string="Job" context="{'group_by': 'job_id'}"/>
+          <filter name="group_hiring_manager" string="Hiring Manager" context="{'group_by': 'hiring_manager'}"/>
+          <filter name="group_plan_date" string="Plan Date" context="{'group_by': 'plan_date'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+</odoo>

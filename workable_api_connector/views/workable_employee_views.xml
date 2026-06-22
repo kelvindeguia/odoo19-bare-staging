@@ -1,0 +1,295 @@
+<odoo>
+  <record id="action_workable_employees" model="ir.actions.act_window">
+    <field name="name">Workable Employees</field>
+    <field name="res_model">workable.employees</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+                No employees found. Use Sync All Workable Data from Hiring Plan to fetch records from Workable.
+            </p>
+    </field>
+  </record>
+  <record id="view_workable_employees_list" model="ir.ui.view">
+    <field name="name">workable.employees.list</field>
+    <field name="model">workable.employees</field>
+    <field name="arch" type="xml">
+      <list string="Employees" js_class="workable_modern_list" class="o_workable_list_view o_workable_employee_list" multi_edit="1" decoration-success="state == 'active'" decoration-muted="state == 'inactive'" default_order="last_name asc, first_name asc">
+        <field name="employee_id"/>
+        <field name="first_name"/>
+        <field name="last_name"/>
+        <field name="preferred_name" optional="show"/>
+        <field name="job_id" optional="show"/>
+        <field name="department_id" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'active'" decoration-danger="state == 'inactive'" decoration-info="state == 'draft'" decoration-warning="state == 'published'"/>
+        <field name="work_email" widget="email" optional="show"/>
+        <field name="start_date" optional="show"/>
+        <field name="workplace" optional="hide"/>
+        <field name="manager" optional="hide"/>
+        <field name="employment_type" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_workable_employees_form" model="ir.ui.view">
+    <field name="name">workable.employees.form</field>
+    <field name="model">workable.employees</field>
+    <field name="arch" type="xml">
+      <form string="Employee" class="o_workable_modern_form_view">
+        <header>
+          <field name="state" widget="statusbar" statusbar_visible="draft,active,inactive,published"/>
+        </header>
+        <sheet class="o_workable_form_sheet">
+          <div class="oe_title o_workable_title_block">
+            <div class="o_workable_kicker">Workable Employee</div>
+            <h1>
+              <field name="employee_id" placeholder="Employee ID"/>
+            </h1>
+            <h2>
+              <field name="first_name" placeholder="First Name"/>
+              <field name="middle_name" placeholder="Middle Name"/>
+              <field name="last_name" placeholder="Last Name"/>
+            </h2>
+            <h3>
+              <field name="preferred_name" placeholder="Preferred Name"/>
+            </h3>
+          </div>
+          <div class="o_workable_quick_info">
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Status</div>
+              <div class="o_workable_metric_value">
+                <field name="state" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Job</div>
+              <div class="o_workable_metric_value">
+                <field name="job_id" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Department</div>
+              <div class="o_workable_metric_value">
+                <field name="department_id" readonly="1"/>
+              </div>
+            </div>
+            <div class="o_workable_metric">
+              <div class="o_workable_metric_label">Start Date</div>
+              <div class="o_workable_metric_value">
+                <field name="start_date" readonly="1"/>
+              </div>
+            </div>
+          </div>
+          <notebook>
+            <page string="Employment">
+              <p class="o_workable_section_hint">Role, reporting, and employment timing.</p>
+              <group>
+                <group string="Role Details">
+                  <field name="job_title" invisible="1"/>
+                  <field name="job_id"/>
+                  <field name="department" invisible="1"/>
+                  <field name="department_id"/>
+                  <field name="division"/>
+                  <field name="manager"/>
+                  <field name="entity"/>
+                </group>
+                <group string="Employment Dates">
+                  <field name="employment_type"/>
+                  <field name="workplace"/>
+                  <field name="work_schedule"/>
+                  <field name="hire_date"/>
+                  <field name="start_date"/>
+                  <field name="effective_date"/>
+                  <field name="work_effective_date"/>
+                  <field name="expiry_date"/>
+                </group>
+              </group>
+            </page>
+            <page string="Contact">
+              <group>
+                <group string="Email">
+                  <field name="work_email" widget="email"/>
+                  <field name="personal_email" widget="email"/>
+                </group>
+                <group string="Phone and Online">
+                  <field name="phone_type"/>
+                  <field name="phone"/>
+                  <field name="extension"/>
+                  <field name="certificate_url" widget="url"/>
+                  <field name="social_media"/>
+                  <field name="chat_video_communication"/>
+                </group>
+              </group>
+            </page>
+            <page string="Personal">
+              <group>
+                <group string="Personal Information">
+                  <field name="birthdate"/>
+                  <field name="gender"/>
+                  <field name="marital_status"/>
+                  <field name="country"/>
+                </group>
+                <group string="Address">
+                  <field name="address" placeholder="Address"/>
+                </group>
+              </group>
+            </page>
+            <page string="Compensation">
+              <group>
+                <group string="Pay Details">
+                  <field name="pay_type"/>
+                  <field name="amount"/>
+                  <field name="currency"/>
+                  <field name="frequency"/>
+                </group>
+                <group string="Schedule and Overtime">
+                  <field name="pay_schedule"/>
+                  <field name="overtime_status"/>
+                </group>
+              </group>
+            </page>
+            <page string="Notes">
+              <group>
+                <field name="note" placeholder="Additional notes..." nolabel="1"/>
+                <field name="reason" placeholder="Reason..." nolabel="1"/>
+                <field name="overtime_note" placeholder="Overtime notes..." nolabel="1"/>
+              </group>
+            </page>
+            <page string="Admin Fields" groups="base.group_system">
+              <group>
+                <field name="workable_employee_id" readonly="1"/>
+              </group>
+            </page>
+          </notebook>
+          <div class="o_workable_manual_onepage_container">
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Employment</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <p class="o_workable_section_hint">Role, reporting, and employment timing.</p>
+              <group>
+                <group string="Role Details">
+                  <field name="job_title" invisible="1"/>
+                  <field name="job_id"/>
+                  <field name="department" invisible="1"/>
+                  <field name="department_id"/>
+                  <field name="division"/>
+                  <field name="manager"/>
+                  <field name="entity"/>
+                </group>
+                <group string="Employment Dates">
+                  <field name="employment_type"/>
+                  <field name="workplace"/>
+                  <field name="work_schedule"/>
+                  <field name="hire_date"/>
+                  <field name="start_date"/>
+                  <field name="effective_date"/>
+                  <field name="work_effective_date"/>
+                  <field name="expiry_date"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Contact</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Email">
+                  <field name="work_email" widget="email"/>
+                  <field name="personal_email" widget="email"/>
+                </group>
+                <group string="Phone and Online">
+                  <field name="phone_type"/>
+                  <field name="phone"/>
+                  <field name="extension"/>
+                  <field name="certificate_url" widget="url"/>
+                  <field name="social_media"/>
+                  <field name="chat_video_communication"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Personal</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Personal Information">
+                  <field name="birthdate"/>
+                  <field name="gender"/>
+                  <field name="marital_status"/>
+                  <field name="country"/>
+                </group>
+                <group string="Address">
+                  <field name="address" placeholder="Address"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Compensation</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <group string="Pay Details">
+                  <field name="pay_type"/>
+                  <field name="amount"/>
+                  <field name="currency"/>
+                  <field name="frequency"/>
+                </group>
+                <group string="Schedule and Overtime">
+                  <field name="pay_schedule"/>
+                  <field name="overtime_status"/>
+                </group>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section">
+              <div class="o_workable_onepage_section_header">
+                <span>Notes</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <field name="note" placeholder="Additional notes..." nolabel="1"/>
+                <field name="reason" placeholder="Reason..." nolabel="1"/>
+                <field name="overtime_note" placeholder="Overtime notes..." nolabel="1"/>
+              </group>
+            </div>
+            <div class="o_workable_onepage_section o_workable_manual_onepage_section" groups="base.group_system">
+              <div class="o_workable_onepage_section_header">
+                <span>Admin Fields</span>
+                <i class="fa fa-chevron-up" aria-hidden="true"/>
+              </div>
+              <group>
+                <field name="workable_employee_id" readonly="1"/>
+              </group>
+            </div>
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_workable_employees_search" model="ir.ui.view">
+    <field name="name">workable.employees.search</field>
+    <field name="model">workable.employees</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="employee_id"/>
+        <field name="first_name"/>
+        <field name="last_name"/>
+        <field name="preferred_name"/>
+        <field name="work_email"/>
+        <field name="job_id"/>
+        <field name="department_id"/>
+        <filter name="active" string="Active" domain="[('state','=','active')]"/>
+        <filter name="inactive" string="Inactive" domain="[('state','=','inactive')]"/>
+        <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
+        <group>
+          <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+          <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+          <filter name="group_job" string="Job" context="{'group_by': 'job_id'}"/>
+          <filter name="group_employment_type" string="Employment Type" context="{'group_by': 'employment_type'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+</odoo>

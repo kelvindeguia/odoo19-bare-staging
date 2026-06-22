@@ -1,0 +1,58 @@
+<odoo>
+    <!-- Menu Items -->
+    <menuitem id = "workable_menu_root"
+        name = "Workable Connector"
+        web_icon="workable_api_connector,static/description/icon.png"
+        sequence = "10"
+        groups="group_workable_ats_user"/>
+    
+        <menuitem id = "workable_ats_menu_hiring_plan" 
+            name = "Hiring Plan" 
+            parent = "workable_menu_root" 
+            action = "action_workable_hiring_plan"
+            sequence = "1"/>
+
+        <menuitem id="workable_candidates_menu_candidates"
+            name="Candidates"
+            parent="workable_api_connector.workable_menu_root"
+            action="action_workable_candidate"
+            sequence="2"/>
+
+        <menuitem id = "workable_employees_menu_employees" 
+            name = "Employees" 
+            parent = "workable_api_connector.workable_menu_root" 
+            action = "action_workable_employees"
+            sequence = "5"/>
+
+        <menuitem id = "workable_department_menu_department" 
+            name = "Department" 
+            parent = "workable_api_connector.workable_menu_root" 
+            action = "action_workable_department"
+            sequence = "3"/>
+    
+        <menuitem id = "workable_jobs_menu_jobs" 
+            name = "Jobs" 
+            parent = "workable_api_connector.workable_menu_root" 
+            action = "action_workable_job"
+            sequence = "4"/>
+        
+    
+        <menuitem id = "workable_configuration_menu" 
+            name = "Configuration" 
+            parent = "workable_menu_root" 
+            sequence = "10"/>
+
+            <menuitem id="menu_workable_webhook_events"
+                name="Webhook Events"
+                parent="workable_configuration_menu"
+                sequence="2"
+                action="action_workable_webhook_event"
+                groups="base.group_system"/>
+
+            <menuitem id="menu_workable_global_settings"
+                name="Settings"
+                parent="workable_configuration_menu"
+                sequence="1"
+                action="action_workable_configuration"
+                groups="base.group_system"/>
+</odoo>

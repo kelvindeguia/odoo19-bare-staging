@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_workable_webhook_event_tree" model="ir.ui.view">
+        <field name="name">workable.webhook.event.tree</field>
+        <field name="model">workable.webhook.event</field>
+        <field name="arch" type="xml">
+            <list string="Webhook Events" create="false">
+                <field name="received_at"/>
+                <field name="event_type"/>
+                <field name="workable_object_type"/>
+                <field name="external_id"/>
+                <field name="candidate_stage" optional="show"/>
+                <field name="candidate_is_hired_move" optional="show"/>
+                <field name="state" decoration-success="state == 'done'" decoration-danger="state == 'failed'" decoration-muted="state == 'ignored'"/>
+                <field name="retry_count"/>
+                <field name="processed_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_workable_webhook_event_form" model="ir.ui.view">
+        <field name="name">workable.webhook.event.form</field>
+        <field name="model">workable.webhook.event</field>
+        <field name="arch" type="xml">
+            <form string="Webhook Event" create="false">
+                <header>
+                    <button name="action_process_event" string="Process Event" type="object" class="btn-primary" invisible="state == 'done'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,processing,done,failed,ignored"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="event_type" readonly="1"/>
+                            <field name="workable_object_type" readonly="1"/>
+                            <field name="external_id" readonly="1"/>
+                            <field name="candidate_stage" readonly="1"/>
+                            <field name="candidate_previous_stage" readonly="1"/>
+                            <field name="candidate_is_hired_move" readonly="1"/>
+                            <field name="payload_hash" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="received_at" readonly="1"/>
+                            <field name="processed_at" readonly="1"/>
+                            <field name="retry_count" readonly="1"/>
+                            <field name="source_ip" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Error">
+                            <field name="error_message" readonly="1" nolabel="1"/>
+                        </page>
+                        <page string="Payload">
+                            <field name="payload_json" widget="json" readonly="1"/>
+                        </page>
+                        <page string="Headers" groups="base.group_system">
+                            <field name="header_json" widget="json" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_workable_webhook_event_search" model="ir.ui.view">
+        <field name="name">workable.webhook.event.search</field>
+        <field name="model">workable.webhook.event</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="event_type"/>
+                <field name="external_id"/>
+                <filter string="Pending" name="pending" domain="[('state','=','pending')]"/>
+                <filter string="Failed" name="failed" domain="[('state','=','failed')]"/>
+                <filter string="Done" name="done" domain="[('state','=','done')]"/>
+                <filter string="Candidate Moved to Hired" name="candidate_hired" domain="[('candidate_is_hired_move','=',True)]"/>
+                <group>
+                    <filter string="State" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Object Type" name="group_object_type" context="{'group_by':'workable_object_type'}"/>
+                    <filter string="Event Type" name="group_event_type" context="{'group_by':'event_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_workable_webhook_event" model="ir.actions.act_window">
+        <field name="name">Webhook Events</field>
+        <field name="res_model">workable.webhook.event</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_workable_webhook_event_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="ir_cron_workable_sync_all_daily" model="ir.cron">
+        <field name="name">Workable Sync All Daily - 4AM PHT</field>
+        <field name="model_id" ref="model_workable_sync_service"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_all_from_workable()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">False</field>
+    </record>
+
+</odoo>
