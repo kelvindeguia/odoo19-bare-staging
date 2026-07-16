@@ -33,8 +33,6 @@ class ZohoController(http.Controller):
 
         auth_url = build_auth_url(creds.client_id, redirect_uri)
 
-        import logging
-        _logger = logging.getLogger(__name__)
         _logger.info("=== FULL ZOHO CONNECT URL: %s ===", auth_url)
 
         return werkzeug_redirect(auth_url, code=302)
@@ -93,7 +91,7 @@ class ZohoController(http.Controller):
                 headers=[("Content-Type", "text/html")],
             )
 
-    @http.route("/zoho/sync", type="json", auth="user", methods=["POST"])
+    @http.route("/zoho/sync", type="jsonrpc", auth="user", methods=["POST"])
     def zoho_sync(self, **kwargs):
         """
         Manual sync trigger.
@@ -107,7 +105,7 @@ class ZohoController(http.Controller):
             _logger.error("Manual sync error: %s", exc)
             return {"status": "error", "message": str(exc)}
 
-    @http.route("/zoho/status", type="json", auth="user", methods=["GET"])
+    @http.route("/zoho/status", type="jsonrpc", auth="user", methods=["POST"])
     def zoho_status(self, **kwargs):
         """
         Returns the current integration status for the OWL settings panel.

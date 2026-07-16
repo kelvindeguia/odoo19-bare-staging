@@ -13,28 +13,11 @@
     </record>
 
     <!-- MENU ROOT -->
-    <menuitem 
-        id="menu_it_dashboard_root"
-        name="IT Internal Dashboard (With Zoho)"
-        action="action_it_internal_dashboard_live2"
-        sequence="10"
-        />
+    <menuitem id="menu_it_dashboard_root" name="IT Internal Dashboard (With Zoho)" action="action_it_internal_dashboard_live2" sequence="10"/>
     
-    <menuitem 
-        id="menu_create_dashboard_root"
-        name="Create Dashboard"
-        parent="menu_it_dashboard_root"
-        sequence="20"
-        groups="it_internal_dashboard.group_it_internal_dashboard_developer"
-        />
+    <menuitem id="menu_create_dashboard_root" name="Create Dashboard" parent="menu_it_dashboard_root" sequence="20" groups="it_internal_dashboard.group_it_internal_dashboard_developer"/>
 
-    <menuitem 
-        id="menu_create_active_compliance"
-        name="Create Compliance"
-        parent="menu_it_dashboard_root"
-        action="action_create_active_compliance"
-        sequence="30"
-    />
+    <menuitem id="menu_create_active_compliance" name="Create Compliance" parent="menu_it_dashboard_root" action="action_create_active_compliance" sequence="30"/>
 
     <!-- ACTION ITEMS -->
     <record id="action_helpdesk_dashboard_create" model="ir.actions.client">
@@ -64,54 +47,19 @@
     </record>
     <!-- MENU ITEM -->
      
-    <menuitem 
-        id="menu_helpdesk_dashboard_live2"
-        name="Helpdesk &amp; Junior IT"
-        parent="menu_create_dashboard_root"
-        action="action_helpdesk_dashboard_create"
-    />
+    <menuitem id="menu_helpdesk_dashboard_live2" name="Helpdesk &amp; Junior IT" parent="menu_create_dashboard_root" action="action_helpdesk_dashboard_create"/>
 
-    <menuitem 
-        id="menu_infra_dashboard_live2"
-        name="Infra"
-        parent="menu_create_dashboard_root"
-        action="action_infra_dashboard_live2"
-    />
+    <menuitem id="menu_infra_dashboard_live2" name="Infra" parent="menu_create_dashboard_root" action="action_infra_dashboard_live2"/>
 
-    <menuitem 
-        id="menu_devops_dashboard_live2"
-        name="DevOps"
-        parent="menu_create_dashboard_root"
-        action="action_devops_dashboard_live2"
-    />
+    <menuitem id="menu_devops_dashboard_live2" name="DevOps" parent="menu_create_dashboard_root" action="action_devops_dashboard_live2"/>
 
-    <menuitem 
-        id="menu_compliance_dashboard_live2"
-        name="Compliance"
-        parent="menu_create_dashboard_root"
-        action="action_compliance_dashboard_live2"
-    />
+    <menuitem id="menu_compliance_dashboard_live2" name="Compliance" parent="menu_create_dashboard_root" action="action_compliance_dashboard_live2"/>
 
-    <menuitem 
-        id="menu_management_dashboard_live2"
-        name="Management"
-        parent="menu_create_dashboard_root"
-        action="action_management_dashboard_live2"
-    />
+    <menuitem id="menu_management_dashboard_live2" name="Management" parent="menu_create_dashboard_root" action="action_management_dashboard_live2"/>
     
     <!-- MENU ROOT -->
-     <menuitem 
-        id="menu_it_dashboard"
-        name="Dashboards"
-        parent="menu_it_dashboard_root"
-        sequence="20"
-        groups="it_internal_dashboard.group_it_internal_dashboard_executive,it_internal_dashboard.group_it_internal_dashboard_management,it_internal_dashboard.group_it_internal_dashboard_compliance_department,it_internal_dashboard.group_it_internal_dashboard_devops_department,it_internal_dashboard.group_it_internal_dashboard_infra_department,it_internal_dashboard.group_it_internal_dashboard_helpdesk_department,it_internal_dashboard.group_it_internal_dashboard_developer"
-    />
-    <record id="menu_it_dashboard" model="ir.ui.menu">
-        <field name="action" eval="False"/>
-    </record>
-
-      <!-- ACTION ITEMS -->
+     <menuitem id="menu_it_dashboard" name="Dashboards" parent="menu_it_dashboard_root" sequence="20" groups="it_internal_dashboard.group_it_internal_dashboard_executive,it_internal_dashboard.group_it_internal_dashboard_management,it_internal_dashboard.group_it_internal_dashboard_compliance_department,it_internal_dashboard.group_it_internal_dashboard_devops_department,it_internal_dashboard.group_it_internal_dashboard_infra_department,it_internal_dashboard.group_it_internal_dashboard_helpdesk_department,it_internal_dashboard.group_it_internal_dashboard_developer"/>
+    <!-- ACTION ITEMS -->
 
     <record id="action_it_dashboard_summary_history" model="ir.actions.act_window">
         <field name="name">Weekly Dashboard Summaries</field>
@@ -159,62 +107,19 @@
 
     
     <!-- MENU ITEM -->
-    <menuitem 
-        id="menu_dashboard_summary"
-        name="Dashboard Summary"
-        parent="menu_it_dashboard"
-        action="action_it_dashboard_summary_history"
-        sequence="10"
-    />
+    <menuitem id="menu_dashboard_summary" name="Dashboard Summary" parent="menu_it_dashboard" action="action_it_dashboard_summary_history" sequence="10"/>
 
-    <menuitem 
-        id="menu_helpdesk_dashboard"
-        name="Helpdesk"
-        parent="menu_it_dashboard"
-        action="action_helpdesk_dashboard"
-        sequence="20"
-    />
+    <menuitem id="menu_helpdesk_dashboard" name="Helpdesk" parent="menu_it_dashboard" action="action_helpdesk_dashboard" sequence="20"/>
 
-     <menuitem 
-        id="menu_infra_dashboard"
-        name="Infra"
-        parent="menu_it_dashboard"
-        action="action_infra_dashboard"
-        sequence="30"
-    />
+     <menuitem id="menu_infra_dashboard" name="Infra" parent="menu_it_dashboard" action="action_infra_dashboard" sequence="30"/>
 
-    <menuitem 
-        id="menu_devops_dashboard"
-        name="DevOps"
-        parent="menu_it_dashboard"
-        action="action_devops_dashboard"
-        sequence="40"
-    />
+    <menuitem id="menu_devops_dashboard" name="DevOps" parent="menu_it_dashboard" action="action_devops_dashboard" sequence="40"/>
    
-    <menuitem 
-        id="menu_compliance_dashboard"
-        name="Compliance"
-        parent="menu_it_dashboard"
-        action="action_compliance_dashboard"
-        sequence="50"
-    />
+    <menuitem id="menu_compliance_dashboard" name="Compliance" parent="menu_it_dashboard" action="action_compliance_dashboard" sequence="50"/>
 
-    <menuitem 
-        id="menu_management_dashboard"
-        name="Management"
-        parent="menu_it_dashboard"
-        action="action_management_dashboard"
-        sequence="60"
-    />
+    <menuitem id="menu_management_dashboard" name="Management" parent="menu_it_dashboard" action="action_management_dashboard" sequence="60"/>
 
     <!-- MENU ROOT -->
-     <menuitem 
-        id="menu_lighthouse_report_overview"
-        name="Lighthouse Report Overviews"
-        parent="menu_it_dashboard_root"
-        action="action_lighthouse_report_overview_final"
-        sequence="30"
-
-        />
+     <menuitem id="menu_lighthouse_report_overview" name="Lighthouse Report Overviews" parent="menu_it_dashboard_root" action="action_lighthouse_report_overview_final" sequence="30"/>
 
 </odoo>

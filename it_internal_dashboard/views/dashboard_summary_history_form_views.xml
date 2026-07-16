@@ -4,17 +4,6 @@
         <field name="name">it.dashboard.summary.history.list</field>
         <field name="model">it.dashboard.summary.history</field>
         <field name="arch" type="xml">
-            <list string="Dashboard Summary" default_order="created_on desc" create="false" delete="false" edit="false"> 
-                <field name="summary_start"/>
-                <field name="summary_end"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_it_dashboard_summary_history_list" model="ir.ui.view">
-        <field name="name">it.dashboard.summary.history.list</field>
-        <field name="model">it.dashboard.summary.history</field>
-        <field name="arch" type="xml">
             <list string="Dashboard Summary" default_order="summary_start desc" create="false" delete="false" edit="false">
                 <field name="summary_start"/>
                 <field name="summary_end"/>
