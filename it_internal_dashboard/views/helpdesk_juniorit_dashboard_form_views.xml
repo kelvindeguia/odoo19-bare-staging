@@ -1,0 +1,150 @@
+<odoo>
+
+<record id="view_helpdesk_dashboard_form" model="ir.ui.view">
+    <field name="name">it.helpdesk.dashboard.form</field>
+    <field name="model">it.helpdesk.dashboard</field>
+    <field name="arch" type="xml">
+        <form string="Helpdesk &amp; Jr IT Input">
+            <header>
+                <button name="action_open_dashboard"
+                    type="object"
+                    string="View Dashboard"
+                    class="btn-primary"/>
+            </header>
+
+            <sheet>
+                <group string="Dashboard Details" col="4">
+                    <field name="name" invisible="1"/>
+                    <field name="created_by"/>
+                    <field name="created_on"/>
+                    <field name="summary_start"/>
+                    <field name="summary_end"/>
+                </group>
+
+                <!-- ✅ SUMMARY -->
+                <group string="Helpdesk Summary" col="4">
+                    <field name="helpdesk_ongoing_projects"/>
+                    <field name="new_hires_prepared"/>
+                    <field name="fallout"/>
+
+                    <field name="neo_score"/>
+                    <field name="neo_target"/>
+
+                    <field name="csat"/>
+                    <field name="csat_target"/>
+
+                    <field name="ticket_kpi"/>
+                    <field name="ticket_kpi_target"/>
+                </group>
+
+                <!-- ✅ KPI TABLE -->
+                <group string="KPI Breakdown">
+                    <group>
+                        <div class="o_form_label">FRT</div>
+                        <field name="frt_prob"/>
+                        <field name="frt_req"/>
+                    </group>
+
+                    <group>
+                        <div class="o_form_label">ERT</div>
+                        <field name="ert_prob"/>
+                        <field name="ert_req"/>
+                    </group>
+
+                    <group>
+                        <div class="o_form_label">RT</div>
+                        <field name="rt_prob"/>
+                        <field name="rt_req"/>
+                    </group>
+                </group>
+
+                <!-- ✅ KPI SUMMARY -->
+                <group string="KPI Summary">
+                    <field name="sla_achieved"/>
+                    <field name="happiness_ratings"/>
+                </group>
+
+                <!-- ✅ REMARKS -->
+                <group string="Remarks">
+                    <field name="new_count"/>
+                    <field name="on_hold"/>
+                    <field name="closed"/>
+                </group>
+
+                <!-- ✅ TEXT SECTIONS -->
+                <group string="Reports">
+                    <field name="new_tickets"/>
+                    <field name="on_hold_tickets"/>
+                    <field name="closed_tickets"/>
+                    <field name="backlog_tickets"/>
+                    <field name="lighthouse_report"/>
+                    <field name="neo_satisfaction_score"/>
+                </group>
+
+                <group string="Month MTD Overall Neo Score">
+                    <field name="overall_neo_score"/>
+                </group>
+
+                <group string="Comments">
+                    <field name="comments_1" widget="text"/>
+                    <field name="comments_2" widget="text"/>
+                    <field name="comments_3" widget="text"/>
+                    <field name="comments_4" widget="text"/>
+                </group>
+
+                <group string="PC Preparations">
+                    <div class="o_form_label">For this week</div>
+                    <field name="pc_preparation_onsite"/>
+                    <field name="pc_preparation_wfh"/>
+                    <field name="total_new_hires_actual"/>
+                    <field name="isupport"/>
+                    <field name="iswerk"/>
+                    <div class="o_form_label">For next week</div>
+                    <field name="projected_pc_preparation_onsite"/>
+                    <field name="projected_pc_preparation_wfh"/>
+                    <field name="total_new_hires_projected"/>
+                    <field name="projected_isupport"/>
+                    <field name="projected_iswerk"/>
+                </group>
+
+                <group string="Tickets">
+                    <field name="ticket_incident_in_progress"/>
+                    <field name="ticket_incident_on_hold"/>
+                    <field name="ticket_incident_resolved"/>
+                    <field name="ticket_request_in_progress"/>
+                    <field name="ticket_request_on_hold"/>
+                    <field name="ticket_request_resolved"/>
+                </group>
+
+                <!-- ✅ HIGHLIGHTS TABLE -->
+                <group string="Department Highlights">
+                    <field name="helpdesk_kpis_attainment" widget="text"/>
+                    <field name="helpdesk_key_wins" widget="text"/>
+                    <field name="helpdesk_challenges" widget="text"/>
+                    <field name="helpdesk_help_needed" widget="text"/>
+                </group>
+
+            </sheet>
+
+        </form>
+    </field>
+</record>
+
+    <record id="view_helpdesk_dashboard_list" model="ir.ui.view">
+            <field name="name">it.helpdesk.dashboard.list</field>
+            <field name="model">it.helpdesk.dashboard</field>
+            <field name="arch" type="xml">
+                <list
+                    string="helpdesk Dashboards" 
+                    default_order="created_on desc" 
+                    create="false"
+                >
+                    <field name="created_by"/>
+                    <field name="created_on"/>
+                    <field name="summary_start"/>
+                    <field name="summary_end"/>
+                </list>
+            </field>
+        </record>
+
+</odoo>
