@@ -1,0 +1,840 @@
+<templates xml:space="preserve">
+
+<t t-name="it_internal_dashboard_test2.HelpdeskDashboard">
+
+    <div class="helpdesk-container">
+
+        <!-- SIDEBAR (MANUAL HELPDESK INPUT) -->
+        <div class="helpdesk-sidebar">
+
+            <div class="sidebar-content">
+
+                <h3 class="section-title">Helpdesk Input</h3>
+
+                <!-- DATE -->
+                 <div class="form-row date-row">
+                    <div class="form-group">
+                        <label>Summary Start</label>
+
+                        <input type="date" t-att-value="this.helpdesk.summary_start || ''" readonly="readonly"/>
+                    </div>
+
+                    <div class="form-divider">-</div>
+
+                    <div class="form-group">
+                        <label>Summary End</label>
+
+                        <input type="date" t-att-value="this.helpdesk.summary_end || ''" readonly="readonly"/>
+                    </div>
+                 </div>
+
+                <!-- KPI INPUTS -->
+                <div class="form-group">
+                    <label>Ongoing Projects</label>
+                    <div class="validated-field">
+                    <input type="number" t-att-value="this.helpdesk.helpdesk_ongoing_projects" t-on-input="(ev)=&gt;this.updateField('helpdesk_ongoing_projects', ev.target.value)"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>New Hire PC Prepared</label>
+                    <input type="text" t-on-input="(ev)=&gt;this.updateField('new_hires_prepared', ev.target.value)"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Fallout</label>
+                    <div class="validated-field">
+                    <input type="number" t-att-value="this.helpdesk.fallout" t-on-input="(ev)=&gt;this.updateField('fallout', ev.target.value)"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>NEO Score</label>
+                    <div class="validated-field">
+                    <input type="number" t-att-value="this.helpdesk.neo_score" t-on-input="(ev)=&gt;this.updateField('neo_score', ev.target.value)"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>NEO Target</label>
+                    <div class="validated-field">
+                    <input type="number" t-att-value="this.helpdesk.neo_target" t-on-input="(ev)=&gt;this.updateField('neo_target', ev.target.value)"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>CSAT</label>
+                    <div class="validated-field">
+                        <input type="text" inputmode="decimal" t-att-value="this.helpdesk.csat ?? ''" t-att-class="this.helpdesk.validation.csat ? 'input-error' : ''" t-on-input="(ev)=&gt;this.updateField('csat', ev.target.value)"/>
+                        <div t-if="this.helpdesk.validation.csat" class="validation-message">
+                            <t t-esc="this.helpdesk.validation.csat"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>CSAT Target</label>
+                    <div class="validated-field">
+                        <input type="text" inputmode="decimal" t-att-value="this.helpdesk.csat_target ?? ''" t-att-class="this.helpdesk.validation.csat_target ? 'input-error' : ''" t-on-input="(ev)=&gt;this.updateField('csat_target', ev.target.value)"/>
+
+                        <div t-if="this.helpdesk.validation.csat_target" class="validation-message">
+                            <t t-esc="this.helpdesk.validation.csat_target"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ticket KPI</label>
+                    <div class="validated-field">
+                        <input type="text" inputmode="decimal" t-att-value="this.helpdesk.ticket_kpi ?? ''" t-att-class="this.helpdesk.validation.ticket_kpi ? 'input-error' : ''" t-on-input="(ev)=&gt;this.updateField('ticket_kpi', ev.target.value)"/>
+
+                        <div t-if="this.helpdesk.validation.ticket_kpi" class="validation-message">
+                            <t t-esc="this.helpdesk.validation.ticket_kpi"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ticket KPI Target</label>
+                    <div class="validated-field">
+                        <input type="text" inputmode="decimal" t-att-value="this.helpdesk.ticket_kpi_target ?? ''" t-att-class="this.helpdesk.validation.ticket_kpi_target ? 'input-error' : ''" t-on-input="(ev)=&gt;this.updateField('ticket_kpi_target', ev.target.value)"/>
+
+                        <div t-if="this.helpdesk.validation.ticket_kpi_target" class="validation-message">
+                            <t t-esc="this.helpdesk.validation.ticket_kpi_target"/>
+                        </div>
+                    </div>
+                </div>
+
+                 <!--  FILE UPLOAD -->
+                <!--  TEXT AREAS (AUTO EXPAND VIA JS) -->
+                <div class="form-group">
+                    <label>KPI Attainment</label>
+                    <textarea t-on-input="(ev)=&gt;this.updateField('helpdesk_kpis_attainment', ev.target.value, ev)"/>
+                </div>
+                <div class="form-group">
+                    <label>Key Wins</label>
+                    <textarea t-on-input="(ev)=&gt;this.updateField('helpdesk_key_wins', ev.target.value, ev)"/>
+                </div>
+                <div class="form-group">
+                    <label>Challenges</label>
+                    <textarea t-on-input="(ev)=&gt;this.updateField('helpdesk_challenges', ev.target.value, ev)"/>
+                </div>
+                <div class="form-group">
+                    <label>Help Needed</label>
+                    <textarea t-on-input="(ev)=&gt;this.updateField('helpdesk_help_needed', ev.target.value, ev)"/>
+                </div>
+            </div>
+
+            <div class="helpdesk-edit-actions">
+                <t t-if="this.helpdesk.viewMode === 'readonly'">
+                    <button
+                        type="button"
+                        class="helpdesk-edit-button"
+                        t-on-click="editDashboard"
+                    >
+                        Edit Dashboard
+                    </button>
+                </t>
+                <t t-else="">
+                    <button
+                        type="button"
+                        class="helpdesk-save-button"
+                        t-on-click="saveData"
+                    >
+                        Save Dashboard
+                    </button>
+                </t>
+
+            </div>
+        </div>
+
+        <!-- DASHBOARD CANVAS -->
+        <div class="helpdesk-canvas">
+
+            <div class="kpi-grid">
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title"># of Projected/Ongoing Projects</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.helpdesk_ongoing_projects || 0"/>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">Total # of New Hire PC Prepared</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.new_hires_prepared || 0"/>
+                        </div>
+                        <div class="kpi-title">Fallout</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.fallout || 0"/>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">NEO Satisfaction Score</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.neo_score || 0"/>
+                        </div>
+                        <div class="kpi-title">Target</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.neo_target || 0"/>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">CSAT</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.csat"/>%
+                        </div>
+                        <div class="kpi-title">Target</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.csat_target"/>%
+                        </div>
+                    </div>
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">Ticket KPI</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.ticket_kpi"/>%
+                        </div>
+                        <div class="kpi-title">Target</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.helpdesk.ticket_kpi_target"/>%
+                        </div>
+                    </div>
+
+                </div>
+
+            <!--  TOP SECTION -->
+        <div class="dashboard-top-section">
+
+            <!--  ROW 1: KPI + SUMMARY -->
+            <div class="kpi-row">
+                <!-- ================= KPI RESPONSE TIMES ================= -->
+                <div class="card small-card it_response_table">
+                    <table class="it_dashboard_table mb-0">
+                        <thead>
+                            <tr>
+                                <th>KPIs</th>
+                                <th>L1 Helpdesk Prob</th>
+                                <th>L1 Helpdesk Req</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FRT First Response Time (T:95%)</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.frt_prob || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.frt_prob" t-on-input="(ev)=&gt;this.updateField('frt_prob', ev.target.value)"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.frt_req || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.frt_req" t-on-input="(ev)=&gt;this.updateField('frt_req', ev.target.value)"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ERT Every Response Time (T:95%)</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.ert_prob || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.ert_prob" t-on-input="(ev)=&gt;this.updateField('ert_prob', ev.target.value)"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.ert_req || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.ert_req" t-on-input="(ev)=&gt;this.updateField('ert_req', ev.target.value)"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>RT Resolution Time (T:85%)</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.rt_prob || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.rt_prob" t-on-input="(ev)=&gt;this.updateField('rt_prob', ev.target.value)"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.rt_req || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input t-att-value="this.helpdesk.rt_req" t-on-input="(ev)=&gt;this.updateField('rt_req', ev.target.value)"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- ================= SLA / HAPPINESS ================= -->
+                <div class="card small-card it_service_table">
+                    <table class="it_dashboard_table mb-0">
+                        <thead>
+                            <tr>
+                                <th>KPIs (T:85%)</th>
+                                <th>Helpdesk (L1)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SLA Achieved</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.sla_achieved || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input
+                                            t-att-value="this.helpdesk.sla_achieved"
+                                            t-on-input="(ev)=&gt;this.updateField('sla_achieved', ev.target.value)"
+                                        />
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Happiness Ratings</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.happiness_ratings || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input
+                                            t-att-value="this.helpdesk.happiness_ratings"
+                                            t-on-input="(ev)=&gt;this.updateField('happiness_ratings', ev.target.value)"
+                                        />
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- ================= REMARKS ================= -->
+                <div class="card small-card it_ticket_table">
+                    <table class="it_dashboard_table mb-0">
+                        <thead>
+                            <tr><th>Remarks</th><th/></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NEW</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.new_count || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input
+                                            type="number"
+                                            t-att-value="this.helpdesk.new_count"
+                                            t-on-input="(ev)=&gt;this.updateField('new_count', ev.target.value)"
+                                        />
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ON HOLD</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.on_hold || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input
+                                            type="number"
+                                            t-att-value="this.helpdesk.on_hold"
+                                            t-on-input="(ev)=&gt;this.updateField('on_hold', ev.target.value)"
+                                        />
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CLOSED</td>
+                                <td>
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                        <span><t t-esc="this.helpdesk.closed || 0"/></span>
+                                    </t>
+                                    <t t-else="">
+                                        <input
+                                            type="number"
+                                            t-att-value="this.helpdesk.closed"
+                                            t-on-input="(ev)=&gt;this.updateField('closed', ev.target.value)"
+                                        />
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+                <!--  ROW 2: LIGHTHOUSE FULL WIDTH -->
+            <div class="it_zoho_kpi_section mt-3 mb-3">
+
+                <div class="it_zoho_kpi_group it_zoho_ticket_summary">
+                    <div class="it_zoho_kpi_group_title">
+                        Ticket Summary
+                    </div>
+
+                    <div class="it_zoho_kpi_grid">
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.ticket_count || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Total Tickets
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.new_tickets || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                New Tickets
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.on_hold_tickets || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                On Hold
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.closed_tickets || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Closed / Resolved
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.backlog_tickets || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Backlog
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="it_zoho_kpi_group it_zoho_channel_summary">
+                    <div class="it_zoho_kpi_group_title">
+                        Ticket Channels
+                    </div>
+
+                    <div class="it_zoho_kpi_grid">
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.tickets_from_web || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Web
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.tickets_from_email || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Email
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.tickets_from_phone || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Phone
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="it_zoho_kpi_group it_zoho_time_summary">
+                    <div class="it_zoho_kpi_group_title">
+                        Handling Time
+                    </div>
+
+                    <div class="it_zoho_kpi_grid">
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.first_response_time || '-'"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                First Response
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.response_time || '-'"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Response Time
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.resolution_time || '-'"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Resolution Time
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="it_zoho_kpi_group it_zoho_happiness_summary">
+                    <div class="it_zoho_kpi_group_title">
+                        Happiness Ratings
+                    </div>
+
+                    <div class="it_zoho_kpi_grid">
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.good_rating || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Good
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.okay_rating || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Okay
+                            </div>
+                        </div>
+
+                        <div class="it_zoho_kpi_card">
+                            <div class="it_zoho_kpi_value">
+                                <t t-esc="this.helpdesk.bad_rating || 0"/>
+                            </div>
+                            <div class="it_zoho_kpi_label">
+                                Bad
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div></div>
+            
+            <div class="it_neo_report_section mb-3">
+                <div class="it_neo_report_sidebar">
+                    <div class="card p-3 it_neo_score_card">
+                        <div class="fw-bold mb-3">Month MTD Overall NEO Score</div>
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr><th>Date</th><th>Overall Score</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_date_1 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="date" t-att-value="this.helpdesk.neo_date_1" t-on-input="(ev)=&gt;this.updateField('neo_date_1', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_score_1 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="number" t-att-value="this.helpdesk.neo_score_1" t-on-input="(ev)=&gt;this.updateField('neo_score_1', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_date_2 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="date" t-att-value="this.helpdesk.neo_date_2" t-on-input="(ev)=&gt;this.updateField('neo_date_2', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_score_2 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="number" t-att-value="this.helpdesk.neo_score_2" t-on-input="(ev)=&gt;this.updateField('neo_score_2', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_date_3 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="date" t-att-value="this.helpdesk.neo_date_3" t-on-input="(ev)=&gt;this.updateField('neo_date_3', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_score_3 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="number" t-att-value="this.helpdesk.neo_score_3" t-on-input="(ev)=&gt;this.updateField('neo_score_3', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_date_4 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="date" t-att-value="this.helpdesk.neo_date_4" t-on-input="(ev)=&gt;this.updateField('neo_date_4', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.neo_score_4 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="number" t-att-value="this.helpdesk.neo_score_4" t-on-input="(ev)=&gt;this.updateField('neo_score_4', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr class="table-active">
+                                    <td><strong>MTD OVERALL NEO SCORE</strong></td>
+                                    <td><strong><t t-esc="this.helpdesk.overall_neo_score || 0"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card p-3 it_neo_comments_card">
+                        <div class="fw-bold mb-3">Comments / Recommendations</div>
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.comments_1 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="text" t-att-value="this.helpdesk.comments_1" t-on-input="(ev)=&gt;this.updateField('comments_1', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.comments_2 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="text" t-att-value="this.helpdesk.comments_2" t-on-input="(ev)=&gt;this.updateField('comments_2', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.comments_3 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="text" t-att-value="this.helpdesk.comments_3" t-on-input="(ev)=&gt;this.updateField('comments_3', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-if="this.helpdesk.viewMode === 'readonly'">
+                                            <span><t t-esc="this.helpdesk.comments_4 || '-'"/></span>
+                                        </t>
+                                        <t t-else="">
+                                            <input type="text" t-att-value="this.helpdesk.comments_4" t-on-input="(ev)=&gt;this.updateField('comments_4', ev.target.value)"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                </div>
+
+
+            <div class="it_pc_prep_section mb-4">
+                <div class="card it_pc_prep_chart_card">
+                    <div class="fw-bold mb-3">PC Preparation (This Week)</div>
+                    <div class="it_pc_prep_canvas">
+                        <canvas t-ref="pcPrepChart"/>
+                    </div>
+                </div>
+
+                <div class="it_pc_prep_kpi_column">
+                    <div class="it_actual_pc_prep_kpi_card">
+                        <div class="it_pc_prep_kpi_total">
+                            Total New Hires: <t t-esc="this.helpdesk.total_new_hires_actual || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSupport:
+                            <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.isupport || 0"/></t>
+                            <t t-else=""><input class="it_pc_prep_inline_input" t-att-value="this.helpdesk.isupport" t-on-input="(ev)=&gt;this.updateField('isupport', ev.target.value)"/></t>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSWerk:
+                            <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.iswerk || 0"/></t>
+                            <t t-else=""><input class="it_pc_prep_inline_input" t-att-value="this.helpdesk.iswerk" t-on-input="(ev)=&gt;this.updateField('iswerk', ev.target.value)"/></t>
+                        </div>
+                    </div>
+
+                    <div class="it_projected_pc_prep_kpi_card">
+                        <div class="it_pc_prep_kpi_total">
+                            Total New Hires: <t t-esc="this.helpdesk.total_new_hires_projected || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSupport:
+                            <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.projected_isupport || 0"/></t>
+                            <t t-else=""><input class="it_pc_prep_inline_input" t-att-value="this.helpdesk.projected_isupport" t-on-input="(ev)=&gt;this.updateField('projected_isupport', ev.target.value)"/></t>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSWerk:
+                            <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.projected_iswerk || 0"/></t>
+                            <t t-else=""><input class="it_pc_prep_inline_input" t-att-value="this.helpdesk.projected_iswerk" t-on-input="(ev)=&gt;this.updateField('projected_iswerk', ev.target.value)"/></t>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card it_pc_prep_chart_card">
+                    <div class="fw-bold mb-3">Projected PC Preparation (Next Week)</div>
+                    <div class="it_pc_prep_canvas">
+                        <canvas t-ref="projectedChart"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="it_ticket_summary_section mb-4">
+                <div class="it_ticket_summary_wrapper">
+                    <table class="it_ticket_summary_table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>In Progress</th>
+                                <th>On Hold</th>
+                                <th>Resolved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="it_ticket_summary_category">Incident</td>
+                                <td class="it_ticket_summary_value">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_incident_in_progress || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_incident_in_progress" t-on-input="(ev)=&gt;this.updateField('ticket_incident_in_progress', ev.target.value)"/></t>
+                                </td>
+                                <td class="it_ticket_summary_value">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_incident_on_hold || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_incident_on_hold" t-on-input="(ev)=&gt;this.updateField('ticket_incident_on_hold', ev.target.value)"/></t>
+                                </td>
+                                <td class="it_ticket_summary_resolved">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_incident_resolved || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_incident_resolved" t-on-input="(ev)=&gt;this.updateField('ticket_incident_resolved', ev.target.value)"/></t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="it_ticket_summary_category">Request</td>
+                                <td class="it_ticket_summary_value">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_request_in_progress || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_request_in_progress" t-on-input="(ev)=&gt;this.updateField('ticket_request_in_progress', ev.target.value)"/></t>
+                                </td>
+                                <td class="it_ticket_summary_value">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_request_on_hold || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_request_on_hold" t-on-input="(ev)=&gt;this.updateField('ticket_request_on_hold', ev.target.value)"/></t>
+                                </td>
+                                <td class="it_ticket_summary_resolved">
+                                    <t t-if="this.helpdesk.viewMode === 'readonly'"><t t-esc="this.helpdesk.ticket_request_resolved || 0"/></t>
+                                    <t t-else=""><input t-att-value="this.helpdesk.ticket_request_resolved" t-on-input="(ev)=&gt;this.updateField('ticket_request_resolved', ev.target.value)"/></t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+            <!-- HIGHLIGHTS -->
+                <div class="it_widget highlights-widget">
+
+                    <h4>Department Highlights</h4>
+
+                    <div class="highlights-grid">
+
+                        <div class="highlight-card primary">
+                            <div class="highlight-title">KPI Attainment</div>
+                            <div class="highlight-content">
+                                <t t-esc="this.helpdesk.helpdesk_kpis_attainment || '-'"/>
+                            </div>
+                        </div>
+
+                        <div class="highlight-card success">
+                            <div class="highlight-title">Key Wins</div>
+                            <div class="highlight-content">
+                                <t t-esc="this.helpdesk.helpdesk_key_wins || '-'"/>
+                            </div>
+                        </div>
+
+                        <div class="highlight-card accent">
+                            <div class="highlight-title">Challenges</div>
+                            <div class="highlight-content">
+                                <t t-esc="this.helpdesk.helpdesk_challenges || '-'"/>
+                            </div>
+                        </div>
+
+                        <div class="highlight-card highlight">
+                            <div class="highlight-title">Help Needed</div>
+                            <div class="highlight-content">
+                                <t t-esc="this.helpdesk.helpdesk_help_needed || '-'"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <t t-if="this.helpdesk.imageModal.open">
+                    <div class="it_image_modal_overlay" t-on-click="closeImageModal">
+                        <div class="it_image_modal_content" t-on-click.stop="">
+                            <div class="it_image_modal_toolbar">
+                                <button type="button" t-on-click="() =&gt; this.modalZoom(-0.25)">−</button>
+                                <button type="button" t-on-click="resetModalZoom">100%</button>
+                                <button type="button" t-on-click="() =&gt; this.modalZoom(0.25)">+</button>
+                                <button type="button" class="close" t-on-click="closeImageModal">✕</button>
+                            </div>
+                            <div class="it_image_modal_canvas" t-on-pointerdown="onModalPointerDown" t-on-pointermove="onModalPointerMove" t-on-pointerup="onModalPointerUp" t-on-pointerleave="onModalPointerUp" t-on-wheel="onModalWheel">
+                                <img t-att-src="this.helpdesk.imageModal.url" t-att-style="getModalImageStyle()" draggable="false"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+        </div>
+    </div>
+</t>
+</templates>

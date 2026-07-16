@@ -1,0 +1,244 @@
+<templates xml:space="preserve">
+
+    <t t-name="it_internal_dashboard_test2.InfraDashboard">
+
+        <div class="infra-container">
+
+            <!--  SIDEBAR FORM -->
+            <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
+            <div class="infra-sidebar">
+
+                    <h3>Infra Input</h3>
+
+                    <!--  SCROLLABLE CONTENT  -->
+                    <div class="sidebar-content">
+
+                        <!-- DATE ROW -->
+                        <div class="form-row date-row">
+                            <div class="form-group">
+                                <label>Summary Start</label>
+                                <input type="date"
+                                    t-att-value="this.infra.summary_start"
+                                    t-on-input="(ev) => this.updateField('summary_start', ev.target.value)"
+                                    readonly="readonly"
+                                />
+                            </div>
+
+                            <div class="form-divider">-</div>
+
+                            <div class="form-group">
+                                <label>Summary End</label>
+                                <input type="date"
+                                    t-att-value="this.infra.summary_end"
+                                    t-on-input="(ev) => this.updateField('summary_end', ev.target.value)"
+                                    readonly="readonly"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- KPI INPUTS -->
+                        <div class="form-group">
+                            <label># of Ongoing Projects</label>
+                            <div class="validation-message">
+                            <input type="number"
+                                t-on-input="(ev) => this.updateField('infra_ongoing_projects', ev.target.value)"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Network Uptime</label>
+                            <input 
+                                type="text"
+                                inputmode="decimal"
+                                t-att-value="this.infra.network_uptime"
+                                t-att-class="this.infra.validation.network_uptime ? 'input-error' : ''"
+                                t-on-input="(ev) => this.updateField('network_uptime', ev.target.value)"/>
+                                <div
+                                    t-if="this.infra.validation.network_uptime"
+                                    class="validation-message">
+                                    <t t-esc="this.infra.validation.network_uptime"/>
+                                </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Server Uptime</label>
+                            <input
+                                type="text"
+                                inputmode="decimal"
+                                t-att-value="this.infra.server_uptime"
+                                t-att-class="this.infra.validation.server_uptime ? 'input-error' : ''"
+                                t-on-input="(ev) => this.updateField('server_uptime', ev.target.value)"/>
+                                <div
+                                    t-if="this.infra.validation.server_uptime"
+                                    class="validation-message">
+                                    <t t-esc="this.infra.validation.server_uptime"/>
+                                </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Security Breach</label>
+                            <input type="text"
+                                t-on-input="(ev) => this.updateField('security_breach', ev.target.value)"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Telephony Uptime</label>
+                            <input
+                                type="text"
+                                inputmode="decimal"
+                                t-att-value="this.infra.telephony_uptime"
+                                t-att-class="this.infra.validation.telephony_uptime ? 'input-error' : ''"
+                                t-on-input="(ev) => this.updateField('telephony_uptime', ev.target.value)"/>
+                                <div
+                                    t-if="this.infra.validation.telephony_uptime"
+                                    class="validation-message">
+                                    <t t-esc="this.infra.validation.telephony_uptime"/>
+                                </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Internet Uptime</label>
+                            <input 
+                                type="text"
+                                inputmode="decimal"
+                                t-att-value="this.infra.internet_uptime"
+                                t-att-class="this.infra.validation.internet_uptime ? 'input-error' : ''"
+                                t-on-input="(ev) => this.updateField('internet_uptime', ev.target.value)"/>
+                                <div
+                                    t-if="this.infra.validation.internet_uptime"
+                                    class="validation-message">
+                                    <t t-esc="this.infra.validation.internet_uptime"/>
+                                </div>
+                        </div>
+
+                        <!-- TEXTAREAS -->
+                        <div class="form-group">
+                            <label>Major KPI's &amp; Attainments</label>
+                            <textarea
+                                t-on-input="(ev) => this.updateField('infra_kpis_attainment', ev.target.value, ev)"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Key Wins for the Week</label>
+                            <textarea
+                                t-on-input="(ev) => this.updateField('infra_key_wins', ev.target.value, ev)"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Challenges</label>
+                            <textarea
+                                t-on-input="(ev) => this.updateField('infra_challenges', ev.target.value, ev)"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Help Needed</label>
+                            <textarea
+                                t-on-input="(ev) => this.updateField('infra_help_needed', ev.target.value, ev)"/>
+                        </div>
+
+                    </div>
+
+                    <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
+                        <button t-on-click="saveData">
+                            Save Dashboard
+                        </button>
+                    </t>
+                </div>
+            </t>
+
+                <!--  DASHBOARD VIEW -->
+                <div class="infra-canvas">
+
+                    <!-- KPI CARDS -->
+                    <div class="kpi-grid">
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Ongoing Projects</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.infra_ongoing_projects || 0"/>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Network Uptime</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.network_uptime"/>%
+                            </div>
+                        </div>
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Server Uptime</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.server_uptime"/>%
+                            </div>
+                        </div>
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Security Breach</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.security_breach || '0 case'"/>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Telephony Uptime</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.telephony_uptime"/>%
+                            </div>
+                        </div>
+
+                        <div class="kpi-card primary">
+                            <div class="kpi-title">Internet Uptime</div>
+                            <div class="kpi-value">
+                                <t t-esc="this.infra.internet_uptime"/>%
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- HIGHLIGHTS -->
+                    <div class="it_widget highlights-widget">
+
+                        <h4>Department Highlights</h4>
+
+                        <div class="highlights-grid">
+
+                            <div class="highlight-card primary">
+                                <div class="highlight-title">KPI Attainment</div>
+                                <div class="highlight-content">
+                                    <t t-esc="this.infra.infra_kpis_attainment || '-'"/>
+                                </div>
+                            </div>
+
+                            <div class="highlight-card primary">
+                                <div class="highlight-title">Key Wins</div>
+                                <div class="highlight-content">
+                                    <t t-esc="this.infra.infra_key_wins || '-'"/>
+                                </div>
+                            </div>
+
+                            <div class="highlight-card primary">
+                                <div class="highlight-title">Challenges</div>
+                                <div class="highlight-content">
+                                    <t t-esc="this.infra.infra_challenges || '-'"/>
+                                </div>
+                            </div>
+
+                            <div class="highlight-card primary">
+                                <div class="highlight-title">Help Needed</div>
+                                <div class="highlight-content">
+                                    <t t-esc="this.infra.infra_help_needed || '-'"/>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+        </div>
+
+    </t>
+
+</templates>

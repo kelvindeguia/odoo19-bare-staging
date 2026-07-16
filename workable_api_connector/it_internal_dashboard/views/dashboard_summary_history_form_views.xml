@@ -1,0 +1,44 @@
+<odoo>
+
+    <record id="view_it_dashboard_summary_history_list" model="ir.ui.view">
+        <field name="name">it.dashboard.summary.history.list</field>
+        <field name="model">it.dashboard.summary.history</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Summary" default_order="created_on desc" create="false" delete="false" edit="false"> 
+                <field name="summary_start"/>
+                <field name="summary_end"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_dashboard_summary_history_list" model="ir.ui.view">
+        <field name="name">it.dashboard.summary.history.list</field>
+        <field name="model">it.dashboard.summary.history</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Summary" default_order="summary_start desc" create="false" delete="false" edit="false">
+                <field name="summary_start"/>
+                <field name="summary_end"/>
+                <field name="is_complete" widget="boolean_toggle" readonly="1"/>
+                <field name="missing_departments"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_dashboard_summary_history_form" model="ir.ui.view">
+        <field name="name">it.dashboard.summary.history.form</field>
+        <field name="model">it.dashboard.summary.history</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard Summary" create="false" delete="false" edit="false">
+                <sheet>
+                    <widget name="web_ribbon" title="Incomplete" bg_color="text-bg-warning" invisible="is_complete"/>
+                    <group>
+                        <field name="summary_start"/>
+                        <field name="summary_end"/>
+                        <field name="missing_departments" invisible="is_complete"/>
+                    </group>
+                    <!-- ...rest unchanged... -->
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
