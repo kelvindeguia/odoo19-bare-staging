@@ -1,0 +1,63 @@
+<odoo>
+
+    <record id="view_lighthouse_report_overview_form" model="ir.ui.view">
+        <field name="name">lighthouse.report.overview.form</field>
+        <field name="model">lighthouse.report.overview</field>
+        <field name="arch" type="xml">
+            <form string="ILighthouse Report Overview">
+                <sheet>
+
+                    <group string="Report Details" col="4">
+                        <field name="name" invisible="1"/>
+                        <field name="lighthouse_report_created_by" readonly="1"/>
+                        <field name="lighthouse_report_created_on" readonly="1"/>
+                        <field name="lighthouse_report_date"/>
+                    </group>
+
+                    <group string="Date" >
+                        <field name="lighthouse_report_date"/>
+                    </group>
+
+                    <!-- SECTION: SUMMARY -->
+                    <group string="Ticket Summary">
+                        <field name="new_tickets"/>
+                        <field name="on_hold_tickets"/>
+                        <field name="closed_tickets"/>
+                    </group>
+
+                    <!-- SECTION: idk -->
+                    <group string="">
+                        <field name="backlog"/>
+                        <field name="good"/>
+                        <field name="okay"/>
+                        <field name="bad"/>
+                    </group>
+
+                    <!-- SECTION: Response Time -->
+                    <group string="Average Handling Time">
+                        <field name="first_response_time"/>
+                        <field name="response_time"/>
+                        <field name="resolution_time"/>
+                    </group>
+
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+        
+    <record id="view_lighthouse_report_overview_list" model="ir.ui.view">
+            <field name="name">lighthouse.report.overview.list</field>
+            <field name="model">lighthouse.report.overview</field>
+            <field name="arch" type="xml">
+                <list
+                    string="Lighthouse Report Overview" 
+                    default_order="lighthouse_report_created_on desc" 
+                >
+                    <field name="lighthouse_report_created_on"/>
+                    <field name="lighthouse_report_date"/>
+                </list>
+            </field>
+        </record>
+
+</odoo>
