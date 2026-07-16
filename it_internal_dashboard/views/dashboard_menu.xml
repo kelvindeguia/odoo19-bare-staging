@@ -1,9 +1,9 @@
 <odoo>
 
     <!-- CLIENT ACTION -->
-    <record id="action_it_internal_dashboard_test2_live2" model="ir.actions.client">
+    <record id="action_it_internal_dashboard_live2" model="ir.actions.client">
         <field name="name">Dashboard Summary</field>
-        <field name="tag">it_internal_dashboard_test2_live2</field>
+        <field name="tag">it_internal_dashboard_live2</field>
     </record>
 
     <record id="action_create_active_compliance" model="ir.actions.act_window">
@@ -16,7 +16,7 @@
     <menuitem 
         id="menu_it_dashboard_root"
         name="IT Internal Dashboard (With Zoho)"
-        action="action_it_internal_dashboard_test2_live2"
+        action="action_it_internal_dashboard_live2"
         sequence="10"
         />
     
@@ -25,7 +25,7 @@
         name="Create Dashboard"
         parent="menu_it_dashboard_root"
         sequence="20"
-        groups="it_internal_dashboard_test2.group_it_internal_dashboard_developer"
+        groups="it_internal_dashboard.group_it_internal_dashboard_developer"
         />
 
     <menuitem 
@@ -105,7 +105,7 @@
         name="Dashboards"
         parent="menu_it_dashboard_root"
         sequence="20"
-        groups="it_internal_dashboard_test2.group_it_internal_dashboard_executive,it_internal_dashboard_test2.group_it_internal_dashboard_management,it_internal_dashboard_test2.group_it_internal_dashboard_compliance_department,it_internal_dashboard_test2.group_it_internal_dashboard_devops_department,it_internal_dashboard_test2.group_it_internal_dashboard_infra_department,it_internal_dashboard_test2.group_it_internal_dashboard_helpdesk_department,it_internal_dashboard_test2.group_it_internal_dashboard_developer"
+        groups="it_internal_dashboard.group_it_internal_dashboard_executive,it_internal_dashboard.group_it_internal_dashboard_management,it_internal_dashboard.group_it_internal_dashboard_compliance_department,it_internal_dashboard.group_it_internal_dashboard_devops_department,it_internal_dashboard.group_it_internal_dashboard_infra_department,it_internal_dashboard.group_it_internal_dashboard_helpdesk_department,it_internal_dashboard.group_it_internal_dashboard_developer"
     />
     <record id="menu_it_dashboard" model="ir.ui.menu">
         <field name="action" eval="False"/>

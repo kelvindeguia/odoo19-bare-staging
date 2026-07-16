@@ -65,7 +65,7 @@ class PublicDashboardController(http.Controller):
 
         default_start, default_end = pub._default_window()
         return request.render(
-            "it_internal_dashboard_test2.public_dashboard_workspace",
+            "it_internal_dashboard.public_dashboard_workspace",
             {
                 "token": token,
                 "publication": pub,

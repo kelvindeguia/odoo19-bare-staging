@@ -1,6 +1,6 @@
 <templates xml:space="preserve">
 
-<t t-name="it_internal_dashboard_test2.HelpdeskDashboard">
+<t t-name="it_internal_dashboard.HelpdeskDashboard">
 
     <div class="helpdesk-container">
 

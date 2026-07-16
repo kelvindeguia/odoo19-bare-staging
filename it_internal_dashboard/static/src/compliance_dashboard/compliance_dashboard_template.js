@@ -5,7 +5,7 @@ import { Component, useState, onWillStart, onMounted, onWillUnmount } from "@odo
 import { useService } from "@web/core/utils/hooks";
 
 export class ComplianceDashboard extends Component {
-    static template = "it_internal_dashboard_test2.ComplianceDashboard";
+    static template = "it_internal_dashboard.ComplianceDashboard";
 
     static props = {
         publicMode: { type: Boolean, optional: true },
@@ -198,7 +198,7 @@ export class ComplianceDashboard extends Component {
                 },
             ]);
 
-            await this.action.doAction("it_internal_dashboard_test2.action_compliance_dashboard");
+            await this.action.doAction("it_internal_dashboard.action_compliance_dashboard");
         
         } catch (error) {
             console.error("Error saving compliance data:", error);

@@ -116,7 +116,7 @@
         parent="menu_it_dashboard_root"
         action="action_dashboard_publication"
         sequence="70"
-        groups="it_internal_dashboard_test2.group_it_internal_dashboard_developer,it_internal_dashboard_test2.group_it_internal_dashboard_management"
+        groups="it_internal_dashboard.group_it_internal_dashboard_developer,it_internal_dashboard.group_it_internal_dashboard_management"
     />
 
 </odoo>

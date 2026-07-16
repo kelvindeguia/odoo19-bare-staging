@@ -1,6 +1,6 @@
 <templates xml:space="preserve">
 
-    <t t-name="it_internal_dashboard_test2.DevOpsDashboard">
+    <t t-name="it_internal_dashboard.DevOpsDashboard">
 
         <div class="devops-container">
 

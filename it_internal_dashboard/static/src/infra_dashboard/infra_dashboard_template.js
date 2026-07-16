@@ -5,7 +5,7 @@ import { Component, useState, onWillStart, onMounted, onWillUnmount } from "@odo
 import { useService } from "@web/core/utils/hooks";
 
 export class InfraDashboard extends Component {
-    static template = "it_internal_dashboard_test2.InfraDashboard";
+    static template = "it_internal_dashboard.InfraDashboard";
 
     static props = {
         publicMode: { type: Boolean, optional: true },
@@ -218,7 +218,7 @@ export class InfraDashboard extends Component {
             ]);
 
             // redirect to list
-            await this.action.doAction("it_internal_dashboard_test2.action_infra_dashboard");
+            await this.action.doAction("it_internal_dashboard.action_infra_dashboard");
 
         } catch (error) {
             console.error("Error saving infra data:", error);
