@@ -1,0 +1,95 @@
+<templates xml:space="preserve">
+
+    <t t-name="it_internal_dashboard_test2.ManagementDashboard">
+
+        <div class="management-container">
+
+            <!--  SIDEBAR FORM — hidden in public mode AND in readonly mode -->
+            <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
+            <div class="management-sidebar">
+
+                <h3>Management Input</h3>
+
+                <div class="sidebar-content">
+
+                    <div class="form-row date-row">
+                        <div class="form-group">
+                            <label>Summary Start</label>
+                            <input
+                                type="date"
+                                t-att-value="this.management.summary_start"
+                                t-on-input="(ev) => this.updateField('summary_start', ev.target.value)"
+                                readonly="readonly"
+                            />
+                        </div>
+
+                        <div class="form-divider">-</div>
+
+                        <div class="form-group">
+                            <label>Summary End</label>
+                            <input
+                                type="date"
+                                t-att-value="this.management.summary_end"
+                                t-on-input="(ev) => this.updateField('summary_end', ev.target.value)"
+                                readonly="readonly"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Overall IT Health Rating</label>
+                        <select
+                            t-att-value="this.management.overall_it_health_rating"
+                            t-on-change="(ev) => this.updateField('overall_it_health_rating', ev.target.value)">
+                            <option value="">NA</option>
+                            <option value="weak">🔴 Weak</option>
+                            <option value="strong">🟢 Strong</option>
+                            <option value="very strong">🟢 Very Strong</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Happiness Satisfaction Rating</label>
+                        <textarea
+                            t-on-input="(ev) => this.updateField('happiness_satisfaction_rating', ev.target.value, ev)"/>
+                    </div>
+
+                </div>
+
+                <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
+                    <button t-on-click="saveData">
+                        Save Dashboard
+                    </button>
+                </t>
+
+            </div>
+            </t>
+
+            <!--  DASHBOARD VIEW — always visible -->
+            <div class="management-canvas">
+
+                <div class="kpi-grid">
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">Overall IT Health Rating</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.getHealthLabel(this.management.overall_it_health_rating)"/>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card primary">
+                        <div class="kpi-title">Happiness Satisfaction Rating</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.management.happiness_satisfaction_rating"/>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </t>
+
+</templates>

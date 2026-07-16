@@ -1,0 +1,170 @@
+<templates xml:space="preserve">
+
+    <t t-name="it_internal_dashboard_test2.ComplianceDashboard">
+        <div class="compliance-container">
+            <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
+                <div class="compliance-sidebar">
+                    <h3>Compliance Input</h3>
+                    <div class="sidebar-content">
+                        <div class="form-row date-row">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input
+                                    type="date"
+                                    t-att-value="this.compliance.summary_start"
+                                    t-on-input="(ev) => this.updateField('summary_start', ev.target.value)"
+                                    readonly="readonly"
+                                />
+                            </div>
+                            <div class="form-divider">-</div>
+
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input
+                                    type="date"
+                                    t-att-value="this.compliance.summary_end"
+                                    t-on-input="(ev) => this.updateField('summary_end', ev.target.value)"
+                                    readonly="readonly"
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>No. of Active Compliance/s</label>
+                            <input
+                                type="number"
+                                t-att-value="this.compliance.active_compliances"
+                                readonly="readonly"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>Compliance/s</label>
+                            <div class="compliance-checkbox-list">
+                                <t t-if="this.complianceOptions.length">
+                                    <t t-foreach="this.complianceOptions" t-as="option" t-key="option.id">
+                                        <label class="compliance-checkbox-option">
+                                            <input
+                                                type="checkbox"
+                                                t-att-checked="this.isComplianceSelected(option.id)"
+                                                t-on-change="(ev) => this.toggleCompliance(option.id, ev.target.checked)"
+                                            />
+                                            <span t-esc="option.name"/>
+                                        </label>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="empty-selection">No active compliances configured.</div>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>PCI Scanning Activities</label>
+                            <select
+                                t-att-value="this.compliance.pci_scanning_activities"
+                                t-on-change="(ev) => this.updateField('pci_scanning_activities', ev.target.value)">
+                                <option value="">Select Activity</option>
+                                <option value="asv">ASV metrics</option>
+                                <option value="iva">IVA metrics</option>
+                                <option value="enpt">ENPT metrics</option>
+                                <option value="intp">INTP metrics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Audit Findings</label>
+                            <textarea
+                                t-att-value="this.compliance.audit_findings"
+                                t-on-input="(ev) => this.updateField('audit_findings', ev.target.value, ev)"/>
+                        </div>
+                        <div class="form-group">
+                            <label>IT Risk Assessment Overview</label>
+                            <textarea
+                                t-att-value="this.compliance.it_risk_assessment_overview"
+                                t-on-input="(ev) => this.updateField('it_risk_assessment_overview', ev.target.value, ev)"/>
+                        </div>
+                    </div>
+                    <button t-on-click="saveData">
+                        Save Dashboard
+                    </button>
+                </div>
+            </t>
+            <div class="compliance-canvas">
+                <div class="dashboard-grid">
+                    <div class="kpi-card card-compliances">
+                        <div class="kpi-title">Compliances</div>
+                        <div class="kpi-value compact">
+                            <t t-esc="this.selectedComplianceNames || this.compliance.compliances || '-'"/>
+                        </div>
+                        <div class="kpi-title secondary-title">No. of Active Compliances</div>
+                        <div class="kpi-value">
+                            <t t-esc="this.compliance.active_compliances"/>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-status">
+                        <div class="kpi-title">Compliance Status</div>
+                        <div class="compliance-summary-list">
+                            <t t-if="this.selectedComplianceRecords.length">
+                                <t t-foreach="this.selectedComplianceRecords" t-as="compliance" t-key="compliance.id">
+                                    <div class="summary-row">
+                                        <span t-esc="compliance.name"/>-
+                                        <strong><t t-esc="compliance.status || '-'"/></strong>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">-</t>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-stage">
+                        <div class="kpi-title">
+                            Current Compliance Stage
+                        </div>
+                        <div class="compliance-summary-list">
+                            <t t-if="this.selectedComplianceRecords.length">
+                                <t
+                                    t-foreach="this.selectedComplianceRecords"
+                                    t-as="compliance"
+                                    t-key="compliance.id">
+                                    <div class="summary-row">
+                                        <span t-esc="compliance.name"/>: 
+                                        <strong><t t-esc="this.getComplianceLabel(compliance.stage)"/></strong>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">-</t>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-progress">
+                        <div class="kpi-title">Compliance Progress</div>
+                        <div class="compliance-summary-list">
+                            <t t-if="this.selectedComplianceRecords.length">
+                                <t t-foreach="this.selectedComplianceRecords" t-as="compliance" t-key="compliance.id">
+                                    <div class="summary-row">
+                                        <span t-esc="compliance.name"/>
+                                        <strong t-esc="compliance.progress || '-'"/>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">-</t>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-pci">
+                        <div class="kpi-title">PCI Scanning Activities</div>
+                        <div class="kpi-value compact">
+                            <t t-esc="this.getPciActivityLabel(this.compliance.pci_scanning_activities)"/>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-audit">
+                        <div class="kpi-title">Audit Findings</div>
+                        <div class="kpi-value compact">
+                            <t t-esc="this.compliance.audit_findings || '-'"/>
+                        </div>
+                    </div>
+                    <div class="kpi-card card-risk">
+                        <div class="kpi-title">IT Risk Assessment Overview</div>
+                        <div class="kpi-value compact">
+                            <t t-esc="this.compliance.it_risk_assessment_overview || '-'"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

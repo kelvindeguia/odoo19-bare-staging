@@ -1,0 +1,98 @@
+<odoo>
+
+    <record id="view_compliance_dashboard_form" model="ir.ui.view">
+        <field name="name">it.compliance.dashboard.form</field>
+        <field name="model">it.compliance.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Dashboard Input" create="false">
+                <header>
+                    <button name="action_open_dashboard"
+                        type="object"
+                        string="View Dashboard"
+                        class="btn-primary"/>
+                </header>
+
+                <sheet>
+
+                    <group string="Dahsboard Details" col="4">
+                        <field name="name" invisible="1"/>
+                        <field name="created_by" readonly="1"/>
+                        <field name="created_on" readonly="1"/>
+                        <field name="summary_start" readonly="1"/>
+                        <field name="summary_end" readonly="1"/>
+                    </group>
+
+                    <!-- SECTION: SUMMARY -->
+                    <group string="Compliance Report Summary">
+                        <field name="active_compliances" />
+                        <field name="compliance_stage_summary" />                        
+                        <field name="compliance_status" widget="many2many_tags" />
+                        <field name="compliance_progress" widget="many2many_tags" />
+                        <field name="pci_scanning_activities" />
+                        <field name="audit_findings" />
+                        <field name="it_risk_assessment_overview" />
+                    </group>
+
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="action_compliance_dashboard_client" model="ir.actions.client">
+        <field name="name">Create Dashboard</field>
+        <field name="tag">compliance_dashboard_live2</field>
+    </record>
+        
+    <record id="view_compliance_dashboard_list" model="ir.ui.view">
+            <field name="name">it.compliance.dashboard.list</field>
+            <field name="model">it.compliance.dashboard</field>
+            <field name="arch" type="xml">
+                <list
+                    string="Compliance Dashboards" 
+                    default_order="created_on desc" 
+                    create="false"
+                >
+                    <field name="created_by"/>
+                    <field name="created_on"/>
+                    <field name="summary_start"/>
+                    <field name="summary_end"/>
+                    <field name="active_compliances"/>
+                    <field name="compliance_stage_summary"/>
+                </list>
+            </field>
+        </record>
+
+    
+    <record id="view_active_compliance_form" model="ir.ui.view">
+        <field name="name">it.active.compliance.form</field>
+        <field name="model">it.active.compliance</field>
+        <field name="arch" type="xml">
+            <form string="Create Compliance">
+                    <group string="Compliance Details" >
+                        <field name="name"/>
+                        <field name="stage"/>
+                        <field name="status"/>
+                        <field name="progress"/>
+                    </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_active_compliance_list" model="ir.ui.view">
+            <field name="name">it.active.compliance.list</field>
+            <field name="model">it.active.compliance</field>
+            <field name="arch" type="xml">
+                <list
+                    string="Active Compliance" 
+                    default_order="name asc" 
+                >
+                    <field name="name"/>
+                    <field name="stage"/>
+                    <field name="status"/>
+                    <field name="progress"/>
+                </list>
+            </field>
+        </record>
+
+</odoo>

@@ -1,0 +1,86 @@
+<odoo>
+
+    <record id="view_devops_dashboard_form" model="ir.ui.view">
+        <field name="name">it.devops.dashboard.form</field>
+        <field name="model">it.devops.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="DevOps Dashboard Input" create="false">
+                <header>
+                    <button name="action_open_dashboard"
+                        type="object"
+                        string="View Dashboard"
+                        class="btn-primary"/>
+                </header>
+
+                <sheet>
+
+                    <group string="Dahsboard Details" col="4">
+                        <field name="name" invisible="1"/>
+                        <field name="created_by" readonly="1"/> 
+                        <field name="created_on" readonly="1"/>
+                        <field name="summary_start" readonly="1"/>
+                        <field name="summary_end" readonly="1"/>
+                    </group>
+
+                    <!-- SECTION: SUMMARY -->
+                    <group string="DevOps KPI Summary">
+                        <field name="devops_ongoing_projects"/>
+                        <field name="sprint_tasks_completed"/>
+                        <field name="issues_raised"/>
+                        <field name="system_uptime"/>
+                        <field name="cloud_servers_uptime"/>
+                    </group>
+
+                    <!-- SECTION: DEPARTMENT HIGHLIGHTS -->
+                    <group string="DevOps Highlights">
+                        <field name="devops_kpis_attainment" widget="text"/>
+                        <field name="devops_key_wins" widget="text"/>
+                        <field name="devops_challenges" widget="text"/>
+                        <field name="devops_help_needed" widget="text"/>
+                    </group>
+
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="action_devops_dashboard_client" model="ir.actions.client">
+        <field name="name">Create Dashboard</field>
+        <field name="tag">devops_dashboard_live2</field>
+    </record>
+        
+    <record id="view_devops_dashboard_list" model="ir.ui.view">
+            <field name="name">it.devops.dashboard.list</field>
+            <field name="model">it.devops.dashboard</field>
+            <field name="arch" type="xml">
+                <list
+                    string="DevOps Dashboards" 
+                    default_order="created_on desc" 
+                    create="false"
+                >
+                    <field name="created_by"/>
+                    <field name="created_on"/>
+                    <field name="summary_start"/>
+                    <field name="summary_end"/>
+                </list>
+            </field>
+        </record>
+
+    
+    <!-- <record id="view_devops_dashboard_search" model="ir.ui.view">
+        <field name="name">it.devops.dashboard.search</field>
+        <field name="model">it.devops.dashboard</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="devops_created_on"/>
+                <field name="devops_summary_start"/>
+                <filter string="Recent" domain="[]"/>
+            </search>
+        </field>
+    </record> -->
+
+
+
+
+</odoo>
