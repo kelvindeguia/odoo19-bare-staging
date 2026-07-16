@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =========================
+         LIST VIEW
+    ========================== -->
+
+    <record id="view_dashboard_publication_list" model="ir.ui.view">
+        <field name="name">it.dashboard.publication.list</field>
+        <field name="model">it.dashboard.publication</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Publications">
+                <field name="name"/>
+                <field name="active"/>
+                <field name="publication_date"/>
+                <!-- <field name="week_start"/>
+                <field name="week_end"/> -->
+                <field name="expires_at"/>
+                <field name="access_count"/>
+            </list>
+        </field>
+    </record>
+
+
+    <!-- =========================
+         FORM VIEW
+    ========================== -->
+
+    <record id="view_dashboard_publication_form" model="ir.ui.view">
+        <field name="name">it.dashboard.publication.form</field>
+        <field name="model">it.dashboard.publication</field>
+        <field name="arch" type="xml">
+
+            <form string="Dashboard Publication">
+            <header>
+                <button
+                    name="action_regenerate_token"
+                    type="object"
+                    string="Regenerate Link"
+                    class="btn-primary"/>
+                <button
+                    name="action_revoke"
+                    type="object"
+                    string="Revoke Link"
+                    class="btn-secondary"
+                    invisible="not active"/>
+            </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="active"/>
+                            <field name="publication_date"/>
+                            <field name="created_by" readonly="1"/>
+                        </group>
+                        <group>
+                            <!-- <field name="week_start"/> -->
+                            <!-- <field name="week_end"/> -->
+                            <field name="expires_at"/>
+                        </group>
+                    </group>
+                    <notebook>
+                       <page string="Sharing">
+                            <group>
+                                <field name="share_token" readonly="1"/>
+                                <field name="share_url" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Included Dashboards">
+                            <group>
+                                <field name="include_helpdesk"/>
+                                <field name="include_infra"/>
+                                <field name="include_devops"/>
+                                <field name="include_compliance"/>
+                                <field name="include_management"/>
+                                <field name="include_executive_summary"/>
+                            </group>
+                        </page>
+                        <page string="Permissions">
+                            <group>
+                                <field name="allow_print"/>
+                            </group>
+                        </page>
+                        <page string="Statistics">
+                            <group>
+                                <field name="access_count" readonly="1"/>
+                                <field name="last_access" readonly="1"/>
+                                <field name="is_expired" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- =========================
+         ACTION
+    ========================== -->
+
+    <record id="action_dashboard_publication" model="ir.actions.act_window">
+        <field name="name">Dashboard Publications</field>
+        <field name="res_model">it.dashboard.publication</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+    <!-- =========================
+         MENU
+    ========================== -->
+
+    <menuitem
+        id="menu_dashboard_publication"
+        name="Dashboard Publications"
+        parent="menu_it_dashboard_root"
+        action="action_dashboard_publication"
+        sequence="70"
+        groups="it_internal_dashboard_test2.group_it_internal_dashboard_developer,it_internal_dashboard_test2.group_it_internal_dashboard_management"
+    />
+
+</odoo>

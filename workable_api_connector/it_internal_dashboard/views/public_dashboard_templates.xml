@@ -1,0 +1,42 @@
+<odoo>
+    <template
+        id="public_dashboard_workspace"
+        name="Public Dashboard Workspace">
+
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+
+            <!--
+                Root div — must NOT be self-closing.
+                OWL's mountComponent() appends into this element.
+                The data-* attributes carry the token and week label
+                so JS can read them without them appearing in API URLs.
+            -->
+            <div
+                id="public_dashboard_root"
+                t-att-data-token="token"
+                t-att-data-week="week_label"
+                t-att-data-allow-print="'1' if allow_print else '0'"
+                style="height: 100vh; max-height: 100vh; overflow: hidden; background: #f8f9fa;">
+
+                <!--
+                    This div is shown while OWL initialises.
+                    public_workspace.js removes it via:
+                    document.getElementById("public_dashboard_loading")?.remove()
+                    It MUST be a child of public_dashboard_root.
+                -->
+                <div
+                    id="public_dashboard_loading"
+                    style="display:flex; align-items:center;
+                           justify-content:center; height:100vh;
+                           flex-direction:column; gap:1rem; color:#666;">
+                    <div style="font-size:2rem;">⏳</div>
+                    <div style="font-size:1rem;">Loading dashboard...</div>
+                </div>
+
+            </div>
+
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,508 @@
+<templates xml:space="preserve">
+    <t t-name="it_internal_dashboard_test2.Dashboard">
+        <div class="o_it_dashboard o_it_dashboard_main p-4">
+            <div class="it_helpdesk_section_header mb-4">
+                <div>
+                    <h2 class="it_section_title mb-1">
+                        Executive Summary Dashboard
+                    </h2>
+                    <div class="text-muted small">
+                        Weekly IT Operations Report
+                    </div>
+                    <div class="alert alert-warning" t-if="state.data.missing_departments &amp;&amp; state.data.missing_departments.length">
+                        Awaiting submission from: <t t-esc="state.data.missing_departments.join(', ')"/>
+                    </div>
+                </div>
+                <div class="it_report_selector" t-if="!publicMode">
+                    <button
+                        class="it_date_filter"
+                        t-on-click="toggleDateMenu">
+                        <i class="fa fa-calendar"/>
+                        <span>
+                            <t t-esc="state.dateLabel"/>
+                        </span>
+                        <i class="fa fa-chevron-down"/>
+                    </button>
+                    <div
+                        class="it_date_dropdown"
+                        t-if="state.showDateMenu">
+                        <button t-on-click="selectThisWeek">
+                            This Week
+                        </button>
+                        <button t-on-click="selectLastWeek">
+                            Last Week
+                        </button>
+                        <button t-on-click="selectThisMonth">
+                            This Month
+                        </button>
+                        <button t-on-click="selectLastMonth">
+                            Last Month
+                        </button>
+                        <button t-on-click="selectLast30Days">
+                            Last 30 Days
+                        </button>
+                        <hr/>
+                        <div class="it_custom_range">
+                            <input
+                                type="date"
+                                t-model="state.start_date"/>
+                            <span>to</span>
+                            <input
+                                type="date"
+                                t-model="state.end_date"
+                                readonly="readonly"/>
+                            <button
+                                class="btn btn-primary btn-sm"
+                                t-on-click="applyCustomRange">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="it_overview_container mb-3">
+
+                <div class="row g-3">
+
+                    <!-- ================= HELP DESK ================= -->
+                    <div class="col-12 col-lg">
+                        <div class="it_overview_card helpdesk">
+                            <div class="it_overview_title">Jr IT &amp; Helpdesk</div>
+
+                            <div># of Projected/Ongoing Projects: <t t-esc="summary.helpdesk_ongoing_projects || '-'"/></div>
+                            <div>Total # of New Hire PC Prepared: <t t-esc="summary.new_hires_prepared || '-'"/></div>
+                            <div>Fallout: <t t-esc="summary.fallout || '-'"/></div>
+
+                            <div>NEO Satisfaction Score: <t t-esc="summary.neo_score || '-'"/></div>
+                            <div>NEO Target: <t t-esc="summary.neo_target || '-'"/></div>
+
+                            <div>CSAT: <span t-att-class="this.getKpiColorClass(summary.csat)"><t t-esc="this.formatPercent(summary.csat)"/>%</span></div>
+                            <div>CSAT Target: <t t-esc="summary.csat_target || '-'"/>%</div>
+
+                            <div>Ticket KPI: <span t-att-class="this.getKpiColorClass(summary.ticket_kpi)"><t t-esc="this.formatPercent(summary.ticket_kpi)"/>%</span></div>
+                            <div>Ticket KPI Target: <t t-esc="summary.ticket_kpi_target || '-'"/>%</div>
+                        </div>
+                    </div>
+
+                    <!-- ================= INFRA ================= -->
+                    <div class="col-12 col-lg">
+                        <div class="it_overview_card infra">
+                            <div class="it_overview_title">Infra</div>
+
+                            <div># of Projected/Ongoing Projects: <t t-esc="summary.infra_ongoing_projects || '-'"/></div>
+                            <div>Network Uptime: <span t-att-class="getKpiColorClass(summary.network_uptime)"><t t-esc="formatPercent(summary.network_uptime)"/>%</span></div>
+                            <div>Server Uptime: <span t-att-class="getKpiColorClass(summary.server_uptime)"><t t-esc="formatPercent(summary.server_uptime)"/>%</span></div>
+                            <div>Security Breach: <t t-esc="summary.security_breach || '-'"/> case/s</div>
+                            <div>Telephony Uptime: <span t-att-class="getKpiColorClass(summary.telephony_uptime)"><t t-esc="formatPercent(summary.telephony_uptime)"/>%</span></div>
+                            <div>Internet Uptime: <span t-att-class="getKpiColorClass(summary.internet_uptime)"><t t-esc="formatPercent(summary.internet_uptime)"/>%</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= DEVOPS ================= -->
+                    <div class="col-12 col-lg">
+                        <div class="it_overview_card devops">
+                            <div class="it_overview_title">DevOps</div>
+
+                            <div># of Projected/Ongoing Projects: <t t-esc="summary.devops_ongoing_projects || '-'"/></div>
+                            <div># of Sprint Tasks Completed: <t t-esc="summary.sprint_tasks_completed || '-'"/></div>
+                            <div># of Issues Raised from the Live System: <t t-esc="summary.issues_raised || '-'"/></div>
+                            <div>Odoo System Uptime: <span t-att-class="getKpiColorClass(summary.system_uptime)"><t t-esc="formatPercent(summary.system_uptime)"/>%</span></div>
+                            <div>AWS Cloud Servers Uptime: <span t-att-class="getKpiColorClass(summary.cloud_servers_uptime)"><t t-esc="formatPercent(summary.cloud_servers_uptime)"/>%</span></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= COMPLIANCE ================= -->
+                    <div class="col-12 col-lg">
+                        <div class="it_overview_card compliance">
+                            <div class="it_overview_title">Compliance</div>
+
+                            <div>No. of Active Compliance/s: <t t-esc="summary.active_compliances || '-'"/></div>
+                            <t t-if="summary.compliance_report_entries &amp;&amp; summary.compliance_report_entries.length">
+                                <div class="mt-2">
+                                    <t t-foreach="summary.compliance_report_entries" t-as="entry" t-key="entry.id + '-' + entry.stage">
+                                        <div>
+                                            <t t-esc="entry.name"/>: <t t-esc="entry.stage || '-'"/>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="text-muted">
+                                    No compliance records found.
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- ================= MANAGEMENT ================= -->
+                    <div class="col-12 col-lg">
+                        <div class="it_overview_card management">
+                            <div class="it_overview_title">Management</div>
+
+                            <div class="it_health_label">Overall IT Health</div>
+                            <div class="it_health_rating_row">
+                                <span t-attf-class="it_health_dot #{state.data.itHealthDotClass}"/>
+                                <span class="it_health_rating_text">
+                                    Rating: <strong t-esc="state.data.itHealthRating || '-'"/>
+                                </span>
+                            </div>
+
+                            <div class="it_happiness_text">
+                                <t t-esc="summary.happiness_satisfaction_rating || '-'"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-ticket-section mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                </div>
+                <div class="it_kpi_tables_row">
+                    <div class="it_kpi_dashboard_top">
+                        <div class="it_kpi_table_card it_response_table">
+                            <table class="table it_dashboard_table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>KPIs</th>
+                                        <th>L1 Helpdesk Prob</th>
+                                        <th>L1 Helpdesk Req</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="helpdeskKpiTable" t-as="row" t-key="row.id">
+                                        <tr>
+                                            <td>FRT First Response Time (T:95%)</td>
+                                            <td><t t-esc="row.frt_prob || '-'"/></td>
+                                            <td><t t-esc="row.frt_req || '-'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>ERT Every Response Time (T:95%)</td>
+                                            <td><t t-esc="row.ert_prob || '-'"/></td>
+                                            <td><t t-esc="row.ert_req || '-'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>RT Resolution Time (T:85%)</td>
+                                            <td><t t-esc="row.rt_prob || '-'"/></td>
+                                            <td><t t-esc="row.rt_req || '-'"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="it_kpi_table_card it_service_table">
+                            <table class="table it_dashboard_table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>KPIs (T:85%)</th>
+                                        <th>Helpdesk (L1)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="helpdeskKpiTable" t-as="row" t-key="row.id">
+                                        <tr>
+                                            <td>SLA Achieved</td>
+                                            <td><t t-esc="row.sla_achieved || '-'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Happiness Ratings</td>
+                                            <td><t t-esc="row.happiness_ratings || '-'"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="it_kpi_table_card it_ticket_table">
+                            <table class="table it_dashboard_table mb-0">
+                                <thead><tr><th>Remarks</th><th></th></tr></thead>
+                                <tbody>
+                                    <t t-foreach="helpdeskTicketRemarks" t-as="row" t-key="row.id">
+                                        <tr>
+                                            <td>NEW</td>
+                                            <td><t t-esc="row.new_count"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>ON HOLD</td>
+                                            <td><t t-esc="row.on_hold"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>CLOSED</td>
+                                            <td><t t-esc="row.closed"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="it_ticket_images">
+                        <div class="ticket_image_card ticket_new">
+                            <div class="ticket_metric_value">
+                                <t t-esc="latestHelpdeskReports.new_tickets || 0"/>
+                            </div>
+                            <div class="ticket_metric_label">
+                                New Tickets (Total)
+                            </div>
+                        </div>
+                        <div class="ticket_image_card ticket_on_hold">
+                            <div class="ticket_metric_value">
+                                <t t-esc="latestHelpdeskReports.on_hold_tickets || 0"/>
+                            </div>
+                            <div class="ticket_metric_label">
+                                On Hold Tickets (Total)
+                            </div>
+                        </div>
+                        <div class="ticket_image_card ticket_closed">
+                            <div class="ticket_metric_value">
+                                <t t-esc="latestHelpdeskReports.closed_tickets || 0"/>
+                            </div>
+                            <div class="ticket_metric_label">
+                                Closed Tickets (Total)
+                            </div>
+                        </div>
+                        <div class="ticket_image_card ticket_backlog">
+                            <div class="ticket_metric_value">
+                                <t t-esc="latestHelpdeskReports.backlog_tickets || 0"/>
+                            </div>
+                            <div class="ticket_metric_label">
+                                Backlog Tickets (Average)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="it_reports_section mb-3">
+                <div class="it_lighthouse_report">
+                    <t t-if="latestHelpdeskReports.lighthouse_report_url">
+                        <div class="it_lighthouse_frame">
+                            <img
+                                t-att-src="latestHelpdeskReports.lighthouse_report_url"
+                                class="it_lighthouse_image it_report_clickable"
+                                t-on-click="() => this.openImageModal(
+                                    'lighthouse',
+                                    latestHelpdeskReports.lighthouse_report_url
+                                )"
+                                onerror="this.style.display='none'"
+                            />
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="it_report_empty">
+                            No Lighthouse report image found.
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <div class="it_neo_report_section mb-3">
+                <!-- MONTH MTD OVERALL NEO SCORE -->
+                <div class="it_neo_report_sidebar">
+                <div class="card p-3 it_neo_score_card">
+                    <div class="fw-bold mb-3">Month MTD Overall NEO Score</div>
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Overall Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><t t-esc="summary.neo_date_1 || '-'"/></td>
+                                <td><t t-esc="summary.neo_score_1 || '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><t t-esc="summary.neo_date_2 || '-'"/></td>
+                                <td><t t-esc="summary.neo_score_2 || '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><t t-esc="summary.neo_date_3 || '-'"/></td>
+                                <td><t t-esc="summary.neo_score_3 || '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><t t-esc="summary.neo_date_4 || '-'"/></td>
+                                <td><t t-esc="summary.neo_score_4 || '-'"/></td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>MTD OVERALL NEO SCORE</strong></td>
+                                <td><strong><t t-esc="summary.overall_neo_score || 0"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card p-3 it_neo_comments_card">
+                    <div class="fw-bold mb-3">Comments / Recommendations</div>
+                    <table class="table table-sm align-middle mb-0">
+                        <tbody>
+                            <tr><td><t t-esc="summary.comments_1 || '-'"/></td></tr>
+                            <tr><td><t t-esc="summary.comments_2 || '-'"/></td></tr>
+                            <tr><td><t t-esc="summary.comments_3 || '-'"/></td></tr>
+                            <tr><td><t t-esc="summary.comments_4 || '-'"/></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+                <div class="it_neo_report_panel">
+                    <t t-if="latestHelpdeskReports.neo_satisfaction_score_url">
+                        <div class="it_neo_image_frame">
+                            <img
+                                t-att-src="latestHelpdeskReports.neo_satisfaction_score_url"
+                                class="it_neo_report_image it_report_clickable"
+                                t-on-click="() => this.openImageModal(
+                                    'neo',
+                                    latestHelpdeskReports.neo_satisfaction_score_url
+                                )"
+                                onerror="this.style.display='none'"
+                            />
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="it_report_empty">
+                            No NEO satisfaction score image found.
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <t t-if="state.imageModal.open">
+                <div class="it_image_modal_overlay" t-on-click="closeImageModal">
+                    <div class="it_image_modal_content" t-on-click.stop="">
+                        <div class="it_image_modal_toolbar">
+                            <button type="button" t-on-click="() => this.modalZoom(-0.25)">
+                                −
+                            </button>
+                            <button type="button" t-on-click="resetModalZoom">
+                                100%
+                            </button>
+                            <button type="button" t-on-click="() => this.modalZoom(0.25)">
+                                +
+                            </button>
+                            <button type="button" class="close" t-on-click="closeImageModal">
+                                ✕
+                            </button>
+                        </div>
+                        <div class="it_image_modal_canvas"
+                            t-on-pointerdown="onModalPointerDown"
+                            t-on-pointermove="onModalPointerMove"
+                            t-on-pointerup="onModalPointerUp"
+                            t-on-pointerleave="onModalPointerUp"
+                            t-on-wheel="onModalWheel">
+                            <img t-att-src="state.imageModal.url" t-att-style="getModalImageStyle()" draggable="false"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <div class="it_pc_prep_section mb-4">
+                <!-- ACTUAL PC PREP CHART -->
+                <div class="card it_pc_prep_chart_card">
+                    <div class="fw-bold mb-3">
+                        PC Preparation (This Week)
+                    </div>
+                    <div class="it_pc_prep_canvas">
+                        <canvas id="pc_prep_actual_chart"></canvas>
+                    </div>
+                </div>
+                <!-- KPI CARDS -->
+                <div class="it_pc_prep_kpi_column">
+                    <!-- ACTUAL NEW HIRES -->
+                    <div class="it_actual_pc_prep_kpi_card">
+                        <div class="it_pc_prep_kpi_total">
+                            Total New Hires:
+                            <t t-esc="summary.total_new_hires_actual || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSupport:
+                            <t t-esc="summary.isupport || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSWerk:
+                            <t t-esc="summary.iswerk || 0"/>
+                        </div>
+                    </div>
+                    <!-- PROJECTED NEW HIRES -->
+                    <div class="it_projected_pc_prep_kpi_card">
+                        <div class="it_pc_prep_kpi_total">
+                            Total New Hires:
+                            <t t-esc="summary.total_new_hires_projected || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSupport:
+                            <t t-esc="summary.projected_isupport || 0"/>
+                        </div>
+                        <div class="it_pc_prep_kpi_detail">
+                            iSWerk:
+                            <t t-esc="summary.projected_iswerk || 0"/>
+                        </div>
+                    </div>
+                </div>
+                <!-- PROJECTED PC PREP CHART -->
+                <div class="card it_pc_prep_chart_card">
+                    <div class="fw-bold mb-3">
+                        Projected PC Preparation (Next Week)
+                    </div>
+                    <div class="it_pc_prep_canvas">
+                        <canvas id="pc_prep_projected_chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="it_ticket_summary_section mb-4">
+                <div class="it_ticket_summary_wrapper">
+                    <table class="it_ticket_summary_table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>In Progress</th>
+                                <th>On Hold</th>
+                                <th>Resolved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="helpdeskTicketTable"
+                            t-as="row"
+                            t-key="row.id">
+                                <!-- ROW 1: INCIDENT -->
+                                <tr>
+                                    <td class="it_ticket_summary_category">
+                                        Incident
+                                    </td>
+                                    <td class="it_ticket_summary_value">
+                                        <t t-esc="row.incident_in_progress"/>
+                                    </td>
+                                    <td class="it_ticket_summary_value">
+                                        <t t-esc="row.incident_on_hold"/>
+                                    </td>
+                                    <td class="it_ticket_summary_resolved">
+                                        <t t-esc="row.incident_resolved"/>
+                                    </td>
+                                </tr>
+                                <!-- ROW 2: REQUEST -->
+                                <tr>
+                                    <td class="it_ticket_summary_category">
+                                        Request
+                                    </td>
+                                    <td class="it_ticket_summary_value">
+                                        <t t-esc="row.request_in_progress"/>
+                                    </td>
+                                    <td class="it_ticket_summary_value">
+                                        <t t-esc="row.request_on_hold"/>
+                                    </td>
+                                    <td class="it_ticket_summary_resolved">
+                                        <t t-esc="row.request_resolved"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr t-if="!helpdeskTicketTable.length">
+                                <td
+                                    colspan="4"
+                                    class="it_ticket_summary_empty">
+                                    No ticket data found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

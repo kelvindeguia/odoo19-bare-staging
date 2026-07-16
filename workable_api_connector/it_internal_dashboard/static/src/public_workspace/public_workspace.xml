@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="it_internal_dashboard_test2.PublicWorkspace">
+        <div class="public-dashboard-workspace">
+            <div t-if="state.error" class="public-dashboard-state public-dashboard-error">
+                <h2>Dashboard Unavailable</h2>
+                <p><t t-esc="state.error"/></p>
+            </div>
+
+            <div t-elif="state.loading" class="public-dashboard-state">
+                <div>Loading dashboard...</div>
+            </div>
+
+            <t t-else="">
+                <header class="public-dashboard-header">
+                    <div>
+                        <h1>IT Dashboard</h1>
+                    </div>
+
+                    <div class="it_report_selector">
+                        <button
+                            class="it_date_filter"
+                            t-on-click="toggleDateMenu">
+                            <i class="fa fa-calendar"/>
+                            <span>
+                                <t t-esc="state.dateLabel"/>
+                            </span>
+                            <i class="fa fa-chevron-down"/>
+                        </button>
+                        <div
+                            class="it_date_dropdown"
+                            t-if="state.showDateMenu">
+                            <button t-on-click="selectThisWeek">
+                                This Week
+                            </button>
+                            <button t-on-click="selectLastWeek">
+                                Last Week
+                            </button>
+                            <button t-on-click="selectThisMonth">
+                                This Month
+                            </button>
+                            <button t-on-click="selectLastMonth">
+                                Last Month
+                            </button>
+                            <button t-on-click="selectLast30Days">
+                                Last 30 Days
+                            </button>
+                            <hr/>
+                            <div class="it_custom_range">
+                                <input
+                                    type="date"
+                                    t-model="state.start_date"/>
+                                <span>to</span>
+                                <input
+                                    type="date"
+                                    t-model="state.end_date"
+                                    readonly="readonly"/>
+                                <button
+                                    class="btn btn-primary btn-sm"
+                                    t-on-click="applyCustomRange">
+                                    Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div t-if="state.dateRangeError" class="public-dashboard-date-error" role="alert">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <span><t t-esc="state.dateRangeError"/></span>
+                </div>
+
+                <nav class="public-dashboard-nav" aria-label="Dashboard sections">
+                    <t t-foreach="state.nav" t-as="tab" t-key="tab.key">
+                        <button
+                            type="button"
+                            t-att-class="state.activeSection === tab.key ? 'public-dashboard-tab active' : 'public-dashboard-tab'"
+                            t-att-aria-current="state.activeSection === tab.key ? 'page' : undefined"
+                            t-on-click="() => this.selectSection(tab.key)">
+                            <t t-esc="tab.label"/>
+                        </button>
+                    </t>
+                </nav>
+
+                <div class="public-dashboard-mobile-nav">
+                    <label for="public_dashboard_section_select">Dashboard section</label>
+                    <select
+                        id="public_dashboard_section_select"
+                        t-on-change="(ev) => this.selectSection(ev.target.value)">
+                        <t t-foreach="state.nav" t-as="tab" t-key="tab.key">
+                            <option
+                                t-att-value="tab.key"
+                                t-att-selected="state.activeSection === tab.key ? true : undefined">
+                                <t t-esc="tab.label"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+                <div class="public-dashboard-content">
+                <div t-if="state.sectionLoading &amp;&amp; !currentData" class="public-dashboard-state">
+                    Loading section...
+                </div>
+
+                <div t-elif="currentData &amp;&amp; currentData.error" class="public-dashboard-state public-dashboard-error">
+                    Unable to load this section.
+                </div>
+
+                <Dashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'summary'"
+                    t-key="'summary-' + (currentData.start_date || '') + '-' + (currentData.end_date || '')"
+                    publicMode="true"
+                    publicData="currentData"
+                    loadPublicData.bind="loadPublicData"/>
+
+                <HelpdeskDashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'helpdesk'"
+                    t-key="'helpdesk'"
+                    publicMode="true"
+                    publicData="currentData"/>
+
+                <InfraDashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'infra'"
+                    t-key="'infra'"
+                    publicMode="true"
+                    publicData="currentData"/>
+
+                <DevOpsDashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'devops'"
+                    t-key="'devops'"
+                    publicMode="true"
+                    publicData="currentData"/>
+
+                <ComplianceDashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'compliance'"
+                    t-key="'compliance'"
+                    publicMode="true"
+                    publicData="currentData"/>
+
+                <ManagementDashboard
+                    t-elif="currentData &amp;&amp; state.activeSection === 'management'"
+                    t-key="'management'"
+                    publicMode="true"
+                    publicData="currentData"/>
+
+                <div t-else="" class="public-dashboard-state">
+                    Select a dashboard section.
+                </div>
+              </div>
+            </t>
+        </div>
+    </t>
+</templates>
