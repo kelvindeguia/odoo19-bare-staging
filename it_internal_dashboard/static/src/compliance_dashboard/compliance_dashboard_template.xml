@@ -1,6 +1,6 @@
 <templates xml:space="preserve">
 
-    <t t-name="it_internal_dashboard_test2.ComplianceDashboard">
+    <t t-name="it_internal_dashboard.ComplianceDashboard">
         <div class="compliance-container">
             <t t-if="!this.publicMode &amp;&amp; this.viewMode !== 'readonly'">
                 <div class="compliance-sidebar">

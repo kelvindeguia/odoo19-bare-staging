@@ -11,7 +11,7 @@ import { ComplianceDashboard } from "../compliance_dashboard/compliance_dashboar
 import { ManagementDashboard } from "../management_dashboard/management_dashboard_template";
 
 export class PublicWorkspace extends Component {
-    static template = "it_internal_dashboard_test2.PublicWorkspace";
+    static template = "it_internal_dashboard.PublicWorkspace";
     static components = {
         Dashboard,
         HelpdeskDashboard,

@@ -1,6 +1,6 @@
 <templates xml:space="preserve">
 
-    <t t-name="it_internal_dashboard_test2.ManagementDashboard">
+    <t t-name="it_internal_dashboard.ManagementDashboard">
 
         <div class="management-container">
 

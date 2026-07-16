@@ -5,7 +5,7 @@ import { Component, useState, onWillStart, onMounted, onWillUnmount } from "@odo
 import { useService } from "@web/core/utils/hooks";
 
 export class ManagementDashboard extends Component {
-    static template = "it_internal_dashboard_test2.ManagementDashboard";
+    static template = "it_internal_dashboard.ManagementDashboard";
 
     static props = {
         publicMode: { type: Boolean, optional: true },
@@ -133,7 +133,7 @@ export class ManagementDashboard extends Component {
             ]);
 
             // redirect to list
-            await this.action.doAction("it_internal_dashboard_test2.action_management_dashboard");
+            await this.action.doAction("it_internal_dashboard.action_management_dashboard");
 
         } catch (error) {
             console.error("Error saving management data:", error);

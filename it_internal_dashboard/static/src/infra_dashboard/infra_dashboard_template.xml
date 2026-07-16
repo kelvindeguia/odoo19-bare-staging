@@ -1,6 +1,6 @@
 <templates xml:space="preserve">
 
-    <t t-name="it_internal_dashboard_test2.InfraDashboard">
+    <t t-name="it_internal_dashboard.InfraDashboard">
 
         <div class="infra-container">
 

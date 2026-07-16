@@ -5,7 +5,7 @@ import { Component, useState, useRef, onWillStart, onMounted, onWillUnmount } fr
 import { useService } from "@web/core/utils/hooks";
 
 export class HelpdeskDashboard extends Component {
-    static template = "it_internal_dashboard_test2.HelpdeskDashboard";
+    static template = "it_internal_dashboard.HelpdeskDashboard";
 
     static props = {
         publicMode: { type: Boolean, optional: true },
@@ -1040,7 +1040,7 @@ export class HelpdeskDashboard extends Component {
 
             }
             // redirect to list
-            await this.action.doAction("it_internal_dashboard_test2.action_helpdesk_dashboard");
+            await this.action.doAction("it_internal_dashboard.action_helpdesk_dashboard");
 
         } catch (error) {
             console.error("Error saving Helpdesk data:", error);

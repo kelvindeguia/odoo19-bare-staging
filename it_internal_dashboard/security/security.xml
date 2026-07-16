@@ -1,47 +1,47 @@
 <odoo>
-    <record id="module_category_it_internal_dashboard_test2" model="ir.module.category">
+    <record id="module_category_it_internal_dashboard" model="ir.module.category">
         <field name="name">IT Internal Dashboard (With Zoho)</field>
         <field name="sequence">40</field>
     </record>
 
     <record id="res_groups_privilege_it_internal_dashboard" model="res.groups.privilege">
         <field name="name">Role</field>
-        <field name="category_id" ref="it_internal_dashboard_test2.module_category_it_internal_dashboard_test2"/>
+        <field name="category_id" ref="it_internal_dashboard.module_category_it_internal_dashboard"/>
         <field name="sequence">40</field>
     </record>
 
     <record id="group_it_internal_dashboard_executive" model="res.groups">
         <field name="name">Executive</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_management" model="res.groups">
         <field name="name">Management</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_compliance_department" model="res.groups">
         <field name="name">Compliance Department</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_devops_department" model="res.groups">
         <field name="name">DevOps Department</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_infra_department" model="res.groups">
         <field name="name">Infra Department</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_helpdesk_department" model="res.groups">
         <field name="name">Helpdesk Department</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 
     <record id="group_it_internal_dashboard_developer" model="res.groups">
         <field name="name">IT Internal Dashboard Developer</field>
-        <field name="privilege_id" ref="it_internal_dashboard_test2.res_groups_privilege_it_internal_dashboard"/>
+        <field name="privilege_id" ref="it_internal_dashboard.res_groups_privilege_it_internal_dashboard"/>
     </record>
 </odoo>

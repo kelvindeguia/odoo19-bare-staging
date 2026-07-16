@@ -5,7 +5,7 @@ import { Component, useState, onWillStart, onMounted, onWillUnmount } from "@odo
 import { useService } from "@web/core/utils/hooks";
 
 export class DevOpsDashboard extends Component {
-    static template = "it_internal_dashboard_test2.DevOpsDashboard";
+    static template = "it_internal_dashboard.DevOpsDashboard";
 
     static props = {
         publicMode: { type: Boolean, optional: true },
@@ -217,7 +217,7 @@ export class DevOpsDashboard extends Component {
             ]);
 
             // redirect to list
-            await this.action.doAction("it_internal_dashboard_test2.action_devops_dashboard");
+            await this.action.doAction("it_internal_dashboard.action_devops_dashboard");
 
         } catch (error) {
             console.error("Error saving DevOps data:", error);

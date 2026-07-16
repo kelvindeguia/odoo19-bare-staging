@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-name="it_internal_dashboard_test2.PublicWorkspace">
+    <t t-name="it_internal_dashboard.PublicWorkspace">
         <div class="public-dashboard-workspace">
             <div t-if="state.error" class="public-dashboard-state public-dashboard-error">
                 <h2>Dashboard Unavailable</h2>

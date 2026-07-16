@@ -7,7 +7,7 @@ import { registry } from "@web/core/registry";
 import { rpc } from "@web/core/network/rpc";
 
 export class Dashboard extends Component {
-    static template = "it_internal_dashboard_test2.Dashboard";
+    static template = "it_internal_dashboard.Dashboard";
 
     setup() {
         this.publicMode = Boolean(this.props?.publicMode);
@@ -435,4 +435,4 @@ export class Dashboard extends Component {
     }
 }
 
-registry.category("actions").add("it_internal_dashboard_test2_live2", Dashboard);
+registry.category("actions").add("it_internal_dashboard_live2", Dashboard);

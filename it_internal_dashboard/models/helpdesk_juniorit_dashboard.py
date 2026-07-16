@@ -279,7 +279,7 @@ class HelpdeskDashboard(models.Model):
     @api.model
     def can_current_user_edit(self):
         return self.env.user.has_group(
-            "it_internal_dashboard_test2.group_it_internal_dashboard_developer"
+            "it_internal_dashboard.group_it_internal_dashboard_developer"
         )
     
     @api.model
