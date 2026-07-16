@@ -76,12 +76,12 @@ class PublicDashboardController(http.Controller):
 
     # ----------------------------------------------------------------
     # Route 2 — Navigation list (JSON)
-    # FIX: was type="jsonrpc" — not a valid Odoo route type
+    # Odoo 19 uses type="jsonrpc" for JSON controller routes
     # ----------------------------------------------------------------
 
     @http.route(
         "/it-internal-dashboard-test2/<string:token>/nav",
-        type="json",            # ← FIXED: was "jsonrpc" (invalid)
+        type="jsonrpc",
         auth="public",
         sitemap=False,
         methods=["POST"],
@@ -104,12 +104,12 @@ class PublicDashboardController(http.Controller):
 
     # ----------------------------------------------------------------
     # Route 3 — Section data (JSON)
-    # FIX: was type="jsonrpc" — not a valid Odoo route type
+    # Odoo 19 uses type="jsonrpc" for JSON controller routes
     # ----------------------------------------------------------------
 
     @http.route(
         "/it-internal-dashboard-test2/<string:token>/data",
-        type="json",            # ← FIXED: was "jsonrpc" (invalid)
+        type="jsonrpc",
         auth="public",
         sitemap=False,
         methods=["POST"],

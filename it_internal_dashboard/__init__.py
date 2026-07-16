@@ -1,3 +1,3 @@
-from ..workable_api_connector.it_internal_dashboard import models
-from ..workable_api_connector.it_internal_dashboard import controllers
-from ..workable_api_connector.it_internal_dashboard import services
+from . import models
+from . import controllers
+from . import services

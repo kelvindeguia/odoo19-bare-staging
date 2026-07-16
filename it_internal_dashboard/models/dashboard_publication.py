@@ -11,11 +11,9 @@ interact with this model directly — the controller reads it on
 their behalf.
 """
 import secrets
-import hashlib
 from datetime import date, datetime, timedelta
 
 from odoo import models, fields, api
-from odoo.exceptions import UserError
 
 
 class DashboardPublication(models.Model):
@@ -108,9 +106,10 @@ class DashboardPublication(models.Model):
         ),
     )
 
-    _sql_constraints = [
-        ("unique_share_token", "UNIQUE(share_token)", "Share token must be unique."),
-    ]
+    _unique_share_token = models.Constraint(
+        "UNIQUE(share_token)",
+        "Share token must be unique.",
+    )
 
     @api.depends("publication_date", "include_executive_summary")
     def _compute_name(self):
