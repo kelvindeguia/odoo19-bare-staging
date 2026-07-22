@@ -1,0 +1,12 @@
+<odoo noupdate="1">
+    <record id="kpi_helpdesk_csAT" model="it.dashboard.kpi"><field name="name">Helpdesk CSAT</field><field name="code">HELPDESK_CSAT</field><field name="category">helpdesk</field><field name="unit">percentage</field><field name="target_value">90</field><field name="data_source">zoho</field></record>
+    <record id="kpi_helpdesk_sla" model="it.dashboard.kpi"><field name="name">Helpdesk SLA Achievement</field><field name="code">HELPDESK_SLA</field><field name="category">helpdesk</field><field name="unit">percentage</field><field name="target_value">85</field><field name="data_source">zoho</field></record>
+    <record id="kpi_neo_score" model="it.dashboard.kpi"><field name="name">NEO Satisfaction Score</field><field name="code">NEO_SCORE</field><field name="category">neo</field><field name="unit">score</field><field name="target_value">4.5</field><field name="data_source">calculated</field></record>
+    <record id="kpi_pc_prepared" model="it.dashboard.kpi"><field name="name">New Hire PCs Prepared</field><field name="code">PC_PREPARED</field><field name="category">pc</field><field name="unit">percentage</field><field name="target_value">100</field><field name="data_source">calculated</field></record>
+    <record id="kpi_projects" model="it.dashboard.kpi"><field name="name">Projected/Ongoing Projects</field><field name="code">PROJECTS_OPEN</field><field name="category">project</field><field name="unit">number</field><field name="target_value">0</field><field name="data_source">calculated</field></record>
+    <record id="neo_q1" model="it.neo.question"><field name="name">The presentation was organized and visually entertaining</field><field name="sequence">10</field></record>
+    <record id="neo_q2" model="it.neo.question"><field name="name">The facilitator made the orientation lively and engaging</field><field name="sequence">20</field></record>
+    <record id="neo_q3" model="it.neo.question"><field name="name">The facilitator was prepared and knowledgeable</field><field name="sequence">30</field></record>
+    <record id="neo_q4" model="it.neo.question"><field name="name">The facilitator was pleasant and responsive to questions</field><field name="sequence">40</field></record>
+    <record id="neo_q5" model="it.neo.question"><field name="name">The facilitator provided specific examples and clear ideas</field><field name="sequence">50</field></record>
+</odoo>

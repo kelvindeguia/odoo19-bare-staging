@@ -1,0 +1,7 @@
+<odoo>
+    <record id="group_zoho_integration_manager" model="res.groups">
+        <field name="name">Zoho Desk Integration Manager</field>
+        <field name="category_id" ref="isw_it_dashboard.module_category_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('isw_it_dashboard.group_it_dashboard_admin'))]"/>
+    </record>
+</odoo>
