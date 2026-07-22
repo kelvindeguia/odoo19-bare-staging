@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_workable_health_root" name="Workable API Monitor" sequence="35" groups="workable_api_health_monitor.group_workable_health_user"/>
+    <menuitem id="menu_workable_health_accounts" name="API Accounts" parent="menu_workable_health_root" action="action_workable_api_account" sequence="10"/>
+    <menuitem id="menu_workable_health_subscriptions" name="Subscriptions" parent="menu_workable_health_root" action="action_workable_api_subscription" sequence="20"/>
+    <menuitem id="menu_workable_health_webhooks" name="Webhook Events" parent="menu_workable_health_root" action="action_workable_webhook_event" sequence="30"/>
+    <menuitem id="menu_workable_health_logs" name="Health Check Logs" parent="menu_workable_health_root" action="action_workable_health_log" sequence="40"/>
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_workable_health_log_list" model="ir.ui.view">
+        <field name="name">workable.health.log.list</field>
+        <field name="model">workable.health.log</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" decoration-success="status == 'success'" decoration-warning="status == 'warning'" decoration-danger="status == 'error'">
+                <field name="check_date"/>
+                <field name="account_id"/>
+                <field name="subscription_id" optional="hide"/>
+                <field name="check_type"/>
+                <field name="status" widget="badge"/>
+                <field name="http_status"/>
+                <field name="response_time_ms"/>
+                <field name="message"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_workable_health_log_form" model="ir.ui.view">
+        <field name="name">workable.health.log.form</field>
+        <field name="model">workable.health.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="check_date"/>
+                            <field name="account_id"/>
+                            <field name="subscription_id"/>
+                            <field name="check_type"/>
+                        </group>
+                        <group>
+                            <field name="status" widget="badge"/>
+                            <field name="http_status"/>
+                            <field name="response_time_ms"/>
+                        </group>
+                    </group>
+                    <group string="Result">
+                        <field name="message"/>
+                        <field name="response_payload" widget="text"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_workable_health_log" model="ir.actions.act_window">
+        <field name="name">Health Check Logs</field>
+        <field name="res_model">workable.health.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'create': False}</field>
+    </record>
+</odoo>

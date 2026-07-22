@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_workable_health" model="ir.module.category">
+        <field name="name">Workable API Monitor</field>
+        <field name="sequence">35</field>
+    </record>
+
+    <record id="privilege_workable_health" model="res.groups.privilege">
+        <field name="name">Workable API Monitor</field>
+        <field name="sequence">35</field>
+        <field name="category_id" ref="workable_api_health_monitor.module_category_workable_health"/>
+    </record>
+
+    <record id="group_workable_health_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="workable_api_health_monitor.privilege_workable_health"/>
+    </record>
+
+    <record id="group_workable_health_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="workable_api_health_monitor.privilege_workable_health"/>
+        <field name="implied_ids" eval="[(4, ref('workable_api_health_monitor.group_workable_health_user'))]"/>
+    </record>
+
+    <record id="rule_workable_account_company" model="ir.rule">
+        <field name="name">Workable accounts by company</field>
+        <field name="model_id" ref="model_workable_api_account"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('workable_api_health_monitor.group_workable_health_user'))]"/>
+    </record>
+
+    <record id="rule_workable_subscription_company" model="ir.rule">
+        <field name="name">Workable subscriptions by company</field>
+        <field name="model_id" ref="model_workable_api_subscription"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('workable_api_health_monitor.group_workable_health_user'))]"/>
+    </record>
+
+    <record id="rule_workable_health_log_company" model="ir.rule">
+        <field name="name">Workable health logs by company</field>
+        <field name="model_id" ref="model_workable_health_log"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('workable_api_health_monitor.group_workable_health_user'))]"/>
+    </record>
+
+    <record id="rule_workable_webhook_event_company" model="ir.rule">
+        <field name="name">Workable webhook events by company</field>
+        <field name="model_id" ref="model_workable_webhook_event"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('workable_api_health_monitor.group_workable_health_user'))]"/>
+    </record>
+</odoo>
