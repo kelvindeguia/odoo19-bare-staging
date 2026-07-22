@@ -3,5 +3,5 @@
 <menuitem id="menu_it_zoho_ticket" name="Zoho Desk Tickets" parent="menu_it_helpdesk" action="action_it_zoho_ticket"/>
 <menuitem id="menu_it_zoho_sync_log" name="Integration Logs" parent="menu_it_helpdesk" action="action_it_integration_sync_log" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
 <menuitem id="menu_it_zoho_webhook" name="Webhook Events" parent="menu_it_helpdesk" action="action_it_zoho_webhook_event" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
-<menuitem id="menu_it_zoho_settings" name="Zoho Settings" parent="isw_it_dashboard.menu_it_dashboard_config" action="base.action_res_config_settings" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
+<menuitem id="menu_it_zoho_settings" name="Zoho Settings" parent="isw_it_dashboard.menu_it_dashboard_config" action="base.res_config_setting_act_window" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
 </odoo>
