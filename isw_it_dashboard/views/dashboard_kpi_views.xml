@@ -1,0 +1,5 @@
+<odoo>
+<record id="view_it_dashboard_kpi_list" model="ir.ui.view"><field name="name">it.dashboard.kpi.list</field><field name="model">it.dashboard.kpi</field><field name="arch" type="xml"><list><field name="sequence" widget="handle"/><field name="name"/><field name="code"/><field name="category"/><field name="unit"/><field name="target_value"/><field name="data_source"/><field name="active"/></list></field></record>
+<record id="view_it_dashboard_kpi_form" model="ir.ui.view"><field name="name">it.dashboard.kpi.form</field><field name="model">it.dashboard.kpi</field><field name="arch" type="xml"><form><sheet><group><field name="name"/><field name="code"/><field name="category"/><field name="unit"/><field name="target_value"/><field name="higher_is_better"/><field name="data_source"/><field name="sequence"/><field name="active"/></group></sheet></form></field></record>
+<record id="action_it_dashboard_kpi" model="ir.actions.act_window"><field name="name">KPI Definitions</field><field name="res_model">it.dashboard.kpi</field><field name="view_mode">list,form</field></record>
+</odoo>

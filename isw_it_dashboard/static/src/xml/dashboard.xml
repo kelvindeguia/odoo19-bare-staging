@@ -1,0 +1,11 @@
+<templates xml:space="preserve">
+<t t-name="isw_it_dashboard.Dashboard">
+<div class="o_it_dashboard p-4">
+  <div class="o_it_hero mb-4"><div><div class="text-uppercase small fw-bold">Operations and Reporting Hub</div><h1>IT &amp; Helpdesk Dashboard</h1><p>Collect operational data in Odoo, validate monthly reports, and publish curated datasets to AWS QuickSight.</p></div><button class="btn btn-light" t-on-click="() => this.open('isw_it_dashboard.action_it_dashboard_period')">Open reporting periods</button></div>
+  <t t-if="state.loading"><div class="text-center p-5">Loading...</div></t>
+  <t t-else=""><div class="row g-3">
+    <t t-foreach="[['Reporting Periods', state.periods, 'isw_it_dashboard.action_it_dashboard_period'], ['NEO Sessions', state.neo, 'isw_it_dashboard.action_it_neo_session'], ['PC Preparations', state.pc, 'isw_it_dashboard.action_it_pc_preparation'], ['Highlights', state.highlights, 'isw_it_dashboard.action_it_department_highlight'], ['Project Updates', state.projects, 'isw_it_dashboard.action_it_project_update']]" t-as="card" t-key="card[0]"><div class="col-12 col-md-6 col-xl"><button class="o_it_card w-100 text-start" t-on-click="() => this.open(card[2])"><span t-esc="card[0]"/><strong t-esc="card[1]"/></button></div></t>
+  </div><div class="o_it_latest mt-4" t-if="state.latest"><div><span class="badge text-bg-primary" t-esc="state.latest.state"/><h3 t-esc="state.latest.name"/><p><t t-esc="state.latest.date_from"/> – <t t-esc="state.latest.date_to"/></p></div><div class="text-end"><div class="display-6" t-esc="Math.round(state.latest.completion_percentage) + '%'"/><small>Data completion</small></div></div></t>
+</div>
+</t>
+</templates>

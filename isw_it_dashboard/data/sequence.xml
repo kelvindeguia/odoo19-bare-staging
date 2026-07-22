@@ -1,0 +1,8 @@
+<odoo noupdate="1">
+    <record id="seq_it_dashboard_period" model="ir.sequence">
+        <field name="name">IT Dashboard Period</field>
+        <field name="code">it.dashboard.period</field>
+        <field name="prefix">ITR/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>
