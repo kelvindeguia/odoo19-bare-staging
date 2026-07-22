@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_zoho_ticket_user,zoho ticket user,model_it_zoho_ticket,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
-access_zoho_ticket_manager,zoho ticket manager,model_it_zoho_ticket,group_zoho_integration_manager,1,1,1,1
-access_sync_log_user,sync log user,model_it_integration_sync_log,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
-access_sync_log_manager,sync log manager,model_it_integration_sync_log,group_zoho_integration_manager,1,1,1,1
-access_webhook_event_manager,webhook event manager,model_it_zoho_webhook_event,group_zoho_integration_manager,1,1,1,1
+access_it_zoho_ticket_user,Zoho Desk Ticket User,model_it_zoho_ticket,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
+access_it_zoho_ticket_manager,Zoho Desk Ticket Manager,model_it_zoho_ticket,group_zoho_integration_manager,1,1,1,1
+
+access_it_integration_sync_log_manager,Zoho Integration Sync Log Manager,model_it_integration_sync_log,group_zoho_integration_manager,1,1,1,1
+
+access_it_zoho_webhook_event_manager,Zoho Webhook Event Manager,model_it_zoho_webhook_event,group_zoho_integration_manager,1,1,1,1
