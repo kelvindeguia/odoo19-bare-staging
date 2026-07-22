@@ -30,7 +30,7 @@
                 <field name="environment"/>
                 <field name="purpose"/>
                 <filter name="healthy" string="Healthy" domain="[('connection_status', '=', 'healthy')]"/>
-                <filter name="attention" string="Needs Attention" domain="[('connection_status', 'not in', ('healthy', 'not_checked'))]"/>
+                <filter name="attention" string="Needs Attention" domain="[('connection_status', 'not in', ['healthy', 'not_checked'])]"/>
                 <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_environment" string="Environment" context="{'group_by': 'environment'}"/>
