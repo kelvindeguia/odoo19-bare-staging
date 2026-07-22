@@ -27,7 +27,7 @@
                 <field name="event_type"/>
                 <field name="target_url"/>
                 <filter name="healthy" string="Healthy" domain="[('health_status', '=', 'healthy')]"/>
-                <filter name="attention" string="Needs Attention" domain="[('health_status', 'not in', ('healthy', 'not_checked'))]"/>
+                <filter name="attention" string="Needs Attention" domain="[('health_status', 'not in', ['healthy', 'not_checked'])]"/>
                 <filter name="missing" string="Missing" domain="[('health_status', '=', 'missing')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_account" string="Account" context="{'group_by': 'account_id'}"/>
