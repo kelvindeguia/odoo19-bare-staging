@@ -4,14 +4,17 @@
         <field name="name">workable.health.log.list</field>
         <field name="model">workable.health.log</field>
         <field name="arch" type="xml">
-            <list create="0" edit="0" decoration-success="status == 'success'" decoration-warning="status == 'warning'" decoration-danger="status == 'error'">
+            <list create="0" edit="0" class="o_workable_monitor_list"
+                  decoration-success="status == 'success'"
+                  decoration-warning="status == 'warning'"
+                  decoration-danger="status == 'error'">
                 <field name="check_date"/>
                 <field name="account_id"/>
                 <field name="subscription_id" optional="hide"/>
-                <field name="check_type"/>
+                <field name="check_type" widget="badge"/>
                 <field name="status" widget="badge"/>
                 <field name="http_status"/>
-                <field name="response_time_ms"/>
+                <field name="response_time_ms" string="Response (ms)"/>
                 <field name="message"/>
             </list>
         </field>
@@ -21,25 +24,42 @@
         <field name="name">workable.health.log.form</field>
         <field name="model">workable.health.log</field>
         <field name="arch" type="xml">
-            <form create="0" edit="0">
+            <form create="0" edit="0" class="o_workable_monitor_form">
                 <sheet>
-                    <group>
-                        <group>
-                            <field name="check_date"/>
+                    <div class="o_workable_hero o_workable_hero_compact">
+                        <div class="o_workable_hero_icon"><i class="fa fa-line-chart"/></div>
+                        <div class="o_workable_hero_content">
+                            <div class="text-muted small text-uppercase fw-semibold">Health Check Result</div>
+                            <h1><field name="account_id"/></h1>
+                            <div class="o_workable_hero_meta">
+                                <span><i class="fa fa-clock-o me-1"/><field name="check_date"/></span>
+                                <span><i class="fa fa-cog me-1"/><field name="check_type"/></span>
+                            </div>
+                        </div>
+                        <div class="o_workable_hero_status"><field name="status" widget="badge"/></div>
+                    </div>
+                    <group class="o_workable_group_cards">
+                        <group string="Request">
                             <field name="account_id"/>
                             <field name="subscription_id"/>
                             <field name="check_type"/>
+                            <field name="check_date"/>
                         </group>
-                        <group>
+                        <group string="Response">
                             <field name="status" widget="badge"/>
                             <field name="http_status"/>
                             <field name="response_time_ms"/>
                         </group>
                     </group>
-                    <group string="Result">
-                        <field name="message"/>
-                        <field name="response_payload" widget="text"/>
-                    </group>
+                    <div class="o_workable_status_banner mt-3">
+                        <i class="fa fa-info-circle"/>
+                        <field name="message" nolabel="1"/>
+                    </div>
+                    <notebook class="o_workable_notebook">
+                        <page string="Response Payload">
+                            <field name="response_payload" widget="text" nolabel="1"/>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
