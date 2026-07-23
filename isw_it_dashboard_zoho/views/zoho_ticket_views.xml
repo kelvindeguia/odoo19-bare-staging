@@ -1,5 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-<record id="view_it_zoho_ticket_list" model="ir.ui.view"><field name="name">it.zoho.ticket.list</field><field name="model">it.zoho.ticket</field><field name="arch" type="xml"><list decoration-danger="sla_violated"><field name="ticket_number"/><field name="subject"/><field name="department_name"/><field name="channel"/><field name="status"/><field name="priority"/><field name="created_time"/><field name="closed_time"/><field name="sla_violated"/><field name="customer_rating"/><field name="assignee_name"/></list></field></record>
-<record id="view_it_zoho_ticket_form" model="ir.ui.view"><field name="name">it.zoho.ticket.form</field><field name="model">it.zoho.ticket</field><field name="arch" type="xml"><form><sheet><div class="oe_title"><h1><field name="ticket_number"/> - <field name="subject"/></h1></div><group><group><field name="zoho_ticket_id"/><field name="department_name"/><field name="channel"/><field name="status"/><field name="priority"/><field name="category"/><field name="subcategory"/></group><group><field name="created_time"/><field name="modified_time"/><field name="first_response_time"/><field name="closed_time"/><field name="sla_violated"/><field name="customer_rating"/><field name="assignee_name"/></group></group><notebook><page string="Metrics"><group><field name="first_response_minutes"/><field name="response_time_minutes"/><field name="resolution_time_minutes"/></group></page><page string="Raw Payload"><field name="raw_payload" widget="text"/></page></notebook></sheet></form></field></record>
-<record id="action_it_zoho_ticket" model="ir.actions.act_window"><field name="name">Zoho Desk Tickets</field><field name="res_model">it.zoho.ticket</field><field name="view_mode">list,form,pivot,graph</field></record>
+    <record id="view_it_zoho_ticket_list" model="ir.ui.view">
+        <field name="name">it.zoho.ticket.list</field>
+        <field name="model">it.zoho.ticket</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" default_order="created_time desc">
+                <field name="ticket_number"/>
+                <field name="subject"/>
+                <field name="status"/>
+                <field name="priority"/>
+                <field name="channel"/>
+                <field name="department_name" optional="show"/>
+                <field name="assignee_name" optional="show"/>
+                <field name="created_time"/>
+                <field name="closed_time" optional="show"/>
+                <field name="last_sync_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_zoho_ticket_form" model="ir.ui.view">
+        <field name="name">it.zoho.ticket.form</field>
+        <field name="model">it.zoho.ticket</field>
+        <field name="arch" type="xml">
+            <form create="0" delete="0">
+                <sheet>
+                    <h1><field name="subject" readonly="1"/></h1>
+                    <group>
+                        <group>
+                            <field name="ticket_number" readonly="1"/>
+                            <field name="zoho_ticket_id" readonly="1"/>
+                            <field name="status" readonly="1"/>
+                            <field name="status_type" readonly="1"/>
+                            <field name="priority" readonly="1"/>
+                            <field name="channel" readonly="1"/>
+                            <field name="category" readonly="1"/>
+                            <field name="subcategory" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="department_name" readonly="1"/>
+                            <field name="department_id_external" readonly="1"/>
+                            <field name="assignee_name" readonly="1"/>
+                            <field name="assignee_id_external" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="phone" readonly="1"/>
+                            <field name="web_url" widget="url" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Dates and Metrics">
+                            <group>
+                                <group>
+                                    <field name="created_time" readonly="1"/>
+                                    <field name="modified_time" readonly="1"/>
+                                    <field name="due_date" readonly="1"/>
+                                    <field name="response_due_date" readonly="1"/>
+                                    <field name="first_response_time" readonly="1"/>
+                                    <field name="closed_time" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="resolution_time_minutes" readonly="1"/>
+                                    <field name="first_response_minutes" readonly="1"/>
+                                    <field name="response_time_minutes" readonly="1"/>
+                                    <field name="sla_violated" readonly="1"/>
+                                    <field name="customer_rating" readonly="1"/>
+                                    <field name="last_sync_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="External References">
+                            <group>
+                                <group>
+                                    <field name="account_id_external" readonly="1"/>
+                                    <field name="account_name" readonly="1"/>
+                                    <field name="contact_id_external" readonly="1"/>
+                                    <field name="contact_name" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="product_id_external" readonly="1"/>
+                                    <field name="team_id_external" readonly="1"/>
+                                    <field name="layout_id_external" readonly="1"/>
+                                    <field name="comment_count" readonly="1"/>
+                                    <field name="thread_count" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Raw Payload" groups="isw_it_dashboard_zoho.group_zoho_integration_manager">
+                            <field name="raw_payload" nolabel="1" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_it_zoho_ticket_search" model="ir.ui.view">
+        <field name="name">it.zoho.ticket.search</field>
+        <field name="model">it.zoho.ticket</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="ticket_number"/>
+                <field name="subject"/>
+                <field name="email"/>
+                <field name="status"/>
+                <field name="priority"/>
+                <field name="department_name"/>
+                <field name="assignee_name"/>
+                <filter name="open" string="Open" domain="[('status_type', '!=', 'Closed')]"/>
+                <filter name="closed" string="Closed" domain="[('status_type', '=', 'Closed')]"/>
+                <filter name="sla_violated" string="SLA Violated" domain="[('sla_violated', '=', True)]"/>
+                <separator/>
+                <filter name="created_date" string="Created Date" date="created_time"/>
+                <filter name="closed_date" string="Closed Date" date="closed_time"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_priority" string="Priority" context="{'group_by': 'priority'}"/>
+                    <filter name="group_channel" string="Channel" context="{'group_by': 'channel'}"/>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_name'}"/>
+                    <filter name="group_created_month" string="Created Month" context="{'group_by': 'created_time:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_it_zoho_ticket" model="ir.actions.act_window">
+        <field name="name">Zoho Desk Tickets</field>
+        <field name="res_model">it.zoho.ticket</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_it_zoho_ticket_search"/>
+    </record>
 </odoo>

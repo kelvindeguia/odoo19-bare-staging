@@ -1,6 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-<record id="res_config_settings_view_form_zoho" model="ir.ui.view">
-<field name="name">res.config.settings.view.form.zoho.it.dashboard</field><field name="model">res.config.settings</field><field name="inherit_id" ref="base.res_config_settings_view_form"/>
-<field name="arch" type="xml"><xpath expr="//form" position="inside"><app string="IT Dashboard" name="isw_it_dashboard"><block title="Zoho Desk Integration"><setting string="Enable Zoho Desk synchronization"><field name="zoho_desk_enabled"/></setting><setting string="Zoho Desk API Base URL"><field name="zoho_desk_api_base"/></setting><setting string="Zoho Accounts URL"><field name="zoho_accounts_url"/></setting><setting string="Organization ID"><field name="zoho_org_id"/></setting><setting string="OAuth Client ID"><field name="zoho_client_id" password="True"/></setting><setting string="OAuth Client Secret"><field name="zoho_client_secret" password="True"/></setting><setting string="OAuth Refresh Token"><field name="zoho_refresh_token" password="True"/></setting><setting string="Webhook Secret"><field name="zoho_webhook_secret" password="True"/><div class="text-muted">POST endpoint: /it-dashboard/zoho/webhook; send the secret in X-Webhook-Secret.</div></setting><setting string="Department IDs"><field name="zoho_department_ids"/><div class="text-muted">Comma-separated IDs. The initial list sync uses the first ID; extend the mapping if multiple departments require separate calls.</div></setting></block></app></xpath></field>
-</record>
+    <record id="res_config_settings_view_form_zoho" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.zoho.it.dashboard</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="IT Dashboard" name="isw_it_dashboard" groups="isw_it_dashboard_zoho.group_zoho_integration_manager">
+                    <block title="Zoho Desk Integration" name="zoho_desk_integration">
+                        <setting string="Enable Zoho Desk synchronization" help="Allows scheduled and manual Zoho Desk synchronization.">
+                            <field name="zoho_desk_enabled"/>
+                        </setting>
+                        <setting string="Connection Status">
+                            <field name="zoho_connection_status" readonly="1"/>
+                            <div class="text-muted" invisible="not zoho_authorized_at">
+                                Authorized at <field name="zoho_authorized_at" class="oe_inline" readonly="1"/>
+                                by <field name="zoho_authorized_by" class="oe_inline" readonly="1"/>.
+                            </div>
+                        </setting>
+                        <setting string="Zoho Desk API Base URL">
+                            <field name="zoho_desk_api_base" placeholder="https://desk.zoho.com/api/v1"/>
+                        </setting>
+                        <setting string="Zoho Accounts URL">
+                            <field name="zoho_accounts_url" placeholder="https://accounts.zoho.com"/>
+                        </setting>
+                        <setting string="Organization ID">
+                            <field name="zoho_org_id"/>
+                        </setting>
+                        <setting string="OAuth Client ID">
+                            <field name="zoho_client_id" password="True"/>
+                        </setting>
+                        <setting string="OAuth Client Secret">
+                            <field name="zoho_client_secret" password="True"/>
+                        </setting>
+                        <setting string="OAuth Redirect URI" help="This must exactly match a redirect URI registered in the Zoho server-based application.">
+                            <field name="zoho_redirect_uri" placeholder="https://dashboard-staging.example.com/it-dashboard/zoho/oauth/callback"/>
+                        </setting>
+                        <setting string="OAuth Scopes">
+                            <field name="zoho_oauth_scopes"/>
+                            <div class="text-muted">Default: Desk.tickets.READ,Desk.settings.READ</div>
+                        </setting>
+                        <setting string="OAuth Refresh Token">
+                            <field name="zoho_refresh_token" password="True" readonly="1"/>
+                            <div class="text-muted">Created automatically after using Authorize Zoho Desk.</div>
+                        </setting>
+                        <setting string="OAuth Actions">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button name="action_authorize_zoho" type="object" string="Authorize Zoho Desk" class="btn-primary" icon="fa-external-link"/>
+                                <button name="action_test_zoho_connection" type="object" string="Test Connection" class="btn-secondary" icon="fa-plug"/>
+                                <button name="action_sync_zoho_now" type="object" string="Synchronize Now" class="btn-secondary" icon="fa-refresh"/>
+                                <button name="action_disconnect_zoho" type="object" string="Disconnect" class="btn-secondary" icon="fa-unlink" confirm="Remove the Zoho authorization stored in Odoo?"/>
+                            </div>
+                        </setting>
+                        <setting string="Department IDs" help="Optional comma-separated Zoho Desk department IDs. Each department is synchronized separately.">
+                            <field name="zoho_department_ids" placeholder="523069000000146597,523069000000146598"/>
+                        </setting>
+                        <setting string="Synchronization Lookback">
+                            <field name="zoho_sync_lookback_days"/>
+                            <span class="ms-2">days</span>
+                        </setting>
+                        <setting string="Webhook Secret">
+                            <field name="zoho_webhook_secret" password="True"/>
+                            <div class="text-muted">
+                                POST endpoint: /it-dashboard/zoho/webhook. Send the same value in the X-Webhook-Secret header.
+                            </div>
+                        </setting>
+                        <setting string="Last Successful Sync">
+                            <field name="zoho_last_sync_at" readonly="1"/>
+                        </setting>
+                        <setting string="Last Integration Error" invisible="not zoho_last_error">
+                            <field name="zoho_last_error" readonly="1"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_zoho_desk_settings" model="ir.actions.act_window">
+        <field name="name">Zoho Desk Configuration</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'isw_it_dashboard_zoho', 'bin_size': False}</field>
+    </record>
 </odoo>

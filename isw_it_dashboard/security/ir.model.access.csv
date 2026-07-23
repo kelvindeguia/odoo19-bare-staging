@@ -1,34 +1,25 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_it_dashboard_period_user,IT Dashboard Period User,model_it_dashboard_period,group_it_dashboard_user,1,0,0,0
-access_it_dashboard_period_encoder,IT Dashboard Period Encoder,model_it_dashboard_period,group_it_dashboard_encoder,1,1,1,0
-access_it_dashboard_period_admin,IT Dashboard Period Administrator,model_it_dashboard_period,group_it_dashboard_admin,1,1,1,1
-
-access_it_dashboard_kpi_user,IT Dashboard KPI User,model_it_dashboard_kpi,group_it_dashboard_user,1,0,0,0
-access_it_dashboard_kpi_admin,IT Dashboard KPI Administrator,model_it_dashboard_kpi,group_it_dashboard_admin,1,1,1,1
-
-access_it_dashboard_kpi_result_user,IT Dashboard KPI Result User,model_it_dashboard_kpi_result,group_it_dashboard_user,1,0,0,0
-access_it_dashboard_kpi_result_encoder,IT Dashboard KPI Result Encoder,model_it_dashboard_kpi_result,group_it_dashboard_encoder,1,1,1,0
-access_it_dashboard_kpi_result_admin,IT Dashboard KPI Result Administrator,model_it_dashboard_kpi_result,group_it_dashboard_admin,1,1,1,1
-
-access_it_neo_question_user,IT NEO Question User,model_it_neo_question,group_it_dashboard_user,1,0,0,0
-access_it_neo_question_admin,IT NEO Question Administrator,model_it_neo_question,group_it_dashboard_admin,1,1,1,1
-
-access_it_neo_session_user,IT NEO Session User,model_it_neo_session,group_it_dashboard_user,1,0,0,0
-access_it_neo_session_encoder,IT NEO Session Encoder,model_it_neo_session,group_it_dashboard_encoder,1,1,1,0
-access_it_neo_session_admin,IT NEO Session Administrator,model_it_neo_session,group_it_dashboard_admin,1,1,1,1
-
-access_it_neo_response_user,IT NEO Response User,model_it_neo_response,group_it_dashboard_user,1,0,0,0
-access_it_neo_response_encoder,IT NEO Response Encoder,model_it_neo_response,group_it_dashboard_encoder,1,1,1,0
-access_it_neo_response_admin,IT NEO Response Administrator,model_it_neo_response,group_it_dashboard_admin,1,1,1,1
-
-access_it_pc_preparation_user,IT PC Preparation User,model_it_pc_preparation,group_it_dashboard_user,1,0,0,0
-access_it_pc_preparation_encoder,IT PC Preparation Encoder,model_it_pc_preparation,group_it_dashboard_encoder,1,1,1,0
-access_it_pc_preparation_admin,IT PC Preparation Administrator,model_it_pc_preparation,group_it_dashboard_admin,1,1,1,1
-
-access_it_department_highlight_user,IT Department Highlight User,model_it_department_highlight,group_it_dashboard_user,1,0,0,0
-access_it_department_highlight_encoder,IT Department Highlight Encoder,model_it_department_highlight,group_it_dashboard_encoder,1,1,1,0
-access_it_department_highlight_admin,IT Department Highlight Administrator,model_it_department_highlight,group_it_dashboard_admin,1,1,1,1
-
-access_it_project_update_user,IT Project Update User,model_it_project_update,group_it_dashboard_user,1,0,0,0
-access_it_project_update_encoder,IT Project Update Encoder,model_it_project_update,group_it_dashboard_encoder,1,1,1,0
-access_it_project_update_admin,IT Project Update Administrator,model_it_project_update,group_it_dashboard_admin,1,1,1,1
+access_period_user,period user,model_it_dashboard_period,group_it_dashboard_user,1,0,0,0
+access_period_encoder,period encoder,model_it_dashboard_period,group_it_dashboard_encoder,1,1,1,0
+access_period_admin,period admin,model_it_dashboard_period,group_it_dashboard_admin,1,1,1,1
+access_kpi_user,kpi user,model_it_dashboard_kpi,group_it_dashboard_user,1,0,0,0
+access_kpi_admin,kpi admin,model_it_dashboard_kpi,group_it_dashboard_admin,1,1,1,1
+access_kpi_result_user,kpi result user,model_it_dashboard_kpi_result,group_it_dashboard_user,1,0,0,0
+access_kpi_result_encoder,kpi result encoder,model_it_dashboard_kpi_result,group_it_dashboard_encoder,1,1,1,0
+access_kpi_result_admin,kpi result admin,model_it_dashboard_kpi_result,group_it_dashboard_admin,1,1,1,1
+access_neo_question_user,neo question user,model_it_neo_question,group_it_dashboard_user,1,0,0,0
+access_neo_question_admin,neo question admin,model_it_neo_question,group_it_dashboard_admin,1,1,1,1
+access_neo_session_user,neo session user,model_it_neo_session,group_it_dashboard_user,1,0,0,0
+access_neo_session_encoder,neo session encoder,model_it_neo_session,group_it_dashboard_encoder,1,1,1,0
+access_neo_session_admin,neo session admin,model_it_neo_session,group_it_dashboard_admin,1,1,1,1
+access_neo_response_user,neo response user,model_it_neo_response,group_it_dashboard_user,1,0,0,0
+access_neo_response_encoder,neo response encoder,model_it_neo_response,group_it_dashboard_encoder,1,1,1,1
+access_pc_user,pc user,model_it_pc_preparation,group_it_dashboard_user,1,0,0,0
+access_pc_encoder,pc encoder,model_it_pc_preparation,group_it_dashboard_encoder,1,1,1,0
+access_pc_admin,pc admin,model_it_pc_preparation,group_it_dashboard_admin,1,1,1,1
+access_highlight_user,highlight user,model_it_department_highlight,group_it_dashboard_user,1,0,0,0
+access_highlight_encoder,highlight encoder,model_it_department_highlight,group_it_dashboard_encoder,1,1,1,0
+access_highlight_admin,highlight admin,model_it_department_highlight,group_it_dashboard_admin,1,1,1,1
+access_project_update_user,project update user,model_it_project_update,group_it_dashboard_user,1,0,0,0
+access_project_update_encoder,project update encoder,model_it_project_update,group_it_dashboard_encoder,1,1,1,0
+access_project_update_admin,project update admin,model_it_project_update,group_it_dashboard_admin,1,1,1,1
