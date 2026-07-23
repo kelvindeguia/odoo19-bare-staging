@@ -1,188 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <!-- =========================================================
-         APPLICATION CATEGORY
-         Used to organize the privilege inside user access rights.
-    ========================================================== -->
     <record id="module_category_it_dashboard" model="ir.module.category">
         <field name="name">IT Dashboard</field>
-        <field name="description">
-            Access rights for IT Dashboard, Helpdesk reporting,
-            NEO satisfaction, PC preparation, and monthly reporting.
-        </field>
         <field name="sequence">35</field>
     </record>
 
-    <!-- =========================================================
-         ODOO 19 PRIVILEGE
-         Odoo 19 uses privilege_id on res.groups instead of
-         category_id.
-    ========================================================== -->
-    <record id="groups_privilege_it_dashboard"
-        model="res.groups.privilege">
+    <!-- Odoo 19: res.groups uses privilege_id instead of category_id. -->
+    <record id="groups_privilege_it_dashboard" model="res.groups.privilege">
         <field name="name">IT Dashboard</field>
         <field name="sequence">35</field>
-        <field name="category_id"
-            ref="module_category_it_dashboard" />
+        <field name="category_id" ref="module_category_it_dashboard"/>
     </record>
 
-    <!-- =========================================================
-         SECURITY GROUPS
-    ========================================================== -->
-
-    <!-- Read-only access to IT Dashboard records. -->
     <record id="group_it_dashboard_user" model="res.groups">
         <field name="name">User</field>
-        <field name="privilege_id"
-            ref="groups_privilege_it_dashboard" />
-        <field name="comment">
-            Can view IT Dashboard reports and operational records.
-        </field>
+        <field name="privilege_id" ref="groups_privilege_it_dashboard"/>
     </record>
 
-    <!-- Can create and update operational data. -->
     <record id="group_it_dashboard_encoder" model="res.groups">
         <field name="name">Data Encoder</field>
-        <field name="privilege_id"
-            ref="groups_privilege_it_dashboard" />
-        <field name="implied_ids"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-        <field name="comment">
-            Can create and update IT Dashboard operational records.
-        </field>
+        <field name="privilege_id" ref="groups_privilege_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('group_it_dashboard_user'))]"/>
     </record>
 
-    <!-- Includes Data Encoder permissions. -->
     <record id="group_it_dashboard_reviewer" model="res.groups">
         <field name="name">Reviewer</field>
-        <field name="privilege_id"
-            ref="groups_privilege_it_dashboard" />
-        <field name="implied_ids"
-            eval="[(4, ref('group_it_dashboard_encoder'))]" />
-        <field name="comment">
-            Can review IT Dashboard data before approval.
-        </field>
+        <field name="privilege_id" ref="groups_privilege_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('group_it_dashboard_encoder'))]"/>
     </record>
 
-    <!-- Includes Reviewer permissions. -->
     <record id="group_it_dashboard_approver" model="res.groups">
         <field name="name">Approver</field>
-        <field name="privilege_id"
-            ref="groups_privilege_it_dashboard" />
-        <field name="implied_ids"
-            eval="[(4, ref('group_it_dashboard_reviewer'))]" />
-        <field name="comment">
-            Can approve and lock official IT Dashboard reports.
-        </field>
+        <field name="privilege_id" ref="groups_privilege_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('group_it_dashboard_reviewer'))]"/>
     </record>
 
-    <!-- Full module administration. -->
     <record id="group_it_dashboard_admin" model="res.groups">
         <field name="name">Administrator</field>
-        <field name="privilege_id"
-            ref="groups_privilege_it_dashboard" />
-        <field name="implied_ids"
-            eval="[(4, ref('group_it_dashboard_approver'))]" />
-        <field name="comment">
-            Full administrative access to IT Dashboard configuration
-            and reporting records.
-        </field>
+        <field name="privilege_id" ref="groups_privilege_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('group_it_dashboard_approver'))]"/>
     </record>
 
-    <!-- =========================================================
-         MULTI-COMPANY RECORD RULES
-    ========================================================== -->
-
-    <!-- Reporting periods -->
-    <record id="rule_it_dashboard_period_company"
-        model="ir.rule">
-        <field name="name">IT Dashboard Period: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_dashboard_period" />
-        <field name="domain_force">
-            [('company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
+    <record id="rule_it_dashboard_company" model="ir.rule">
+        <field name="name">IT Dashboard company restriction</field>
+        <field name="model_id" ref="model_it_dashboard_period"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('group_it_dashboard_user'))]"/>
     </record>
-
-    <!-- KPI results inherit company through reporting period -->
-    <record id="rule_it_dashboard_kpi_result_company"
-        model="ir.rule">
-        <field name="name">IT Dashboard KPI Result: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_dashboard_kpi_result" />
-        <field name="domain_force">
-            [('period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
-    <!-- NEO sessions -->
-    <record id="rule_it_neo_session_company"
-        model="ir.rule">
-        <field name="name">IT NEO Session: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_neo_session" />
-        <field name="domain_force">
-            [('period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
-    <!-- NEO responses inherit company through session and period -->
-    <record id="rule_it_neo_response_company"
-        model="ir.rule">
-        <field name="name">IT NEO Response: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_neo_response" />
-        <field name="domain_force">
-            [('session_id.period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
-    <!-- New-hire PC preparation -->
-    <record id="rule_it_pc_preparation_company"
-        model="ir.rule">
-        <field name="name">IT PC Preparation: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_pc_preparation" />
-        <field name="domain_force">
-            [('period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
-    <!-- Department highlights -->
-    <record id="rule_it_department_highlight_company"
-        model="ir.rule">
-        <field name="name">IT Department Highlight: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_department_highlight" />
-        <field name="domain_force">
-            [('period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
-    <!-- Project updates -->
-    <record id="rule_it_project_update_company"
-        model="ir.rule">
-        <field name="name">IT Project Update: Company Restriction</field>
-        <field name="model_id"
-            ref="model_it_project_update" />
-        <field name="domain_force">
-            [('period_id.company_id', 'in', company_ids)]
-        </field>
-        <field name="groups"
-            eval="[(4, ref('group_it_dashboard_user'))]" />
-    </record>
-
 </odoo>

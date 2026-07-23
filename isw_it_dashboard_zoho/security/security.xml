@@ -1,26 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-    <!-- =========================================================
-         ZOHO DESK INTEGRATION MANAGER
-         Uses the privilege declared by the core IT Dashboard module.
-    ========================================================== -->
-    <record id="group_zoho_integration_manager"
-        model="res.groups">
+    <record id="group_zoho_integration_manager" model="res.groups">
         <field name="name">Zoho Desk Integration Manager</field>
-
-        <field name="privilege_id"
-            ref="isw_it_dashboard.groups_privilege_it_dashboard" />
-
-        <field name="implied_ids"
-            eval="[
-                   (4, ref('isw_it_dashboard.group_it_dashboard_admin'))
-               ]" />
-
-        <field name="comment">
-            Can configure Zoho Desk, synchronize tickets,
-            review synchronization logs, and process webhook events.
-        </field>
+        <field name="privilege_id" ref="isw_it_dashboard.groups_privilege_it_dashboard"/>
+        <field name="implied_ids" eval="[(4, ref('isw_it_dashboard.group_it_dashboard_admin'))]"/>
     </record>
-
 </odoo>
