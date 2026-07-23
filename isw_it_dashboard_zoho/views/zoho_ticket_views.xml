@@ -13,6 +13,7 @@
                 <field name="department_name" optional="show"/>
                 <field name="assignee_name" optional="show"/>
                 <field name="first_response_minutes" optional="show"/>
+                <field name="total_response_time_minutes" optional="show"/>
                 <field name="response_time_minutes" optional="show"/>
                 <field name="resolution_time_minutes" optional="show"/>
                 <field name="metrics_sync_status" optional="show"/>
@@ -72,12 +73,18 @@
                                 <group string="Normalized Metrics">
                                     <field name="first_response_time_seconds" readonly="1"/>
                                     <field name="first_response_minutes" readonly="1"/>
+                                    <field name="total_response_time_seconds" readonly="1"/>
+                                    <field name="total_response_time_minutes" readonly="1"/>
                                     <field name="average_response_time_seconds" readonly="1"/>
                                     <field name="response_time_minutes" readonly="1"/>
                                     <field name="resolution_time_seconds" readonly="1"/>
                                     <field name="resolution_time_minutes" readonly="1"/>
                                     <field name="calendar_resolution_time_minutes" readonly="1"/>
                                     <field name="response_count" readonly="1"/>
+                                    <field name="outgoing_count" readonly="1"/>
+                                    <field name="metrics_thread_count" readonly="1"/>
+                                    <field name="reopen_count" readonly="1"/>
+                                    <field name="reassign_count" readonly="1"/>
                                 </group>
                             </group>
                             <group>
@@ -94,6 +101,25 @@
                                     <field name="last_sync_date" readonly="1"/>
                                 </group>
                             </group>
+                        </page>
+                        <page string="Status Handling">
+                            <field name="stage_metric_ids" nolabel="1" readonly="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="status"/>
+                                    <field name="handled_time_seconds"/>
+                                    <field name="handled_time_minutes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Agent Handling">
+                            <field name="agent_metric_ids" nolabel="1" readonly="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="zoho_agent_id" optional="hide"/>
+                                    <field name="agent_name"/>
+                                    <field name="handling_time_seconds"/>
+                                    <field name="handling_time_minutes"/>
+                                </list>
+                            </field>
                         </page>
                         <page string="External References">
                             <group>
@@ -124,7 +150,7 @@
         </field>
     </record>
 
-    <!-- <record id="view_it_zoho_ticket_search" model="ir.ui.view">
+    <record id="view_it_zoho_ticket_search" model="ir.ui.view">
         <field name="name">it.zoho.ticket.search</field>
         <field name="model">it.zoho.ticket</field>
         <field name="arch" type="xml">
@@ -157,7 +183,7 @@
                 </group>
             </search>
         </field>
-    </record> -->
+    </record>
 
     <record id="view_it_zoho_ticket_pivot" model="ir.ui.view">
         <field name="name">it.zoho.ticket.pivot</field>
@@ -167,6 +193,7 @@
                 <field name="created_time" type="row" interval="month"/>
                 <field name="department_name" type="col"/>
                 <field name="first_response_time_seconds" type="measure"/>
+                <field name="total_response_time_seconds" type="measure"/>
                 <field name="average_response_time_seconds" type="measure"/>
                 <field name="resolution_time_seconds" type="measure"/>
                 <field name="response_count" type="measure"/>
@@ -181,6 +208,7 @@
             <graph string="Average Handling Time" type="bar">
                 <field name="created_time" interval="month"/>
                 <field name="first_response_time_seconds" type="measure"/>
+                <field name="total_response_time_seconds" type="measure"/>
                 <field name="average_response_time_seconds" type="measure"/>
                 <field name="resolution_time_seconds" type="measure"/>
             </graph>
@@ -191,5 +219,6 @@
         <field name="name">Zoho Desk Tickets</field>
         <field name="res_model">it.zoho.ticket</field>
         <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_it_zoho_ticket_search"/>
     </record>
 </odoo>

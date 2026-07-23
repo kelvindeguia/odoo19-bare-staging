@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -43,13 +44,25 @@ class ITZohoTicket(models.Model):
 
     # Normalized metric values. Seconds are the canonical reporting values.
     first_response_time_seconds = fields.Integer(string="First Response Time (Seconds)", index=True)
+    total_response_time_seconds = fields.Integer(string="Total Response Time (Seconds)", index=True)
     average_response_time_seconds = fields.Integer(string="Average Response Time (Seconds)", index=True)
     resolution_time_seconds = fields.Integer(string="Resolution Time (Seconds)", index=True)
     first_response_minutes = fields.Float(string="First Response Time (Minutes)", compute="_compute_metric_minutes", store=True)
+    total_response_time_minutes = fields.Float(string="Total Response Time (Minutes)", compute="_compute_metric_minutes", store=True)
     response_time_minutes = fields.Float(string="Average Response Time (Minutes)", compute="_compute_metric_minutes", store=True)
     resolution_time_minutes = fields.Float(string="Resolution Time (Minutes)", compute="_compute_metric_minutes", store=True)
     calendar_resolution_time_minutes = fields.Float(string="Calendar Resolution Time (Minutes)", readonly=True)
-    response_count = fields.Integer(string="Agent Response Count")
+    response_count = fields.Integer(string="Response Count")
+    outgoing_count = fields.Integer(string="Outgoing Count")
+    metrics_thread_count = fields.Integer(string="Metrics Thread Count")
+    reopen_count = fields.Integer(string="Reopen Count")
+    reassign_count = fields.Integer(string="Reassign Count")
+    stage_metric_ids = fields.One2many(
+        "it.zoho.ticket.stage.metric", "ticket_id", string="Status Handling Metrics", readonly=True
+    )
+    agent_metric_ids = fields.One2many(
+        "it.zoho.ticket.agent.metric", "ticket_id", string="Agent Handling Metrics", readonly=True
+    )
     sla_violated = fields.Boolean(index=True)
     first_response_sla_violated = fields.Boolean(string="First Response SLA Violated", index=True)
     resolution_sla_violated = fields.Boolean(string="Resolution SLA Violated", index=True)
@@ -95,12 +108,14 @@ class ITZohoTicket(models.Model):
 
     @api.depends(
         "first_response_time_seconds",
+        "total_response_time_seconds",
         "average_response_time_seconds",
         "resolution_time_seconds",
     )
     def _compute_metric_minutes(self):
         for record in self:
             record.first_response_minutes = (record.first_response_time_seconds or 0) / 60.0
+            record.total_response_time_minutes = (record.total_response_time_seconds or 0) / 60.0
             record.response_time_minutes = (record.average_response_time_seconds or 0) / 60.0
             record.resolution_time_minutes = (record.resolution_time_seconds or 0) / 60.0
 
@@ -244,7 +259,8 @@ class ITZohoTicket(models.Model):
     def _duration_to_seconds(self, value, assume_milliseconds=False):
         """Normalize Zoho duration values to integer seconds.
 
-        Supports numbers, millisecond fields, numeric strings, HH:MM, and HH:MM:SS.
+        Confirmed Zoho metrics examples include ``00:06 hrs`` and ``25:14 hrs``.
+        Two-part values are interpreted as hours and minutes.
         """
         if value in (None, False, ""):
             return 0
@@ -252,7 +268,13 @@ class ITZohoTicket(models.Model):
             seconds = float(value) / 1000.0 if assume_milliseconds else float(value)
             return max(int(round(seconds)), 0)
 
-        text = str(value).strip()
+        text = str(value).strip().lower()
+        text = re.sub(
+            r"\s*(hrs?|hours?|mins?|minutes?|secs?|seconds?)\s*$",
+            "",
+            text,
+        ).strip()
+
         try:
             numeric = float(text)
             seconds = numeric / 1000.0 if assume_milliseconds else numeric
@@ -260,7 +282,7 @@ class ITZohoTicket(models.Model):
         except ValueError:
             pass
 
-        parts = text.split(":")
+        parts = [part.strip() for part in text.split(":")]
         try:
             if len(parts) == 3:
                 hours, minutes, seconds = parts
@@ -268,7 +290,7 @@ class ITZohoTicket(models.Model):
             if len(parts) == 2:
                 hours, minutes = parts
                 return max(int(float(hours) * 3600 + float(minutes) * 60), 0)
-        except ValueError:
+        except (TypeError, ValueError):
             return 0
         return 0
 
@@ -369,41 +391,15 @@ class ITZohoTicket(models.Model):
 
     @api.model
     def _metrics_values(self, payload):
-        # Some Zoho responses wrap metrics in data; others return the object directly.
+        """Map the confirmed Zoho Desk ticket metrics response."""
         metrics = payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
         metrics = metrics if isinstance(metrics, dict) else {}
 
-        first_response_seconds = self._metric_value(
-            metrics,
-            (
-                "firstResponseTimeInSeconds",
-                "firstResponseTime",
-                "firstResponseDuration",
-                "firstResponseTimeTaken",
-            ),
-            ("firstResponseTimeInMillis", "firstResponseTimeMillis"),
-        )
-        average_response_seconds = self._metric_value(
-            metrics,
-            (
-                "averageResponseTimeInSeconds",
-                "averageResponseTime",
-                "responseTimeInSeconds",
-                "responseTime",
-                "responseDuration",
-            ),
-            ("averageResponseTimeInMillis", "responseTimeInMillis", "responseTimeMillis"),
-        )
-        resolution_seconds = self._metric_value(
-            metrics,
-            (
-                "resolutionTimeInSeconds",
-                "resolutionTime",
-                "resolutionDuration",
-                "resolutionTimeTaken",
-            ),
-            ("resolutionTimeInMillis", "resolutionTimeMillis"),
-        )
+        first_response_seconds = self._duration_to_seconds(metrics.get("firstResponseTime"))
+        total_response_seconds = self._duration_to_seconds(metrics.get("totalResponseTime"))
+        resolution_seconds = self._duration_to_seconds(metrics.get("resolutionTime"))
+        response_count = int(metrics.get("responseCount") or 0)
+        average_response_seconds = int(total_response_seconds / response_count) if response_count else 0
 
         first_response_at = (
             metrics.get("firstResponseAt")
@@ -413,9 +409,14 @@ class ITZohoTicket(models.Model):
 
         return {
             "first_response_time_seconds": first_response_seconds,
+            "total_response_time_seconds": total_response_seconds,
             "average_response_time_seconds": average_response_seconds,
             "resolution_time_seconds": resolution_seconds,
-            "response_count": int(metrics.get("responseCount") or metrics.get("agentResponseCount") or 0),
+            "response_count": response_count,
+            "outgoing_count": int(metrics.get("outgoingCount") or 0),
+            "metrics_thread_count": int(metrics.get("threadCount") or 0),
+            "reopen_count": int(metrics.get("reopenCount") or 0),
+            "reassign_count": int(metrics.get("reassignCount") or 0),
             "first_response_time": self._parse_datetime(first_response_at),
             "first_response_sla_violated": bool(
                 metrics.get("firstResponseSlaViolated")
@@ -438,6 +439,37 @@ class ITZohoTicket(models.Model):
             "metrics_error": False,
             "metrics_raw_payload": json.dumps(payload, ensure_ascii=False, indent=2),
         }
+
+    def _replace_stage_metrics(self, payload):
+        self.ensure_one()
+        metrics = payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
+        metrics = metrics if isinstance(metrics, dict) else {}
+        self.stage_metric_ids.unlink()
+        values = []
+        for item in metrics.get("stagingData") or []:
+            values.append({
+                "ticket_id": self.id,
+                "status": item.get("status") or _("Unknown"),
+                "handled_time_seconds": self._duration_to_seconds(item.get("handledTime")),
+            })
+        if values:
+            self.env["it.zoho.ticket.stage.metric"].create(values)
+
+    def _replace_agent_metrics(self, payload):
+        self.ensure_one()
+        metrics = payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
+        metrics = metrics if isinstance(metrics, dict) else {}
+        self.agent_metric_ids.unlink()
+        values = []
+        for item in metrics.get("agentsHandled") or []:
+            values.append({
+                "ticket_id": self.id,
+                "zoho_agent_id": str(item.get("agentId") or ""),
+                "agent_name": item.get("agentName") or _("Unknown"),
+                "handling_time_seconds": self._duration_to_seconds(item.get("handlingTime")),
+            })
+        if values:
+            self.env["it.zoho.ticket.agent.metric"].create(values)
 
     @api.model
     def _upsert_ticket(self, data):
@@ -483,6 +515,8 @@ class ITZohoTicket(models.Model):
 
             payload = response.json()
             self.write(self._metrics_values(payload))
+            self._replace_stage_metrics(payload)
+            self._replace_agent_metrics(payload)
             return True
         except Exception as exc:
             error = exc.args[0] if exc.args else str(exc)
@@ -601,3 +635,44 @@ class ITZohoTicket(models.Model):
     @api.model
     def cron_sync_tickets(self):
         return self.sync_tickets(raise_on_error=False)
+
+
+class ITZohoTicketStageMetric(models.Model):
+    _name = "it.zoho.ticket.stage.metric"
+    _description = "Zoho Ticket Status Handling Metric"
+    _order = "ticket_id, id"
+
+    ticket_id = fields.Many2one(
+        "it.zoho.ticket", required=True, ondelete="cascade", index=True
+    )
+    status = fields.Char(required=True, index=True)
+    handled_time_seconds = fields.Integer(string="Handled Time (Seconds)")
+    handled_time_minutes = fields.Float(
+        string="Handled Time (Minutes)", compute="_compute_handled_time_minutes", store=True
+    )
+
+    @api.depends("handled_time_seconds")
+    def _compute_handled_time_minutes(self):
+        for record in self:
+            record.handled_time_minutes = (record.handled_time_seconds or 0) / 60.0
+
+
+class ITZohoTicketAgentMetric(models.Model):
+    _name = "it.zoho.ticket.agent.metric"
+    _description = "Zoho Ticket Agent Handling Metric"
+    _order = "ticket_id, handling_time_seconds desc, id"
+
+    ticket_id = fields.Many2one(
+        "it.zoho.ticket", required=True, ondelete="cascade", index=True
+    )
+    zoho_agent_id = fields.Char(string="Zoho Agent ID", index=True)
+    agent_name = fields.Char(required=True, index=True)
+    handling_time_seconds = fields.Integer(string="Handling Time (Seconds)")
+    handling_time_minutes = fields.Float(
+        string="Handling Time (Minutes)", compute="_compute_handling_time_minutes", store=True
+    )
+
+    @api.depends("handling_time_seconds")
+    def _compute_handling_time_minutes(self):
+        for record in self:
+            record.handling_time_minutes = (record.handling_time_seconds or 0) / 60.0
