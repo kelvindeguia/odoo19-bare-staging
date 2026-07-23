@@ -1,7 +1,7 @@
 import secrets
 from urllib.parse import urlencode
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -62,6 +62,24 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="isw_it_dashboard_zoho.sync_lookback_days",
         default=7,
     )
+    zoho_sync_metrics = fields.Boolean(
+        string="Synchronize Ticket Metrics",
+        config_parameter="isw_it_dashboard_zoho.sync_metrics",
+        default=True,
+        help="Retrieve first response, average response, resolution, response count, and SLA metrics for tickets.",
+    )
+    zoho_metrics_closed_only = fields.Boolean(
+        string="Metrics for Closed Tickets Only",
+        config_parameter="isw_it_dashboard_zoho.metrics_closed_only",
+        default=False,
+        help="Reduces API calls by synchronizing metrics only for closed tickets.",
+    )
+    zoho_metrics_endpoint = fields.Char(
+        string="Metrics Endpoint Pattern",
+        config_parameter="isw_it_dashboard_zoho.metrics_endpoint",
+        default="tickets/{ticket_id}/metrics",
+        help="Endpoint relative to the Desk API base URL. Keep {ticket_id} in the pattern.",
+    )
     zoho_connection_status = fields.Char(
         string="Connection Status",
         config_parameter="isw_it_dashboard_zoho.connection_status",
@@ -82,11 +100,16 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="isw_it_dashboard_zoho.last_sync_at",
         readonly=True,
     )
-    zoho_last_error = fields.Char(
-        string="Last Error",
-        config_parameter="isw_it_dashboard_zoho.last_error",
-        readonly=True,
-    )
+    # Text is manually loaded because Odoo 19 does not support Text fields with config_parameter.
+    zoho_last_error = fields.Text(string="Last Integration Error", readonly=True)
+
+    @api.model
+    def get_values(self):
+        values = super().get_values()
+        values["zoho_last_error"] = self.env["ir.config_parameter"].sudo().get_param(
+            "isw_it_dashboard_zoho.last_error", ""
+        )
+        return values
 
     def _save_current_settings(self):
         self.ensure_one()
@@ -118,27 +141,18 @@ class ResConfigSettings(models.TransientModel):
         state = secrets.token_urlsafe(32)
         config = self.env["ir.config_parameter"].sudo()
         config.set_param("isw_it_dashboard_zoho.oauth_state", state)
-        config.set_param(
-            "isw_it_dashboard_zoho.oauth_state_created_at",
-            fields.Datetime.to_string(fields.Datetime.now()),
-        )
+        config.set_param("isw_it_dashboard_zoho.oauth_state_created_at", fields.Datetime.to_string(fields.Datetime.now()))
 
-        query = urlencode(
-            {
-                "scope": scopes,
-                "client_id": client_id,
-                "response_type": "code",
-                "access_type": "offline",
-                "prompt": "consent",
-                "redirect_uri": redirect_uri,
-                "state": state,
-            }
-        )
-        return {
-            "type": "ir.actions.act_url",
-            "url": f"{accounts_url}/oauth/v2/auth?{query}",
-            "target": "self",
-        }
+        query = urlencode({
+            "scope": scopes,
+            "client_id": client_id,
+            "response_type": "code",
+            "access_type": "offline",
+            "prompt": "consent",
+            "redirect_uri": redirect_uri,
+            "state": state,
+        })
+        return {"type": "ir.actions.act_url", "url": f"{accounts_url}/oauth/v2/auth?{query}", "target": "self"}
 
     def action_test_zoho_connection(self):
         self.ensure_one()
@@ -147,12 +161,7 @@ class ResConfigSettings(models.TransientModel):
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
-            "params": {
-                "title": _("Zoho Desk Connection"),
-                "message": result,
-                "type": "success",
-                "sticky": False,
-            },
+            "params": {"title": _("Zoho Desk Connection"), "message": result, "type": "success", "sticky": False},
         }
 
     def action_sync_zoho_now(self):
@@ -165,11 +174,11 @@ class ResConfigSettings(models.TransientModel):
             "params": {
                 "title": _("Zoho Desk Synchronization"),
                 "message": _(
-                    "Received %(received)s, created %(created)s, updated %(updated)s, failed %(failed)s."
-                )
-                % result,
-                "type": "warning" if result["failed"] else "success",
-                "sticky": result["failed"] > 0,
+                    "Tickets received %(received)s; created %(created)s; updated %(updated)s; "
+                    "ticket failures %(failed)s; metrics synchronized %(metrics_synced)s; metrics failures %(metrics_failed)s."
+                ) % result,
+                "type": "warning" if result["failed"] or result["metrics_failed"] else "success",
+                "sticky": bool(result["failed"] or result["metrics_failed"]),
             },
         }
 
@@ -177,13 +186,8 @@ class ResConfigSettings(models.TransientModel):
         self.ensure_one()
         config = self.env["ir.config_parameter"].sudo()
         for key in (
-            "refresh_token",
-            "access_token",
-            "access_token_expires_at",
-            "oauth_state",
-            "oauth_state_created_at",
-            "authorized_at",
-            "authorized_by",
+            "refresh_token", "access_token", "access_token_expires_at", "oauth_state",
+            "oauth_state_created_at", "authorized_at", "authorized_by",
         ):
             config.set_param(f"isw_it_dashboard_zoho.{key}", "")
         config.set_param("isw_it_dashboard_zoho.connection_status", "disconnected")
@@ -191,10 +195,5 @@ class ResConfigSettings(models.TransientModel):
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
-            "params": {
-                "title": _("Zoho Desk"),
-                "message": _("The Zoho authorization stored in Odoo was removed."),
-                "type": "info",
-                "sticky": False,
-            },
+            "params": {"title": _("Zoho Desk"), "message": _("The Zoho authorization stored in Odoo was removed."), "type": "info", "sticky": False},
         }

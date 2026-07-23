@@ -37,14 +37,34 @@ class ITZohoTicket(models.Model):
     due_date = fields.Datetime()
     response_due_date = fields.Datetime()
     customer_response_time = fields.Datetime()
-    first_response_time = fields.Datetime()
+    first_response_time = fields.Datetime(string="First Agent Response At", index=True)
     closed_time = fields.Datetime(index=True)
     on_hold_time = fields.Datetime()
-    resolution_time_minutes = fields.Float(string="Calendar Resolution Time (Minutes)")
-    first_response_minutes = fields.Float()
-    response_time_minutes = fields.Float()
+
+    # Normalized metric values. Seconds are the canonical reporting values.
+    first_response_time_seconds = fields.Integer(string="First Response Time (Seconds)", index=True)
+    average_response_time_seconds = fields.Integer(string="Average Response Time (Seconds)", index=True)
+    resolution_time_seconds = fields.Integer(string="Resolution Time (Seconds)", index=True)
+    first_response_minutes = fields.Float(string="First Response Time (Minutes)", compute="_compute_metric_minutes", store=True)
+    response_time_minutes = fields.Float(string="Average Response Time (Minutes)", compute="_compute_metric_minutes", store=True)
+    resolution_time_minutes = fields.Float(string="Resolution Time (Minutes)", compute="_compute_metric_minutes", store=True)
+    calendar_resolution_time_minutes = fields.Float(string="Calendar Resolution Time (Minutes)", readonly=True)
+    response_count = fields.Integer(string="Agent Response Count")
     sla_violated = fields.Boolean(index=True)
+    first_response_sla_violated = fields.Boolean(string="First Response SLA Violated", index=True)
+    resolution_sla_violated = fields.Boolean(string="Resolution SLA Violated", index=True)
     customer_rating = fields.Float()
+
+    metrics_sync_status = fields.Selection(
+        [("pending", "Pending"), ("success", "Success"), ("failed", "Failed"), ("not_available", "Not Available")],
+        default="pending",
+        index=True,
+        readonly=True,
+    )
+    metrics_last_sync = fields.Datetime(readonly=True, index=True)
+    metrics_error = fields.Text(readonly=True)
+    metrics_raw_payload = fields.Text(readonly=True)
+
     assignee_id_external = fields.Char(string="Zoho Assignee ID", index=True)
     assignee_name = fields.Char()
     account_id_external = fields.Char(string="Zoho Account ID")
@@ -72,6 +92,17 @@ class ITZohoTicket(models.Model):
         "UNIQUE(zoho_ticket_id)",
         "The Zoho ticket ID must be unique.",
     )
+
+    @api.depends(
+        "first_response_time_seconds",
+        "average_response_time_seconds",
+        "resolution_time_seconds",
+    )
+    def _compute_metric_minutes(self):
+        for record in self:
+            record.first_response_minutes = (record.first_response_time_seconds or 0) / 60.0
+            record.response_time_minutes = (record.average_response_time_seconds or 0) / 60.0
+            record.resolution_time_minutes = (record.resolution_time_seconds or 0) / 60.0
 
     @api.model
     def _config(self, key, default=False):
@@ -174,29 +205,20 @@ class ITZohoTicket(models.Model):
         }
 
     @api.model
-    def _request(self, method, endpoint, params=None, timeout=60):
+    def _request(self, method, endpoint, params=None, timeout=60, allow_not_found=False):
         api_base = (self._config("api_base", "https://desk.zoho.com/api/v1") or "").strip().rstrip("/")
+        url = f"{api_base}/{endpoint.lstrip('/')}"
         try:
-            response = requests.request(
-                method,
-                f"{api_base}/{endpoint.lstrip('/')}",
-                headers=self._headers(),
-                params=params,
-                timeout=timeout,
-            )
+            response = requests.request(method, url, headers=self._headers(), params=params, timeout=timeout)
         except requests.RequestException as exc:
             raise UserError(_("Unable to connect to the Zoho Desk API.")) from exc
 
         if response.status_code == 401:
             self._get_access_token(force_refresh=True)
-            response = requests.request(
-                method,
-                f"{api_base}/{endpoint.lstrip('/')}",
-                headers=self._headers(),
-                params=params,
-                timeout=timeout,
-            )
+            response = requests.request(method, url, headers=self._headers(), params=params, timeout=timeout)
 
+        if allow_not_found and response.status_code in (404, 405):
+            return response
         if not response.ok:
             error = self._safe_response_error(response)
             raise UserError(
@@ -219,11 +241,56 @@ class ITZohoTicket(models.Model):
             return False
 
     @api.model
-    def _as_float(self, value, divisor=1.0):
+    def _duration_to_seconds(self, value, assume_milliseconds=False):
+        """Normalize Zoho duration values to integer seconds.
+
+        Supports numbers, millisecond fields, numeric strings, HH:MM, and HH:MM:SS.
+        """
+        if value in (None, False, ""):
+            return 0
+        if isinstance(value, (int, float)):
+            seconds = float(value) / 1000.0 if assume_milliseconds else float(value)
+            return max(int(round(seconds)), 0)
+
+        text = str(value).strip()
         try:
-            return float(value or 0) / divisor
-        except (TypeError, ValueError):
+            numeric = float(text)
+            seconds = numeric / 1000.0 if assume_milliseconds else numeric
+            return max(int(round(seconds)), 0)
+        except ValueError:
+            pass
+
+        parts = text.split(":")
+        try:
+            if len(parts) == 3:
+                hours, minutes, seconds = parts
+                return max(int(float(hours) * 3600 + float(minutes) * 60 + float(seconds)), 0)
+            if len(parts) == 2:
+                hours, minutes = parts
+                return max(int(float(hours) * 3600 + float(minutes) * 60), 0)
+        except ValueError:
+            return 0
+        return 0
+
+    @api.model
+    def _metric_value(self, payload, second_keys, millisecond_keys=()):
+        for key in millisecond_keys:
+            if payload.get(key) not in (None, False, ""):
+                return self._duration_to_seconds(payload.get(key), assume_milliseconds=True)
+        for key in second_keys:
+            if payload.get(key) not in (None, False, ""):
+                return self._duration_to_seconds(payload.get(key))
+        return 0
+
+    @api.model
+    def _rating_to_float(self, value):
+        if value in (None, False, ""):
             return 0.0
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            labels = {"bad": 1.0, "poor": 1.0, "okay": 3.0, "neutral": 3.0, "good": 5.0, "happy": 5.0}
+            return labels.get(str(value).strip().lower(), 0.0)
 
     @api.model
     def _ticket_values(self, data):
@@ -237,17 +304,15 @@ class ITZohoTicket(models.Model):
 
         created_time = self._parse_datetime(data.get("createdTime"))
         closed_time = self._parse_datetime(data.get("closedTime"))
-        resolution_minutes = self._as_float(data.get("resolutionTime"))
-        if not resolution_minutes and created_time and closed_time:
+        calendar_resolution_minutes = 0.0
+        if created_time and closed_time:
             created_dt = fields.Datetime.to_datetime(created_time)
             closed_dt = fields.Datetime.to_datetime(closed_time)
-            resolution_minutes = max((closed_dt - created_dt).total_seconds() / 60.0, 0.0)
+            calendar_resolution_minutes = max((closed_dt - created_dt).total_seconds() / 60.0, 0.0)
 
         contact_name = data.get("contactName")
         if not contact_name:
-            contact_name = " ".join(
-                part for part in (contact.get("firstName"), contact.get("lastName")) if part
-            )
+            contact_name = " ".join(part for part in (contact.get("firstName"), contact.get("lastName")) if part)
 
         return {
             "zoho_ticket_id": str(data.get("id") or ""),
@@ -275,11 +340,9 @@ class ITZohoTicket(models.Model):
             "first_response_time": self._parse_datetime(data.get("firstResponseTime")),
             "closed_time": closed_time,
             "on_hold_time": self._parse_datetime(data.get("onholdTime")),
-            "resolution_time_minutes": resolution_minutes,
-            "first_response_minutes": self._as_float(data.get("firstResponseTimeInMillis"), 60000.0),
-            "response_time_minutes": self._as_float(data.get("responseTime")),
+            "calendar_resolution_time_minutes": calendar_resolution_minutes,
             "sla_violated": bool(data.get("isOverDue") or data.get("slaViolated")),
-            "customer_rating": self._as_float(happiness.get("rating") or data.get("rating")),
+            "customer_rating": self._rating_to_float(happiness.get("rating") or data.get("rating")),
             "assignee_id_external": str(data.get("assigneeId") or assignee.get("id") or ""),
             "assignee_name": assignee.get("name") or data.get("assigneeName") or "",
             "account_id_external": str(data.get("accountId") or account.get("id") or ""),
@@ -305,21 +368,141 @@ class ITZohoTicket(models.Model):
         }
 
     @api.model
+    def _metrics_values(self, payload):
+        # Some Zoho responses wrap metrics in data; others return the object directly.
+        metrics = payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
+        metrics = metrics if isinstance(metrics, dict) else {}
+
+        first_response_seconds = self._metric_value(
+            metrics,
+            (
+                "firstResponseTimeInSeconds",
+                "firstResponseTime",
+                "firstResponseDuration",
+                "firstResponseTimeTaken",
+            ),
+            ("firstResponseTimeInMillis", "firstResponseTimeMillis"),
+        )
+        average_response_seconds = self._metric_value(
+            metrics,
+            (
+                "averageResponseTimeInSeconds",
+                "averageResponseTime",
+                "responseTimeInSeconds",
+                "responseTime",
+                "responseDuration",
+            ),
+            ("averageResponseTimeInMillis", "responseTimeInMillis", "responseTimeMillis"),
+        )
+        resolution_seconds = self._metric_value(
+            metrics,
+            (
+                "resolutionTimeInSeconds",
+                "resolutionTime",
+                "resolutionDuration",
+                "resolutionTimeTaken",
+            ),
+            ("resolutionTimeInMillis", "resolutionTimeMillis"),
+        )
+
+        first_response_at = (
+            metrics.get("firstResponseAt")
+            or metrics.get("firstResponseTimeStamp")
+            or metrics.get("firstRespondedTime")
+        )
+
+        return {
+            "first_response_time_seconds": first_response_seconds,
+            "average_response_time_seconds": average_response_seconds,
+            "resolution_time_seconds": resolution_seconds,
+            "response_count": int(metrics.get("responseCount") or metrics.get("agentResponseCount") or 0),
+            "first_response_time": self._parse_datetime(first_response_at),
+            "first_response_sla_violated": bool(
+                metrics.get("firstResponseSlaViolated")
+                or metrics.get("firstResponseViolated")
+                or metrics.get("isFirstResponseOverdue")
+            ),
+            "resolution_sla_violated": bool(
+                metrics.get("resolutionSlaViolated")
+                or metrics.get("resolutionViolated")
+                or metrics.get("isResolutionOverdue")
+            ),
+            "sla_violated": bool(
+                metrics.get("slaViolated")
+                or metrics.get("isOverDue")
+                or metrics.get("firstResponseSlaViolated")
+                or metrics.get("resolutionSlaViolated")
+            ),
+            "metrics_sync_status": "success",
+            "metrics_last_sync": fields.Datetime.now(),
+            "metrics_error": False,
+            "metrics_raw_payload": json.dumps(payload, ensure_ascii=False, indent=2),
+        }
+
+    @api.model
     def _upsert_ticket(self, data):
         vals = self._ticket_values(data)
         if not vals["zoho_ticket_id"]:
-            return "failed"
+            return False, "failed"
         record = self.search([("zoho_ticket_id", "=", vals["zoho_ticket_id"])], limit=1)
         if record:
             record.write(vals)
-            return "updated"
-        self.create(vals)
-        return "created"
+            return record, "updated"
+        return self.create(vals), "created"
+
+    def action_sync_metrics(self):
+        for record in self:
+            record._sync_metrics(raise_on_error=True)
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Zoho Ticket Metrics"),
+                "message": _("Metrics synchronized for the selected ticket(s)."),
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
+    def _sync_metrics(self, raise_on_error=False):
+        self.ensure_one()
+        endpoint_pattern = (self._config("metrics_endpoint", "tickets/{ticket_id}/metrics") or "").strip()
+        endpoint = endpoint_pattern.format(ticket_id=self.zoho_ticket_id)
+        try:
+            response = self._request("GET", endpoint, timeout=30, allow_not_found=True)
+            if response.status_code in (404, 405):
+                error = _("The configured Zoho metrics endpoint is not available for this ticket or account.")
+                self.write({
+                    "metrics_sync_status": "not_available",
+                    "metrics_last_sync": fields.Datetime.now(),
+                    "metrics_error": error,
+                })
+                if raise_on_error:
+                    raise UserError(error)
+                return False
+
+            payload = response.json()
+            self.write(self._metrics_values(payload))
+            return True
+        except Exception as exc:
+            error = exc.args[0] if exc.args else str(exc)
+            self.write({
+                "metrics_sync_status": "failed",
+                "metrics_last_sync": fields.Datetime.now(),
+                "metrics_error": str(error),
+            })
+            _logger.exception("Zoho metrics synchronization failed for ticket %s", self.zoho_ticket_id)
+            if raise_on_error:
+                raise
+            return False
 
     @api.model
     def _sync_single_ticket(self, ticket_id):
         response = self._request("GET", f"tickets/{ticket_id}", timeout=30)
-        return self._upsert_ticket(response.json())
+        record, outcome = self._upsert_ticket(response.json())
+        if record and self._config("sync_metrics") in ("True", "1", True):
+            record._sync_metrics(raise_on_error=False)
+        return outcome
 
     @api.model
     def test_connection(self):
@@ -335,21 +518,19 @@ class ITZohoTicket(models.Model):
         if self._config("enabled") not in ("True", "1", True):
             if raise_on_error:
                 raise UserError(_("Zoho Desk synchronization is disabled."))
-            return {"received": 0, "created": 0, "updated": 0, "failed": 0}
+            return {"received": 0, "created": 0, "updated": 0, "failed": 0, "metrics_synced": 0, "metrics_failed": 0}
 
         log = self.env["it.integration.sync.log"].sudo().create({})
-        counts = {"received": 0, "created": 0, "updated": 0, "failed": 0}
+        counts = {"received": 0, "created": 0, "updated": 0, "failed": 0, "metrics_synced": 0, "metrics_failed": 0}
         try:
             try:
                 lookback_days = max(int(self._config("sync_lookback_days", 7) or 7), 1)
             except (TypeError, ValueError):
                 lookback_days = 7
             modified_since = fields.Datetime.now() - timedelta(days=lookback_days)
-            department_ids = [
-                value.strip()
-                for value in (self._config("department_ids") or "").split(",")
-                if value.strip()
-            ] or [False]
+            department_ids = [value.strip() for value in (self._config("department_ids") or "").split(",") if value.strip()] or [False]
+            sync_metrics = self._config("sync_metrics") in ("True", "1", True)
+            metrics_closed_only = self._config("metrics_closed_only") in ("True", "1", True)
 
             for department_id in department_ids:
                 offset = 0
@@ -368,8 +549,16 @@ class ITZohoTicket(models.Model):
                             continue
                         counts["received"] += 1
                         try:
-                            outcome = self._upsert_ticket(data)
+                            record, outcome = self._upsert_ticket(data)
                             counts[outcome] += 1
+                            should_sync_metrics = sync_metrics and record and (
+                                not metrics_closed_only or (data.get("statusType") == "Closed" or data.get("status") == "Closed")
+                            )
+                            if should_sync_metrics:
+                                if record._sync_metrics(raise_on_error=False):
+                                    counts["metrics_synced"] += 1
+                                else:
+                                    counts["metrics_failed"] += 1
                         except Exception:
                             counts["failed"] += 1
                             _logger.exception("Zoho ticket mapping failed for ticket ID %s", data.get("id"))
@@ -377,33 +566,31 @@ class ITZohoTicket(models.Model):
                         break
                     offset += 100
 
-            status = "partial" if counts["failed"] else "success"
-            log.write(
-                {
-                    "completed_at": fields.Datetime.now(),
-                    "status": status,
-                    "records_received": counts["received"],
-                    "records_created": counts["created"],
-                    "records_updated": counts["updated"],
-                    "records_failed": counts["failed"],
-                }
-            )
+            status = "partial" if counts["failed"] or counts["metrics_failed"] else "success"
+            log.write({
+                "completed_at": fields.Datetime.now(),
+                "status": status,
+                "records_received": counts["received"],
+                "records_created": counts["created"],
+                "records_updated": counts["updated"],
+                "records_failed": counts["failed"] + counts["metrics_failed"],
+                "error_message": _("Metrics synchronized: %(ok)s; metrics failed/unavailable: %(failed)s")
+                % {"ok": counts["metrics_synced"], "failed": counts["metrics_failed"]},
+            })
             self._set_config("last_sync_at", fields.Datetime.to_string(fields.Datetime.now()))
             self._set_config("last_error", "")
             return counts
         except Exception as exc:
             safe_error = exc.args[0] if exc.args else _("Unknown synchronization error")
-            log.write(
-                {
-                    "completed_at": fields.Datetime.now(),
-                    "status": "failed",
-                    "records_received": counts["received"],
-                    "records_created": counts["created"],
-                    "records_updated": counts["updated"],
-                    "records_failed": counts["failed"],
-                    "error_message": str(safe_error),
-                }
-            )
+            log.write({
+                "completed_at": fields.Datetime.now(),
+                "status": "failed",
+                "records_received": counts["received"],
+                "records_created": counts["created"],
+                "records_updated": counts["updated"],
+                "records_failed": counts["failed"] + counts["metrics_failed"],
+                "error_message": str(safe_error),
+            })
             self._set_config("connection_status", "error")
             self._set_config("last_error", str(safe_error))
             _logger.exception("Zoho Desk synchronization failed")

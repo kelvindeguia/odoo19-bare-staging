@@ -12,6 +12,10 @@
                 <field name="channel"/>
                 <field name="department_name" optional="show"/>
                 <field name="assignee_name" optional="show"/>
+                <field name="first_response_minutes" optional="show"/>
+                <field name="response_time_minutes" optional="show"/>
+                <field name="resolution_time_minutes" optional="show"/>
+                <field name="metrics_sync_status" optional="show"/>
                 <field name="created_time"/>
                 <field name="closed_time" optional="show"/>
                 <field name="last_sync_date" optional="hide"/>
@@ -24,6 +28,12 @@
         <field name="model">it.zoho.ticket</field>
         <field name="arch" type="xml">
             <form create="0" delete="0">
+                <header>
+                    <button name="action_sync_metrics" type="object" string="Synchronize Metrics"
+                            class="btn-primary" icon="fa-refresh"
+                            groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
+                    <field name="metrics_sync_status" widget="statusbar" statusbar_visible="pending,success,failed,not_available"/>
+                </header>
                 <sheet>
                     <h1><field name="subject" readonly="1"/></h1>
                     <group>
@@ -50,20 +60,37 @@
                     <notebook>
                         <page string="Dates and Metrics">
                             <group>
-                                <group>
+                                <group string="Ticket Dates">
                                     <field name="created_time" readonly="1"/>
                                     <field name="modified_time" readonly="1"/>
                                     <field name="due_date" readonly="1"/>
                                     <field name="response_due_date" readonly="1"/>
                                     <field name="first_response_time" readonly="1"/>
                                     <field name="closed_time" readonly="1"/>
+                                    <field name="on_hold_time" readonly="1"/>
                                 </group>
-                                <group>
-                                    <field name="resolution_time_minutes" readonly="1"/>
+                                <group string="Normalized Metrics">
+                                    <field name="first_response_time_seconds" readonly="1"/>
                                     <field name="first_response_minutes" readonly="1"/>
+                                    <field name="average_response_time_seconds" readonly="1"/>
                                     <field name="response_time_minutes" readonly="1"/>
+                                    <field name="resolution_time_seconds" readonly="1"/>
+                                    <field name="resolution_time_minutes" readonly="1"/>
+                                    <field name="calendar_resolution_time_minutes" readonly="1"/>
+                                    <field name="response_count" readonly="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="SLA and Satisfaction">
                                     <field name="sla_violated" readonly="1"/>
+                                    <field name="first_response_sla_violated" readonly="1"/>
+                                    <field name="resolution_sla_violated" readonly="1"/>
                                     <field name="customer_rating" readonly="1"/>
+                                </group>
+                                <group string="Metrics Synchronization">
+                                    <field name="metrics_sync_status" readonly="1"/>
+                                    <field name="metrics_last_sync" readonly="1"/>
+                                    <field name="metrics_error" readonly="1"/>
                                     <field name="last_sync_date" readonly="1"/>
                                 </group>
                             </group>
@@ -85,8 +112,11 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Raw Payload" groups="isw_it_dashboard_zoho.group_zoho_integration_manager">
+                        <page string="Ticket Raw Payload" groups="isw_it_dashboard_zoho.group_zoho_integration_manager">
                             <field name="raw_payload" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Metrics Raw Payload" groups="isw_it_dashboard_zoho.group_zoho_integration_manager">
+                            <field name="metrics_raw_payload" nolabel="1" readonly="1"/>
                         </page>
                     </notebook>
                 </sheet>
@@ -94,7 +124,7 @@
         </field>
     </record>
 
-    <!-- <record id="view_it_zoho_ticket_search" model="ir.ui.view">
+    <record id="view_it_zoho_ticket_search" model="ir.ui.view">
         <field name="name">it.zoho.ticket.search</field>
         <field name="model">it.zoho.ticket</field>
         <field name="arch" type="xml">
@@ -109,23 +139,58 @@
                 <filter name="open" string="Open" domain="[('status_type', '!=', 'Closed')]"/>
                 <filter name="closed" string="Closed" domain="[('status_type', '=', 'Closed')]"/>
                 <filter name="sla_violated" string="SLA Violated" domain="[('sla_violated', '=', True)]"/>
+                <filter name="metrics_success" string="Metrics Available" domain="[('metrics_sync_status', '=', 'success')]"/>
+                <filter name="metrics_failed" string="Metrics Failed" domain="[('metrics_sync_status', 'in', ['failed', 'not_available'])]"/>
                 <separator/>
                 <filter name="created_date" string="Created Date" date="created_time"/>
                 <filter name="closed_date" string="Closed Date" date="closed_time"/>
+                <filter name="metrics_sync_date" string="Metrics Sync Date" date="metrics_last_sync"/>
                 <group expand="0" string="Group By">
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
                     <filter name="group_priority" string="Priority" context="{'group_by': 'priority'}"/>
                     <filter name="group_channel" string="Channel" context="{'group_by': 'channel'}"/>
                     <filter name="group_department" string="Department" context="{'group_by': 'department_name'}"/>
+                    <filter name="group_metrics" string="Metrics Status" context="{'group_by': 'metrics_sync_status'}"/>
+                    <filter name="group_created_day" string="Created Day" context="{'group_by': 'created_time:day'}"/>
+                    <filter name="group_created_week" string="Created Week" context="{'group_by': 'created_time:week'}"/>
                     <filter name="group_created_month" string="Created Month" context="{'group_by': 'created_time:month'}"/>
                 </group>
             </search>
         </field>
-    </record> -->
+    </record>
+
+    <record id="view_it_zoho_ticket_pivot" model="ir.ui.view">
+        <field name="name">it.zoho.ticket.pivot</field>
+        <field name="model">it.zoho.ticket</field>
+        <field name="arch" type="xml">
+            <pivot string="Helpdesk Ticket Metrics">
+                <field name="created_time" type="row" interval="month"/>
+                <field name="department_name" type="col"/>
+                <field name="first_response_time_seconds" type="measure"/>
+                <field name="average_response_time_seconds" type="measure"/>
+                <field name="resolution_time_seconds" type="measure"/>
+                <field name="response_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_it_zoho_ticket_graph" model="ir.ui.view">
+        <field name="name">it.zoho.ticket.graph</field>
+        <field name="model">it.zoho.ticket</field>
+        <field name="arch" type="xml">
+            <graph string="Average Handling Time" type="bar">
+                <field name="created_time" interval="month"/>
+                <field name="first_response_time_seconds" type="measure"/>
+                <field name="average_response_time_seconds" type="measure"/>
+                <field name="resolution_time_seconds" type="measure"/>
+            </graph>
+        </field>
+    </record>
 
     <record id="action_it_zoho_ticket" model="ir.actions.act_window">
         <field name="name">Zoho Desk Tickets</field>
         <field name="res_model">it.zoho.ticket</field>
         <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_it_zoho_ticket_search"/>
     </record>
 </odoo>
