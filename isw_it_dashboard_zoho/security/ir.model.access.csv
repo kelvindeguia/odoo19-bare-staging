@@ -4,3 +4,7 @@ access_zoho_ticket_manager,zoho ticket manager,model_it_zoho_ticket,group_zoho_i
 access_sync_log_user,sync log user,model_it_integration_sync_log,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
 access_sync_log_manager,sync log manager,model_it_integration_sync_log,group_zoho_integration_manager,1,1,1,1
 access_webhook_event_manager,webhook event manager,model_it_zoho_webhook_event,group_zoho_integration_manager,1,1,1,1
+access_it_zoho_ticket_stage_metric_user,Zoho Ticket Stage Metric User,model_it_zoho_ticket_stage_metric,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
+access_it_zoho_ticket_stage_metric_manager,Zoho Ticket Stage Metric Manager,model_it_zoho_ticket_stage_metric,group_zoho_integration_manager,1,1,1,1
+access_it_zoho_ticket_agent_metric_user,Zoho Ticket Agent Metric User,model_it_zoho_ticket_agent_metric,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
+access_it_zoho_ticket_agent_metric_manager,Zoho Ticket Agent Metric Manager,model_it_zoho_ticket_agent_metric,group_zoho_integration_manager,1,1,1,1
