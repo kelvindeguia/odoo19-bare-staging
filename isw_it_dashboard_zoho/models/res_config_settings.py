@@ -82,8 +82,8 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="isw_it_dashboard_zoho.last_sync_at",
         readonly=True,
     )
-    zoho_last_error = fields.Text(
-        string="Last Integration Error",
+    zoho_last_error = fields.Char(
+        string="Last Error",
         config_parameter="isw_it_dashboard_zoho.last_error",
         readonly=True,
     )
