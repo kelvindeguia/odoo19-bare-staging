@@ -1,7 +1,7 @@
 {
     "name": "Workable API Health Monitor",
     "summary": "Monitor multiple Workable API tokens and webhook subscriptions",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.2.0",
     "category": "Technical/Monitoring",
     "author": "iSupport Worldwide",
     "license": "LGPL-3",
@@ -16,6 +16,11 @@
         "views/workable_health_log_views.xml",
         "views/workable_health_menu.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "workable_api_health_monitor/static/src/css/workable_monitor.css",
+        ],
+    },
     "application": True,
     "installable": True,
 }

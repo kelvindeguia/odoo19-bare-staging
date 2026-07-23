@@ -4,12 +4,14 @@
         <field name="name">workable.webhook.event.list</field>
         <field name="model">workable.webhook.event</field>
         <field name="arch" type="xml">
-            <list create="0" edit="0" decoration-success="processing_status == 'processed'" decoration-danger="processing_status in ('rejected', 'error')">
+            <list create="0" edit="0" class="o_workable_monitor_list"
+                  decoration-success="processing_status == 'processed'"
+                  decoration-danger="processing_status in ('rejected', 'error')">
                 <field name="received_at"/>
                 <field name="account_id"/>
                 <field name="subscription_id" optional="hide"/>
                 <field name="event_type"/>
-                <field name="signature_valid"/>
+                <field name="signature_valid" widget="boolean"/>
                 <field name="processing_status" widget="badge"/>
                 <field name="remote_address" optional="hide"/>
                 <field name="message"/>
@@ -21,25 +23,40 @@
         <field name="name">workable.webhook.event.form</field>
         <field name="model">workable.webhook.event</field>
         <field name="arch" type="xml">
-            <form create="0" edit="0">
+            <form create="0" edit="0" class="o_workable_monitor_form">
                 <sheet>
-                    <group>
-                        <group>
+                    <div class="o_workable_hero o_workable_hero_compact">
+                        <div class="o_workable_hero_icon"><i class="fa fa-exchange"/></div>
+                        <div class="o_workable_hero_content">
+                            <div class="text-muted small text-uppercase fw-semibold">Webhook Event</div>
+                            <h1><field name="event_type"/></h1>
+                            <div class="o_workable_hero_meta">
+                                <span><i class="fa fa-user-circle me-1"/><field name="account_id"/></span>
+                                <span><i class="fa fa-clock-o me-1"/><field name="received_at"/></span>
+                            </div>
+                        </div>
+                        <div class="o_workable_hero_status"><field name="processing_status" widget="badge"/></div>
+                    </div>
+                    <group class="o_workable_group_cards">
+                        <group string="Event Details">
                             <field name="received_at"/>
                             <field name="account_id"/>
                             <field name="subscription_id"/>
                             <field name="event_type"/>
                         </group>
-                        <group>
+                        <group string="Validation">
                             <field name="signature_valid"/>
                             <field name="processing_status" widget="badge"/>
                             <field name="remote_address"/>
                         </group>
                     </group>
-                    <group string="Processing"><field name="message"/></group>
-                    <notebook>
-                        <page string="Payload"><field name="payload" widget="text"/></page>
-                        <page string="Headers"><field name="request_headers" widget="text"/></page>
+                    <div class="o_workable_status_banner mt-3" invisible="not message">
+                        <i class="fa fa-info-circle"/>
+                        <field name="message" nolabel="1"/>
+                    </div>
+                    <notebook class="o_workable_notebook">
+                        <page string="Payload"><field name="payload" widget="text" nolabel="1"/></page>
+                        <page string="Request Headers"><field name="request_headers" widget="text" nolabel="1"/></page>
                     </notebook>
                 </sheet>
             </form>

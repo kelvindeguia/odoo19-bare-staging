@@ -4,40 +4,105 @@
         <field name="name">workable.api.account.list</field>
         <field name="model">workable.api.account</field>
         <field name="arch" type="xml">
-            <list decoration-success="connection_status == 'healthy'" decoration-warning="connection_status == 'warning'" decoration-danger="connection_status in ('unhealthy', 'auth_error', 'rate_limited', 'connection_error')">
+            <list class="o_workable_monitor_list"
+                  decoration-success="connection_status == 'healthy'"
+                  decoration-warning="connection_status == 'warning'"
+                  decoration-danger="connection_status in ('unhealthy', 'auth_error', 'rate_limited', 'connection_error')">
                 <field name="name"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="environment"/>
-                <field name="purpose"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="environment" widget="badge"/>
+                <field name="purpose" optional="show"/>
                 <field name="subdomain"/>
+                <field name="subscription_count" string="Subscriptions"/>
+                <field name="healthy_subscription_count" string="Healthy"/>
                 <field name="connection_status" widget="badge"/>
-                <field name="last_check_date"/>
-                <field name="last_success_date" optional="hide"/>
-                <field name="last_response_time_ms" optional="hide"/>
-                <field name="consecutive_failures"/>
+                <field name="last_check_date" optional="show"/>
+                <field name="last_response_time_ms" string="Response (ms)" optional="hide"/>
+                <field name="consecutive_failures" optional="hide"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
 
-    <record id="view_workable_api_account_search" model="ir.ui.view">
-        <field name="name">workable.api.account.search</field>
+    <record id="view_workable_api_account_kanban" model="ir.ui.view">
+        <field name="name">workable.api.account.kanban</field>
         <field name="model">workable.api.account</field>
         <field name="arch" type="xml">
-            <search>
+            <kanban class="o_workable_account_kanban" default_group_by="connection_status" sample="1">
                 <field name="name"/>
-                <field name="subdomain"/>
+                <field name="active"/>
+                <field name="company_id"/>
                 <field name="environment"/>
                 <field name="purpose"/>
-                <filter name="healthy" string="Healthy" domain="[('connection_status', '=', 'healthy')]"/>
-                <filter name="attention" string="Needs Attention" domain="[('connection_status', 'not in', ['healthy', 'not_checked'])]"/>
-                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
-                <group expand="0" string="Group By">
-                    <filter name="group_environment" string="Environment" context="{'group_by': 'environment'}"/>
-                    <filter name="group_status" string="Status" context="{'group_by': 'connection_status'}"/>
-                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
-                </group>
-            </search>
+                <field name="subdomain"/>
+                <field name="connection_status"/>
+                <field name="connection_message"/>
+                <field name="last_check_date"/>
+                <field name="last_success_date"/>
+                <field name="last_response_time_ms"/>
+                <field name="consecutive_failures"/>
+                <field name="subscription_count"/>
+                <field name="healthy_subscription_count"/>
+                <field name="webhook_event_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_workable_account_card">
+                            <div class="o_workable_card_header">
+                                <div class="o_workable_card_identity">
+                                    <div class="o_workable_card_icon">
+                                        <i class="fa fa-heartbeat"/>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <strong class="o_workable_card_title text-truncate"><field name="name"/></strong>
+                                        <div class="o_workable_card_subtitle text-truncate">
+                                            <i class="fa fa-globe me-1"/>
+                                            <field name="subdomain"/>.workable.com
+                                        </div>
+                                    </div>
+                                </div>
+                                <span t-attf-class="o_workable_status_pill o_status_#{record.connection_status.raw_value}">
+                                    <field name="connection_status"/>
+                                </span>
+                            </div>
+
+                            <div class="o_workable_meta_row">
+                                <span class="o_workable_meta_chip"><i class="fa fa-server me-1"/><field name="environment"/></span>
+                                <span class="o_workable_meta_chip"><i class="fa fa-bullseye me-1"/><field name="purpose"/></span>
+                            </div>
+
+                            <div class="o_workable_kpi_grid">
+                                <div class="o_workable_kpi_item">
+                                    <span class="o_workable_kpi_value"><field name="healthy_subscription_count"/>/<field name="subscription_count"/></span>
+                                    <span class="o_workable_kpi_label">Healthy subscriptions</span>
+                                </div>
+                                <div class="o_workable_kpi_item">
+                                    <span class="o_workable_kpi_value"><field name="webhook_event_count"/></span>
+                                    <span class="o_workable_kpi_label">Webhook events</span>
+                                </div>
+                                <div class="o_workable_kpi_item">
+                                    <span class="o_workable_kpi_value"><field name="last_response_time_ms"/> ms</span>
+                                    <span class="o_workable_kpi_label">Response time</span>
+                                </div>
+                            </div>
+
+                            <div class="o_workable_card_message" t-if="record.connection_message.raw_value">
+                                <i class="fa fa-info-circle me-2"/>
+                                <span class="text-truncate"><field name="connection_message"/></span>
+                            </div>
+
+                            <div class="o_workable_card_footer">
+                                <span t-if="record.last_check_date.raw_value">
+                                    <i class="fa fa-clock-o me-1"/>Checked <field name="last_check_date"/>
+                                </span>
+                                <span t-else="">Not checked yet</span>
+                                <span t-if="record.consecutive_failures.raw_value" class="text-danger">
+                                    <i class="fa fa-exclamation-triangle me-1"/><field name="consecutive_failures"/> failures
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -45,88 +110,145 @@
         <field name="name">workable.api.account.form</field>
         <field name="model">workable.api.account</field>
         <field name="arch" type="xml">
-            <form string="Workable API Account">
+            <form string="Workable API Account" class="o_workable_monitor_form">
                 <header>
-                    <button name="action_test_connection" type="object" string="Test Connection" class="btn-primary" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    <button name="action_check_subscriptions" type="object" string="Check Subscriptions" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    <button name="action_register_all_subscriptions" type="object" string="Register Missing" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    <button name="action_reset_failure_counter" type="object" string="Reset Failures" groups="workable_api_health_monitor.group_workable_health_admin" invisible="consecutive_failures == 0"/>
+                    <button name="action_test_connection" type="object" string="Test Connection" icon="fa-plug" class="btn-primary" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_check_subscriptions" type="object" string="Check Subscriptions" icon="fa-refresh" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_register_all_subscriptions" type="object" string="Register Missing" icon="fa-link" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_reset_failure_counter" type="object" string="Reset Failures" icon="fa-undo" groups="workable_api_health_monitor.group_workable_health_admin" invisible="consecutive_failures == 0"/>
                     <field name="connection_status" widget="statusbar" statusbar_visible="not_checked,healthy,warning,unhealthy,auth_error,rate_limited,connection_error"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+
+                    <div class="o_workable_hero">
+                        <div class="o_workable_hero_icon"><i class="fa fa-heartbeat"/></div>
+                        <div class="o_workable_hero_content">
+                            <label for="name" class="text-muted small text-uppercase fw-semibold"/>
+                            <h1><field name="name" placeholder="Production Recruitment API"/></h1>
+                            <div class="o_workable_hero_meta">
+                                <span><i class="fa fa-globe me-1"/><field name="subdomain" placeholder="mycompany"/>.workable.com</span>
+                                <span><i class="fa fa-server me-1"/><field name="environment"/></span>
+                                <span><i class="fa fa-bullseye me-1"/><field name="purpose"/></span>
+                            </div>
+                        </div>
+                        <div class="o_workable_hero_status">
+                            <field name="connection_status" widget="badge"/>
+                            <span class="text-muted small" invisible="not last_check_date">Last checked <field name="last_check_date"/></span>
+                        </div>
+                    </div>
+
+                    <div class="oe_button_box o_workable_button_box" name="button_box">
                         <button name="action_open_subscriptions" type="object" class="oe_stat_button" icon="fa-link">
                             <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
                         </button>
-                        <button name="action_open_logs" type="object" class="oe_stat_button" icon="fa-list-alt">
+                        <button name="action_open_logs" type="object" class="oe_stat_button" icon="fa-line-chart">
                             <field name="log_count" widget="statinfo" string="Health Logs"/>
                         </button>
                         <button name="action_open_webhook_events" type="object" class="oe_stat_button" icon="fa-exchange">
                             <field name="webhook_event_count" widget="statinfo" string="Webhooks"/>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <div class="oe_title">
-                        <label for="name"/>
-                        <h1><field name="name" placeholder="Production Recruitment API"/></h1>
+
+                    <div class="o_workable_status_banner" invisible="not connection_message">
+                        <i class="fa fa-info-circle"/>
+                        <field name="connection_message" readonly="1" nolabel="1"/>
                     </div>
-                    <group>
-                        <group string="Account">
-                            <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="environment"/>
-                            <field name="purpose"/>
-                            <field name="subdomain" placeholder="mycompany"/>
-                            <field name="api_base_url" readonly="1"/>
-                            <field name="active"/>
-                        </group>
-                        <group string="Credentials" groups="workable_api_health_monitor.group_workable_health_admin">
-                            <field name="auth_scheme"/>
-                            <field name="api_token" password="True"/>
-                            <field name="webhook_secret" password="True"/>
-                            <field name="request_timeout"/>
-                            <field name="verify_ssl"/>
-                        </group>
-                    </group>
-                    <group string="Webhook Endpoint">
-                        <field name="webhook_url" readonly="1" widget="url"/>
-                        <field name="webhook_key" readonly="1" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                        <button name="action_regenerate_webhook_key" type="object" string="Regenerate Webhook Key" class="btn-secondary" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    </group>
-                    <notebook>
-                        <page string="Subscriptions">
+
+                    <notebook class="o_workable_notebook">
+                        <page string="Overview" name="overview">
+                            <div class="o_workable_section_title">
+                                <h3>Connection Setup</h3>
+                                <p>Configure the Workable account and secure API credentials.</p>
+                            </div>
+                            <group class="o_workable_group_cards">
+                                <group string="Account Details">
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                    <field name="environment"/>
+                                    <field name="purpose"/>
+                                    <field name="subdomain"/>
+                                    <field name="api_base_url" readonly="1" widget="url"/>
+                                    <field name="active"/>
+                                </group>
+                                <group string="Credentials" groups="workable_api_health_monitor.group_workable_health_admin">
+                                    <field name="auth_scheme"/>
+                                    <field name="api_token" password="True"/>
+                                    <field name="webhook_secret" password="True"/>
+                                    <field name="request_timeout"/>
+                                    <field name="verify_ssl"/>
+                                </group>
+                            </group>
+
+                            <div class="o_workable_section_title mt-4">
+                                <h3>Webhook Endpoint</h3>
+                                <p>Use this unique URL when creating subscriptions in Workable.</p>
+                            </div>
+                            <group class="o_workable_endpoint_group">
+                                <field name="webhook_url" readonly="1" widget="url"/>
+                                <field name="webhook_key" readonly="1" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                                <button name="action_regenerate_webhook_key" type="object" string="Regenerate Key" icon="fa-key" class="btn-secondary" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                            </group>
+                        </page>
+
+                        <page string="Subscriptions" name="subscriptions">
+                            <div class="o_workable_section_title">
+                                <h3>Expected Subscriptions</h3>
+                                <p>Configure and monitor the webhook events expected for this token.</p>
+                            </div>
                             <field name="subscription_ids" context="{'default_account_id': id}">
-                                <list editable="bottom" decoration-success="health_status == 'healthy'" decoration-warning="health_status in ('duplicate', 'webhook_stale')" decoration-danger="health_status in ('missing', 'url_mismatch', 'event_mismatch', 'api_error')">
+                                <list editable="bottom"
+                                      decoration-success="health_status == 'healthy'"
+                                      decoration-warning="health_status in ('duplicate', 'webhook_stale')"
+                                      decoration-danger="health_status in ('missing', 'url_mismatch', 'event_mismatch', 'api_error')">
                                     <field name="event_type"/>
-                                    <field name="use_account_webhook_url"/>
+                                    <field name="use_account_webhook_url" widget="boolean_toggle"/>
                                     <field name="target_url"/>
-                                    <field name="workable_subscription_id" readonly="1"/>
+                                    <field name="workable_subscription_id" readonly="1" optional="hide"/>
                                     <field name="health_status" widget="badge" readonly="1"/>
+                                    <field name="last_check_date" readonly="1" optional="show"/>
                                     <field name="last_webhook_received" readonly="1" optional="hide"/>
+                                    <field name="auto_register" widget="boolean_toggle" optional="hide"/>
                                     <field name="active" widget="boolean_toggle"/>
                                 </list>
                             </field>
                         </page>
-                        <page string="Monitoring">
-                            <group>
-                                <group string="Health Checks">
-                                    <field name="health_check_enabled"/>
+
+                        <page string="Monitoring" name="monitoring">
+                            <div class="o_workable_monitor_kpis">
+                                <div class="o_workable_monitor_kpi">
+                                    <span class="value"><field name="healthy_subscription_count"/>/<field name="subscription_count"/></span>
+                                    <span class="label">Healthy subscriptions</span>
+                                </div>
+                                <div class="o_workable_monitor_kpi">
+                                    <span class="value"><field name="last_response_time_ms"/> ms</span>
+                                    <span class="label">Latest response</span>
+                                </div>
+                                <div class="o_workable_monitor_kpi">
+                                    <span class="value"><field name="valid_webhook_count"/></span>
+                                    <span class="label">Valid webhooks</span>
+                                </div>
+                                <div class="o_workable_monitor_kpi danger">
+                                    <span class="value"><field name="consecutive_failures"/></span>
+                                    <span class="label">Consecutive failures</span>
+                                </div>
+                            </div>
+                            <group class="o_workable_group_cards">
+                                <group string="Health Check Rules">
+                                    <field name="health_check_enabled" widget="boolean_toggle"/>
                                     <field name="failure_threshold"/>
                                     <field name="stale_webhook_hours"/>
-                                    <field name="alert_enabled"/>
+                                    <field name="alert_enabled" widget="boolean_toggle"/>
                                     <field name="alert_user_ids" widget="many2many_tags" invisible="not alert_enabled"/>
                                 </group>
-                                <group string="Latest Status">
+                                <group string="Latest Activity">
                                     <field name="last_check_date" readonly="1"/>
                                     <field name="last_success_date" readonly="1"/>
-                                    <field name="last_response_time_ms" readonly="1"/>
-                                    <field name="consecutive_failures" readonly="1"/>
                                     <field name="last_webhook_at" readonly="1"/>
                                     <field name="last_invalid_webhook_at" readonly="1"/>
                                     <field name="valid_webhook_count" readonly="1"/>
                                     <field name="invalid_webhook_count" readonly="1"/>
                                 </group>
                             </group>
-                            <field name="connection_message" readonly="1" placeholder="No health check has run yet."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -138,12 +260,10 @@
     <record id="action_workable_api_account" model="ir.actions.act_window">
         <field name="name">API Accounts</field>
         <field name="res_model">workable.api.account</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_workable_api_account_search"/>
-        <field name="context">{'search_default_healthy': 0}</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Add a Workable API account</p>
-            <p>Each record stores an independent Workable subdomain, API token, webhook endpoint, subscriptions, and health history.</p>
+            <p class="o_view_nocontent_smiling_face">Add your first Workable API account</p>
+            <p>Monitor tokens, subscriptions, webhook delivery, response times, and failures from one place.</p>
         </field>
     </record>
 </odoo>
