@@ -59,6 +59,15 @@
                             <field name="zoho_sync_lookback_days"/>
                             <span class="ms-2">days</span>
                         </setting>
+                        <setting string="Synchronize Ticket Metrics" help="Retrieves first response, average response, resolution, response count, and SLA metrics for each applicable ticket.">
+                            <field name="zoho_sync_metrics"/>
+                        </setting>
+                        <setting string="Metrics for Closed Tickets Only" help="Enable this to reduce API calls when only final metrics are required.">
+                            <field name="zoho_metrics_closed_only"/>
+                        </setting>
+                        <setting string="Metrics Endpoint Pattern" help="Keep {ticket_id} in the endpoint. The default is tickets/{ticket_id}/metrics.">
+                            <field name="zoho_metrics_endpoint" placeholder="tickets/{ticket_id}/metrics"/>
+                        </setting>
                         <setting string="Webhook Secret">
                             <field name="zoho_webhook_secret" password="True"/>
                             <div class="text-muted">
