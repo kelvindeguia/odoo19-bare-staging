@@ -4,37 +4,65 @@
         <field name="name">workable.api.subscription.list</field>
         <field name="model">workable.api.subscription</field>
         <field name="arch" type="xml">
-            <list decoration-success="health_status == 'healthy'" decoration-warning="health_status in ('duplicate', 'webhook_stale')" decoration-danger="health_status in ('missing', 'url_mismatch', 'event_mismatch', 'api_error')">
+            <list class="o_workable_monitor_list"
+                  decoration-success="health_status == 'healthy'"
+                  decoration-warning="health_status in ('duplicate', 'webhook_stale')"
+                  decoration-danger="health_status in ('missing', 'url_mismatch', 'event_mismatch', 'api_error')">
+                <field name="name"/>
                 <field name="account_id"/>
                 <field name="event_type"/>
-                <field name="target_url"/>
-                <field name="workable_subscription_id"/>
+                <field name="target_url" optional="show"/>
                 <field name="health_status" widget="badge"/>
-                <field name="last_check_date"/>
-                <field name="last_webhook_received"/>
-                <field name="auto_register" optional="hide"/>
+                <field name="last_check_date" optional="show"/>
+                <field name="last_webhook_received" optional="hide"/>
+                <field name="auto_register" widget="boolean_toggle" optional="hide"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
 
-    <record id="view_workable_api_subscription_search" model="ir.ui.view">
-        <field name="name">workable.api.subscription.search</field>
+    <record id="view_workable_api_subscription_kanban" model="ir.ui.view">
+        <field name="name">workable.api.subscription.kanban</field>
         <field name="model">workable.api.subscription</field>
         <field name="arch" type="xml">
-            <search>
+            <kanban class="o_workable_subscription_kanban" default_group_by="health_status" sample="1">
+                <field name="name"/>
+                <field name="active"/>
                 <field name="account_id"/>
                 <field name="event_type"/>
                 <field name="target_url"/>
-                <filter name="healthy" string="Healthy" domain="[('health_status', '=', 'healthy')]"/>
-                <filter name="attention" string="Needs Attention" domain="[('health_status', 'not in', ['healthy', 'not_checked'])]"/>
-                <filter name="missing" string="Missing" domain="[('health_status', '=', 'missing')]"/>
-                <group expand="0" string="Group By">
-                    <filter name="group_account" string="Account" context="{'group_by': 'account_id'}"/>
-                    <filter name="group_event" string="Event" context="{'group_by': 'event_type'}"/>
-                    <filter name="group_status" string="Status" context="{'group_by': 'health_status'}"/>
-                </group>
-            </search>
+                <field name="health_status"/>
+                <field name="health_message"/>
+                <field name="last_check_date"/>
+                <field name="last_webhook_received"/>
+                <field name="auto_register"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_workable_subscription_card">
+                            <div class="o_workable_card_header">
+                                <div class="min-w-0">
+                                    <strong class="o_workable_card_title text-truncate"><field name="event_type"/></strong>
+                                    <div class="o_workable_card_subtitle text-truncate"><field name="account_id"/></div>
+                                </div>
+                                <span t-attf-class="o_workable_status_pill o_status_#{record.health_status.raw_value}">
+                                    <field name="health_status"/>
+                                </span>
+                            </div>
+                            <div class="o_workable_target_url text-truncate">
+                                <i class="fa fa-link me-2"/><field name="target_url"/>
+                            </div>
+                            <div class="o_workable_card_message" t-if="record.health_message.raw_value">
+                                <i class="fa fa-info-circle me-2"/><span class="text-truncate"><field name="health_message"/></span>
+                            </div>
+                            <div class="o_workable_card_footer">
+                                <span t-if="record.last_check_date.raw_value"><i class="fa fa-clock-o me-1"/><field name="last_check_date"/></span>
+                                <span t-else="">Not checked yet</span>
+                                <span t-if="record.auto_register.raw_value"><i class="fa fa-magic me-1"/>Auto-register</span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -42,42 +70,64 @@
         <field name="name">workable.api.subscription.form</field>
         <field name="model">workable.api.subscription</field>
         <field name="arch" type="xml">
-            <form string="Workable Subscription">
+            <form string="Workable Subscription" class="o_workable_monitor_form">
                 <header>
-                    <button name="action_check" type="object" string="Check" class="btn-primary"/>
-                    <button name="action_register" type="object" string="Register" invisible="workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    <button name="action_reregister" type="object" string="Re-register" invisible="not workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
-                    <button name="action_unregister" type="object" string="Remove from Workable" invisible="not workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_check" type="object" string="Check Now" icon="fa-refresh" class="btn-primary"/>
+                    <button name="action_register" type="object" string="Register" icon="fa-plus-circle" invisible="workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_reregister" type="object" string="Re-register" icon="fa-repeat" invisible="not workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
+                    <button name="action_unregister" type="object" string="Remove from Workable" icon="fa-unlink" invisible="not workable_subscription_id" groups="workable_api_health_monitor.group_workable_health_admin"/>
                     <field name="health_status" widget="statusbar" statusbar_visible="not_checked,healthy,missing,duplicate,url_mismatch,event_mismatch,webhook_stale,api_error"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
-                    <group>
-                        <group string="Configuration">
-                            <field name="account_id"/>
-                            <field name="event_type"/>
-                            <field name="use_account_webhook_url"/>
-                            <field name="target_url" widget="url" readonly="use_account_webhook_url"/>
-                            <field name="custom_target_url" invisible="use_account_webhook_url" widget="url"/>
-                            <field name="job_shortcode"/>
-                            <field name="stage_slug"/>
-                            <field name="auto_register"/>
-                            <field name="active"/>
-                        </group>
-                        <group string="Workable State">
-                            <field name="workable_subscription_id" readonly="1"/>
-                            <field name="remote_event_type" readonly="1"/>
-                            <field name="remote_target_url" readonly="1" widget="url"/>
-                            <field name="last_check_date" readonly="1"/>
-                            <field name="last_webhook_received" readonly="1"/>
-                            <field name="last_webhook_signature_valid" readonly="1"/>
-                        </group>
-                    </group>
-                    <group string="Health Result">
-                        <field name="health_message" readonly="1"/>
-                        <field name="remote_payload" readonly="1" widget="text"/>
-                    </group>
+                    <div class="o_workable_hero o_workable_hero_compact">
+                        <div class="o_workable_hero_icon"><i class="fa fa-link"/></div>
+                        <div class="o_workable_hero_content">
+                            <div class="text-muted small text-uppercase fw-semibold">Webhook Subscription</div>
+                            <h1><field name="name" readonly="1"/></h1>
+                            <div class="o_workable_hero_meta">
+                                <span><i class="fa fa-user-circle me-1"/><field name="account_id"/></span>
+                                <span><i class="fa fa-bolt me-1"/><field name="event_type"/></span>
+                            </div>
+                        </div>
+                        <div class="o_workable_hero_status"><field name="health_status" widget="badge"/></div>
+                    </div>
+
+                    <div class="o_workable_status_banner" invisible="not health_message">
+                        <i class="fa fa-info-circle"/>
+                        <field name="health_message" readonly="1" nolabel="1"/>
+                    </div>
+
+                    <notebook class="o_workable_notebook">
+                        <page string="Configuration">
+                            <group class="o_workable_group_cards">
+                                <group string="Subscription Setup">
+                                    <field name="account_id"/>
+                                    <field name="event_type"/>
+                                    <field name="use_account_webhook_url" widget="boolean_toggle"/>
+                                    <field name="target_url" widget="url" readonly="use_account_webhook_url"/>
+                                    <field name="custom_target_url" invisible="use_account_webhook_url" widget="url"/>
+                                    <field name="job_shortcode"/>
+                                    <field name="stage_slug"/>
+                                    <field name="auto_register" widget="boolean_toggle"/>
+                                    <field name="active"/>
+                                </group>
+                                <group string="Remote State">
+                                    <field name="workable_subscription_id" readonly="1"/>
+                                    <field name="remote_event_type" readonly="1"/>
+                                    <field name="remote_target_url" readonly="1" widget="url"/>
+                                    <field name="last_check_date" readonly="1"/>
+                                    <field name="last_webhook_received" readonly="1"/>
+                                    <field name="last_webhook_signature_valid" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Technical Details">
+                            <group string="Last Workable Response">
+                                <field name="remote_payload" readonly="1" widget="text" nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
@@ -87,7 +137,6 @@
     <record id="action_workable_api_subscription" model="ir.actions.act_window">
         <field name="name">Subscriptions</field>
         <field name="res_model">workable.api.subscription</field>
-        <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_workable_api_subscription_search"/>
+        <field name="view_mode">kanban,list,form</field>
     </record>
 </odoo>
