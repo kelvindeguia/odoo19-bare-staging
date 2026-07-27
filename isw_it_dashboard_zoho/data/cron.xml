@@ -1,12 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo noupdate="1">
     <record id="ir_cron_zoho_ticket_sync" model="ir.cron">
-        <field name="name">Zoho Desk: Synchronize Tickets</field>
+        <field name="name">Zoho Desk: Synchronize Ticket Batch</field>
         <field name="model_id" ref="model_it_zoho_ticket"/>
         <field name="state">code</field>
-        <field name="code">model.cron_sync_tickets()</field>
-        <field name="interval_number">1</field>
-        <field name="interval_type">hours</field>
+        <field name="code">model.cron_sync_ticket_batch()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
         <field name="active">False</field>
+        <field name="priority">5</field>
+    </record>
+    <record id="ir_cron_zoho_metrics_batch_sync" model="ir.cron">
+        <field name="name">Zoho Desk: Synchronize Metrics Batch</field>
+        <field name="model_id" ref="model_it_zoho_ticket"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_metrics_batch()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">False</field>
+        <field name="priority">10</field>
     </record>
     <record id="ir_cron_zoho_webhook_queue" model="ir.cron">
         <field name="name">Zoho Desk: Process Webhook Queue</field>
