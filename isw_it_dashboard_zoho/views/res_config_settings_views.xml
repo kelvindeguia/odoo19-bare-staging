@@ -48,16 +48,19 @@
                             <div class="d-flex flex-wrap gap-2">
                                 <button name="action_authorize_zoho" type="object" string="Authorize Zoho Desk" class="btn-primary" icon="fa-external-link"/>
                                 <button name="action_test_zoho_connection" type="object" string="Test Connection" class="btn-secondary" icon="fa-plug"/>
-                                <button name="action_sync_zoho_now" type="object" string="Synchronize Now" class="btn-secondary" icon="fa-refresh"/>
+                                <button name="action_sync_zoho_now" type="object" string="Run Ticket Batch" class="btn-secondary" icon="fa-refresh"/>
+                                <button name="action_sync_zoho_metrics_now" type="object" string="Run Metrics Batch" class="btn-secondary" icon="fa-tachometer"/>
                                 <button name="action_disconnect_zoho" type="object" string="Disconnect" class="btn-secondary" icon="fa-unlink" confirm="Remove the Zoho authorization stored in Odoo?"/>
                             </div>
                         </setting>
                         <setting string="Department IDs" help="Optional comma-separated Zoho Desk department IDs. Each department is synchronized separately.">
                             <field name="zoho_department_ids" placeholder="523069000000146597,523069000000146598"/>
                         </setting>
-                        <setting string="Synchronization Lookback">
-                            <field name="zoho_sync_lookback_days"/>
-                            <span class="ms-2">days</span>
+                        <setting string="Ticket Batch Size" help="Number of tickets fetched in one cron execution. Zoho pagination is capped at 100 here; 50 is recommended.">
+                            <field name="zoho_ticket_batch_size"/>
+                        </setting>
+                        <setting string="Metrics Batch Size" help="Number of pending ticket metrics processed in one cron execution. 20 is recommended for the initial import.">
+                            <field name="zoho_metrics_batch_size"/>
                         </setting>
                         <setting string="Synchronize Ticket Metrics" help="Retrieves first response, average response, resolution, response count, and SLA metrics for each applicable ticket.">
                             <field name="zoho_sync_metrics"/>

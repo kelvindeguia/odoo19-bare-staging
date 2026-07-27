@@ -2,6 +2,7 @@
 <odoo>
     <menuitem id="menu_it_helpdesk" name="Helpdesk" parent="isw_it_dashboard.menu_it_dashboard_root" sequence="40"/>
     <menuitem id="menu_it_zoho_ticket" name="Zoho Desk Tickets" parent="menu_it_helpdesk" action="action_it_zoho_ticket" groups="isw_it_dashboard.group_it_dashboard_user"/>
+    <menuitem id="menu_it_zoho_sync_state" name="Sync States" parent="menu_it_helpdesk" action="action_it_zoho_sync_state" groups="isw_it_dashboard_zoho.group_zoho_integration_manager" sequence="15"/>
     <menuitem id="menu_it_zoho_sync_log" name="Integration Logs" parent="menu_it_helpdesk" action="action_it_integration_sync_log" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
     <menuitem id="menu_it_zoho_webhook" name="Webhook Events" parent="menu_it_helpdesk" action="action_it_zoho_webhook_event" groups="isw_it_dashboard_zoho.group_zoho_integration_manager"/>
     <menuitem id="menu_it_zoho_settings" name="Zoho Desk Configuration" parent="isw_it_dashboard.menu_it_dashboard_config" action="action_zoho_desk_settings" groups="isw_it_dashboard_zoho.group_zoho_integration_manager" sequence="20"/>

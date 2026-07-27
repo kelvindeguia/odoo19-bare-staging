@@ -57,10 +57,17 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="isw_it_dashboard_zoho.department_ids",
         help="Optional comma-separated Zoho Desk department IDs.",
     )
-    zoho_sync_lookback_days = fields.Integer(
-        string="Synchronization Lookback (Days)",
-        config_parameter="isw_it_dashboard_zoho.sync_lookback_days",
-        default=7,
+    zoho_ticket_batch_size = fields.Integer(
+        string="Ticket Batch Size",
+        config_parameter="isw_it_dashboard_zoho.ticket_batch_size",
+        default=50,
+        help="Tickets fetched in one scheduled-action execution. Recommended: 50.",
+    )
+    zoho_metrics_batch_size = fields.Integer(
+        string="Metrics Batch Size",
+        config_parameter="isw_it_dashboard_zoho.metrics_batch_size",
+        default=20,
+        help="Pending ticket metrics processed in one scheduled-action execution.",
     )
     zoho_sync_metrics = fields.Boolean(
         string="Synchronize Ticket Metrics",
@@ -167,18 +174,30 @@ class ResConfigSettings(models.TransientModel):
     def action_sync_zoho_now(self):
         self.ensure_one()
         self._save_current_settings()
-        result = self.env["it.zoho.ticket"].sudo().sync_tickets(raise_on_error=True)
+        result = self.env["it.zoho.ticket"].sudo().sync_ticket_batch(raise_on_error=True)
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": _("Zoho Desk Synchronization"),
-                "message": _(
-                    "Tickets received %(received)s; created %(created)s; updated %(updated)s; "
-                    "ticket failures %(failed)s; metrics synchronized %(metrics_synced)s; metrics failures %(metrics_failed)s."
-                ) % result,
-                "type": "warning" if result["failed"] or result["metrics_failed"] else "success",
-                "sticky": bool(result["failed"] or result["metrics_failed"]),
+                "title": _("Zoho Desk Ticket Batch"),
+                "message": _("Received %(received)s; created %(created)s; updated %(updated)s; failed %(failed)s.") % result,
+                "type": "warning" if result["failed"] else "success",
+                "sticky": bool(result["failed"]),
+            },
+        }
+
+    def action_sync_zoho_metrics_now(self):
+        self.ensure_one()
+        self._save_current_settings()
+        result = self.env["it.zoho.ticket"].sudo().sync_metrics_batch(raise_on_error=True)
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Zoho Desk Metrics Batch"),
+                "message": _("Processed %(processed)s; successful %(success)s; failed %(failed)s.") % result,
+                "type": "warning" if result["failed"] else "success",
+                "sticky": bool(result["failed"]),
             },
         }
 

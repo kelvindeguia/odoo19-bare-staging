@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import re
@@ -69,11 +70,20 @@ class ITZohoTicket(models.Model):
     customer_rating = fields.Float()
 
     metrics_sync_status = fields.Selection(
-        [("pending", "Pending"), ("success", "Success"), ("failed", "Failed"), ("not_available", "Not Available")],
+        [
+            ("pending", "Pending"),
+            ("processing", "Processing"),
+            ("success", "Success"),
+            ("failed", "Failed"),
+            ("not_available", "Not Available"),
+        ],
         default="pending",
         index=True,
         readonly=True,
     )
+    metrics_sync_attempts = fields.Integer(default=0, readonly=True)
+    metrics_next_retry = fields.Datetime(index=True, readonly=True)
+    metrics_payload_hash = fields.Char(index=True, readonly=True)
     metrics_last_sync = fields.Datetime(readonly=True, index=True)
     metrics_error = fields.Text(readonly=True)
     metrics_raw_payload = fields.Text(readonly=True)
@@ -472,15 +482,47 @@ class ITZohoTicket(models.Model):
             self.env["it.zoho.ticket.agent.metric"].create(values)
 
     @api.model
+    def _metrics_candidate(self, record):
+        if self._config("sync_metrics") not in ("True", "1", True):
+            return False
+        closed_only = self._config("metrics_closed_only") in ("True", "1", True)
+        return not closed_only or record.status_type == "Closed" or record.status == "Closed"
+
+    @api.model
     def _upsert_ticket(self, data):
         vals = self._ticket_values(data)
-        if not vals["zoho_ticket_id"]:
+        external_id = vals.get("zoho_ticket_id")
+        if not external_id:
             return False, "failed"
-        record = self.search([("zoho_ticket_id", "=", vals["zoho_ticket_id"])], limit=1)
-        if record:
-            record.write(vals)
-            return record, "updated"
-        return self.create(vals), "created"
+
+        record = self.search([("zoho_ticket_id", "=", external_id)], limit=1)
+        tracked = (
+            "status", "status_type", "closed_time", "modified_time",
+            "assignee_id_external", "department_id_external",
+            "thread_count", "comment_count",
+        )
+        if not record:
+            vals.update({
+                "metrics_sync_status": "pending",
+                "metrics_sync_attempts": 0,
+                "metrics_next_retry": False,
+                "metrics_error": False,
+            })
+            return self.create(vals), "created"
+
+        changed = any(
+            name in vals and record[name] != vals[name]
+            for name in tracked
+        )
+        if changed:
+            vals.update({
+                "metrics_sync_status": "pending",
+                "metrics_sync_attempts": 0,
+                "metrics_next_retry": False,
+                "metrics_error": False,
+            })
+        record.write(vals)
+        return record, "updated"
 
     def action_sync_metrics(self):
         for record in self:
@@ -500,6 +542,7 @@ class ITZohoTicket(models.Model):
         self.ensure_one()
         endpoint_pattern = (self._config("metrics_endpoint", "tickets/{ticket_id}/metrics") or "").strip()
         endpoint = endpoint_pattern.format(ticket_id=self.zoho_ticket_id)
+        self.write({"metrics_sync_status": "processing"})
         try:
             response = self._request("GET", endpoint, timeout=30, allow_not_found=True)
             if response.status_code in (404, 405):
@@ -508,22 +551,37 @@ class ITZohoTicket(models.Model):
                     "metrics_sync_status": "not_available",
                     "metrics_last_sync": fields.Datetime.now(),
                     "metrics_error": error,
+                    "metrics_next_retry": False,
                 })
                 if raise_on_error:
                     raise UserError(error)
                 return False
 
             payload = response.json()
-            self.write(self._metrics_values(payload))
-            self._replace_stage_metrics(payload)
-            self._replace_agent_metrics(payload)
+            normalized = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            payload_hash = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+            values = self._metrics_values(payload)
+            values.update({
+                "metrics_payload_hash": payload_hash,
+                "metrics_sync_attempts": 0,
+                "metrics_next_retry": False,
+            })
+            payload_changed = self.metrics_payload_hash != payload_hash
+            self.write(values)
+            if payload_changed:
+                self._replace_stage_metrics(payload)
+                self._replace_agent_metrics(payload)
             return True
         except Exception as exc:
             error = exc.args[0] if exc.args else str(exc)
+            attempts = self.metrics_sync_attempts + 1
+            retry_minutes = min(60, max(5, attempts * 5))
             self.write({
                 "metrics_sync_status": "failed",
+                "metrics_sync_attempts": attempts,
+                "metrics_next_retry": fields.Datetime.now() + timedelta(minutes=retry_minutes),
                 "metrics_last_sync": fields.Datetime.now(),
-                "metrics_error": str(error),
+                "metrics_error": str(error)[:4000],
             })
             _logger.exception("Zoho metrics synchronization failed for ticket %s", self.zoho_ticket_id)
             if raise_on_error:
@@ -534,8 +592,6 @@ class ITZohoTicket(models.Model):
     def _sync_single_ticket(self, ticket_id):
         response = self._request("GET", f"tickets/{ticket_id}", timeout=30)
         record, outcome = self._upsert_ticket(response.json())
-        if record and self._config("sync_metrics") in ("True", "1", True):
-            record._sync_metrics(raise_on_error=False)
         return outcome
 
     @api.model
@@ -548,93 +604,175 @@ class ITZohoTicket(models.Model):
         return _("Connection successful. Zoho Desk returned %(count)s test record(s).") % {"count": count}
 
     @api.model
-    def sync_tickets(self, raise_on_error=False):
+    def _configured_departments(self):
+        return [
+            value.strip()
+            for value in (self._config("department_ids") or "").split(",")
+            if value.strip()
+        ] or [False]
+
+    @api.model
+    def _get_or_create_sync_state(self, department_id=False):
+        State = self.env["it.zoho.sync.state"].sudo()
+        domain = [
+            ("company_id", "=", self.env.company.id),
+            ("department_id", "=", department_id or False),
+            ("active", "=", True),
+        ]
+        state = State.search(domain, limit=1)
+        if not state:
+            state = State.create({
+                "name": _("Zoho Tickets - %s") % (department_id or _("All Departments")),
+                "department_id": department_id or False,
+                "company_id": self.env.company.id,
+                "next_offset": 0,
+                "batch_size": max(1, min(int(self._config("ticket_batch_size", 50) or 50), 100)),
+            })
+        return state
+
+    @api.model
+    def sync_ticket_batch(self, raise_on_error=False):
+        """Fetch only one Zoho page for one department per execution."""
+        empty = {"received": 0, "created": 0, "updated": 0, "failed": 0}
         if self._config("enabled") not in ("True", "1", True):
             if raise_on_error:
                 raise UserError(_("Zoho Desk synchronization is disabled."))
-            return {"received": 0, "created": 0, "updated": 0, "failed": 0, "metrics_synced": 0, "metrics_failed": 0}
+            return empty
 
-        log = self.env["it.integration.sync.log"].sudo().create({})
-        counts = {"received": 0, "created": 0, "updated": 0, "failed": 0, "metrics_synced": 0, "metrics_failed": 0}
+        departments = self._configured_departments()
+        State = self.env["it.zoho.sync.state"].sudo()
+        states = State.search([
+            ("company_id", "=", self.env.company.id),
+            ("active", "=", True),
+            ("department_id", "in", [d or False for d in departments]),
+        ], order="last_attempt_at asc nulls first, id")
+        existing = {s.department_id or False for s in states}
+        for department_id in departments:
+            if (department_id or False) not in existing:
+                self._get_or_create_sync_state(department_id)
+        state = State.search([
+            ("company_id", "=", self.env.company.id),
+            ("active", "=", True),
+            ("department_id", "in", [d or False for d in departments]),
+        ], order="last_attempt_at asc nulls first, id", limit=1)
+        if not state:
+            return empty
+
+        configured_size = max(1, min(int(self._config("ticket_batch_size", 50) or 50), 100))
+        batch_size = min(state.batch_size or configured_size, configured_size, 100)
+        start_offset = max(state.next_offset or 0, 0)
+        log = self.env["it.integration.sync.log"].sudo().create({
+            "name": _("Zoho Desk Ticket Batch"),
+        })
+        counts = dict(empty)
+        state.write({"current_run_started": fields.Datetime.now(), "last_attempt_at": fields.Datetime.now(), "last_error": False})
         try:
-            try:
-                lookback_days = max(int(self._config("sync_lookback_days", 7) or 7), 1)
-            except (TypeError, ValueError):
-                lookback_days = 7
-            modified_since = fields.Datetime.now() - timedelta(days=lookback_days)
-            department_ids = [value.strip() for value in (self._config("department_ids") or "").split(",") if value.strip()] or [False]
-            sync_metrics = self._config("sync_metrics") in ("True", "1", True)
-            metrics_closed_only = self._config("metrics_closed_only") in ("True", "1", True)
+            params = {"from": start_offset, "limit": batch_size, "sortBy": "modifiedTime"}
+            if state.department_id:
+                params["departmentId"] = state.department_id
+            response = self._request("GET", "tickets", params=params, timeout=60)
+            payload = response.json()
+            tickets = payload.get("data", []) if isinstance(payload, dict) else payload
+            tickets = tickets if isinstance(tickets, list) else []
+            counts["received"] = len(tickets)
+            for data in tickets:
+                try:
+                    record, outcome = self._upsert_ticket(data)
+                    counts[outcome] += 1
+                    if record and not self._metrics_candidate(record):
+                        record.write({"metrics_sync_status": "not_available"})
+                except Exception:
+                    counts["failed"] += 1
+                    _logger.exception("Zoho ticket mapping failed for ticket ID %s", data.get("id"))
 
-            for department_id in department_ids:
-                offset = 0
-                while True:
-                    params = {"from": offset, "limit": 100, "sortBy": "modifiedTime"}
-                    if department_id:
-                        params["departmentId"] = department_id
-                    response = self._request("GET", "tickets", params=params)
-                    payload = response.json()
-                    tickets = payload.get("data", []) if isinstance(payload, dict) else payload
-                    if not tickets:
-                        break
-                    for data in tickets:
-                        modified = self._parse_datetime(data.get("modifiedTime"))
-                        if modified and fields.Datetime.to_datetime(modified) < modified_since:
-                            continue
-                        counts["received"] += 1
-                        try:
-                            record, outcome = self._upsert_ticket(data)
-                            counts[outcome] += 1
-                            should_sync_metrics = sync_metrics and record and (
-                                not metrics_closed_only or (data.get("statusType") == "Closed" or data.get("status") == "Closed")
-                            )
-                            if should_sync_metrics:
-                                if record._sync_metrics(raise_on_error=False):
-                                    counts["metrics_synced"] += 1
-                                else:
-                                    counts["metrics_failed"] += 1
-                        except Exception:
-                            counts["failed"] += 1
-                            _logger.exception("Zoho ticket mapping failed for ticket ID %s", data.get("id"))
-                    if len(tickets) < 100:
-                        break
-                    offset += 100
-
-            status = "partial" if counts["failed"] or counts["metrics_failed"] else "success"
+            end_reached = len(tickets) < batch_size
+            state.write({
+                "next_offset": 0 if end_reached else start_offset + len(tickets),
+                "initial_sync_completed": state.initial_sync_completed or end_reached,
+                "last_successful_sync": fields.Datetime.now(),
+                "current_run_started": False,
+                "last_received_count": len(tickets),
+                "last_error": False,
+            })
             log.write({
                 "completed_at": fields.Datetime.now(),
-                "status": status,
+                "status": "partial" if counts["failed"] else "success",
                 "records_received": counts["received"],
                 "records_created": counts["created"],
                 "records_updated": counts["updated"],
-                "records_failed": counts["failed"] + counts["metrics_failed"],
-                "error_message": _("Metrics synchronized: %(ok)s; metrics failed/unavailable: %(failed)s")
-                % {"ok": counts["metrics_synced"], "failed": counts["metrics_failed"]},
+                "records_failed": counts["failed"],
+                "error_message": _("Department: %(department)s; offset: %(offset)s; next offset: %(next)s") % {
+                    "department": state.department_id or _("All"),
+                    "offset": start_offset,
+                    "next": state.next_offset,
+                },
             })
             self._set_config("last_sync_at", fields.Datetime.to_string(fields.Datetime.now()))
             self._set_config("last_error", "")
             return counts
         except Exception as exc:
-            safe_error = exc.args[0] if exc.args else _("Unknown synchronization error")
+            safe_error = str(exc.args[0] if exc.args else exc)[:4000]
+            state.write({"current_run_started": False, "last_error": safe_error})
             log.write({
-                "completed_at": fields.Datetime.now(),
-                "status": "failed",
-                "records_received": counts["received"],
-                "records_created": counts["created"],
-                "records_updated": counts["updated"],
-                "records_failed": counts["failed"] + counts["metrics_failed"],
-                "error_message": str(safe_error),
+                "completed_at": fields.Datetime.now(), "status": "failed",
+                "records_received": counts["received"], "records_created": counts["created"],
+                "records_updated": counts["updated"], "records_failed": counts["failed"],
+                "error_message": safe_error,
             })
-            self._set_config("connection_status", "error")
-            self._set_config("last_error", str(safe_error))
-            _logger.exception("Zoho Desk synchronization failed")
+            self._set_config("last_error", safe_error)
+            _logger.exception("Zoho ticket batch synchronization failed")
             if raise_on_error:
                 raise
             return counts
 
     @api.model
+    def sync_metrics_batch(self, batch_size=None, raise_on_error=False):
+        if self._config("sync_metrics") not in ("True", "1", True):
+            return {"processed": 0, "success": 0, "failed": 0}
+        if batch_size is None:
+            batch_size = int(self._config("metrics_batch_size", 20) or 20)
+        batch_size = max(1, min(int(batch_size), 100))
+        now = fields.Datetime.now()
+        domain = [
+            ("metrics_sync_status", "in", ["pending", "failed"]),
+            "|", ("metrics_next_retry", "=", False), ("metrics_next_retry", "<=", now),
+        ]
+        if self._config("metrics_closed_only") in ("True", "1", True):
+            domain += ["|", ("status_type", "=", "Closed"), ("status", "=", "Closed")]
+        tickets = self.search(domain, order="metrics_sync_attempts asc, modified_time desc, id", limit=batch_size)
+        result = {"processed": len(tickets), "success": 0, "failed": 0}
+        for ticket in tickets:
+            try:
+                if ticket._sync_metrics(raise_on_error=False):
+                    result["success"] += 1
+                else:
+                    result["failed"] += 1
+            except Exception:
+                result["failed"] += 1
+                _logger.exception("Unexpected metric batch failure for %s", ticket.zoho_ticket_id)
+        return result
+
+    @api.model
+    def sync_tickets(self, raise_on_error=False):
+        """Backward-compatible method: process one ticket batch only."""
+        counts = self.sync_ticket_batch(raise_on_error=raise_on_error)
+        return {
+            **counts,
+            "metrics_synced": 0,
+            "metrics_failed": 0,
+        }
+
+    @api.model
+    def cron_sync_ticket_batch(self):
+        return self.sync_ticket_batch(raise_on_error=False)
+
+    @api.model
+    def cron_sync_metrics_batch(self):
+        return self.sync_metrics_batch(raise_on_error=False)
+
+    @api.model
     def cron_sync_tickets(self):
-        return self.sync_tickets(raise_on_error=False)
+        return self.cron_sync_ticket_batch()
 
 
 class ITZohoTicketStageMetric(models.Model):
