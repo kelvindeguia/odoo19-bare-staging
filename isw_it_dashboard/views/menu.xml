@@ -1,13 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-<menuitem id="menu_it_dashboard_root" name="IT Dashboard" action="action_it_dashboard_client" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
-<menuitem id="menu_it_dashboard_reporting" name="Reporting" parent="menu_it_dashboard_root" sequence="20"/>
-<menuitem id="menu_it_dashboard_period" name="Reporting Periods" parent="menu_it_dashboard_reporting" action="action_it_dashboard_period"/>
-<menuitem id="menu_it_dashboard_collection" name="Data Collection" parent="menu_it_dashboard_root" sequence="30"/>
-<menuitem id="menu_it_neo_session" name="NEO Sessions" parent="menu_it_dashboard_collection" action="action_it_neo_session"/>
-<menuitem id="menu_it_pc_preparation" name="PC Preparations" parent="menu_it_dashboard_collection" action="action_it_pc_preparation"/>
-<menuitem id="menu_it_department_highlight" name="Department Highlights" parent="menu_it_dashboard_collection" action="action_it_department_highlight"/>
-<menuitem id="menu_it_project_update" name="Project Updates" parent="menu_it_dashboard_collection" action="action_it_project_update"/>
-<menuitem id="menu_it_dashboard_config" name="Configuration" parent="menu_it_dashboard_root" sequence="90" groups="isw_it_dashboard.group_it_dashboard_admin"/>
-<menuitem id="menu_it_dashboard_kpi" name="KPI Definitions" parent="menu_it_dashboard_config" action="action_it_dashboard_kpi"/>
-<menuitem id="menu_it_neo_question" name="NEO Questions" parent="menu_it_dashboard_config" action="action_it_neo_question"/>
+    <menuitem id="menu_it_dashboard_root" name="IT Dashboard" action="action_it_dashboard_client" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
+
+    <menuitem id="menu_it_dashboard_reporting" name="Reporting" parent="menu_it_dashboard_root" sequence="20"/>
+    <menuitem id="menu_it_helpdesk_monthly_summary" name="Jr. IT and Helpdesk Summary" parent="menu_it_dashboard_reporting" action="action_it_helpdesk_monthly_summary" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
+    <menuitem id="menu_it_dashboard_period" name="Reporting Periods" parent="menu_it_dashboard_reporting" action="action_it_dashboard_period" sequence="20"/>
+
+    <menuitem id="menu_it_dashboard_collection" name="Data Collection" parent="menu_it_dashboard_root" sequence="30"/>
+    <menuitem id="menu_it_neo_session" name="NEO Sessions" parent="menu_it_dashboard_collection" action="action_it_neo_session"/>
+    <menuitem id="menu_it_pc_preparation" name="PC Preparations" parent="menu_it_dashboard_collection" action="action_it_pc_preparation"/>
+    <menuitem id="menu_it_department_highlight" name="Department Highlights" parent="menu_it_dashboard_collection" action="action_it_department_highlight"/>
+    <menuitem id="menu_it_project_update" name="Project Updates" parent="menu_it_dashboard_collection" action="action_it_project_update"/>
+
+    <menuitem id="menu_it_dashboard_config" name="Configuration" parent="menu_it_dashboard_root" sequence="90" groups="isw_it_dashboard.group_it_dashboard_admin"/>
+    <menuitem id="menu_it_helpdesk_monthly_target" name="Jr. IT and Helpdesk Targets" parent="menu_it_dashboard_config" action="action_it_helpdesk_monthly_target" sequence="10" groups="isw_it_dashboard.group_it_dashboard_admin"/>
+    <menuitem id="menu_it_dashboard_kpi" name="KPI Definitions" parent="menu_it_dashboard_config" action="action_it_dashboard_kpi" sequence="20"/>
+    <menuitem id="menu_it_neo_question" name="NEO Questions" parent="menu_it_dashboard_config" action="action_it_neo_question" sequence="30"/>
 </odoo>

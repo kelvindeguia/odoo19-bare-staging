@@ -1,16 +1,24 @@
 {
     "name": "ISW IT Dashboard",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.5.0",
     "summary": "Operational data collection and reporting hub for IT, Helpdesk, NEO, and PC preparation",
     "category": "Operations/IT",
     "author": "ISW",
     "license": "LGPL-3",
-    "depends": ["base", "mail", "web", "project", "hr"],
+    "depends": [
+        "base",
+        "mail",
+        "web",
+        "project",
+        "hr",
+    ],
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
         "data/sequence.xml",
         "data/kpi_data.xml",
+        "views/helpdesk_monthly_target_views.xml",
+        "views/helpdesk_monthly_summary_views.xml",
         "views/dashboard_period_views.xml",
         "views/dashboard_kpi_views.xml",
         "views/neo_views.xml",
@@ -18,15 +26,15 @@
         "views/department_highlight_views.xml",
         "views/project_update_views.xml",
         "views/dashboard_views.xml",
-        "views/menu.xml"
+        "views/menu.xml",
     ],
     "assets": {
         "web.assets_backend": [
             "isw_it_dashboard/static/src/js/dashboard.js",
             "isw_it_dashboard/static/src/xml/dashboard.xml",
-            "isw_it_dashboard/static/src/scss/dashboard.scss"
-        ]
+            "isw_it_dashboard/static/src/scss/dashboard.scss",
+        ],
     },
     "application": True,
-    "installable": True
+    "installable": True,
 }

@@ -4,3 +4,5 @@ from . import neo
 from . import pc_preparation
 from . import department_highlight
 from . import project_update
+from . import helpdesk_monthly_target
+from . import helpdesk_monthly_summary
