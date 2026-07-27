@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_it_helpdesk_monthly_summary_list" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.summary.list</field>
+        <field name="model">it.helpdesk.monthly.summary</field>
+        <field name="arch" type="xml">
+            <list string="Jr. IT and Helpdesk Monthly Summaries" default_order="year desc, month desc">
+                <field name="name"/>
+                <field name="month"/>
+                <field name="year"/>
+                <field name="projected_ongoing_projects"/>
+                <field name="new_hire_pc_prepared"/>
+                <field name="total_new_hires"/>
+                <field name="fallout_count"/>
+                <field name="neo_satisfaction_score"/>
+                <field name="helpdesk_csat"/>
+                <field name="helpdesk_ticket_kpi"/>
+                <field name="target_id" optional="hide"/>
+                <field name="state" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_helpdesk_monthly_summary_form" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.summary.form</field>
+        <field name="model">it.helpdesk.monthly.summary</field>
+        <field name="arch" type="xml">
+            <form string="Jr. IT and Helpdesk Monthly Summary">
+                <header>
+                    <button name="action_submit_for_review" type="object" string="Submit for Review" class="btn-primary" invisible="state != 'draft'" groups="isw_it_dashboard.group_it_dashboard_encoder"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" invisible="state != 'review'" groups="isw_it_dashboard.group_it_dashboard_approver"/>
+                    <button name="action_lock" type="object" string="Lock" invisible="state != 'approved'" groups="isw_it_dashboard.group_it_dashboard_approver"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" invisible="state == 'draft'" groups="isw_it_dashboard.group_it_dashboard_admin"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,review,approved,locked"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <field name="company_id" invisible="1"/>
+                    <group>
+                        <group string="Reporting Period">
+                            <field name="month" readonly="state == 'locked'"/>
+                            <field name="year" readonly="state == 'locked'"/>
+                            <field name="period_date" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state == 'locked'"/>
+                            <field name="target_id"
+                                   readonly="state == 'locked'"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group string="Ownership">
+                            <field name="prepared_by_id" readonly="state == 'locked'"/>
+                            <field name="approved_by_id" readonly="1"/>
+                            <field name="approved_at" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Major KPIs and Attainment">
+                        <group string="Operations">
+                            <field name="projected_ongoing_projects" readonly="state == 'locked'"/>
+                            <field name="new_hire_pc_prepared" readonly="state == 'locked'"/>
+                            <field name="total_new_hires" readonly="state == 'locked'"/>
+                            <field name="fallout_count" readonly="state == 'locked'"/>
+                            <field name="pc_preparation_rate" readonly="1"/>
+                        </group>
+                        <group string="Performance">
+                            <field name="neo_satisfaction_score" readonly="state == 'locked'"/>
+                            <field name="neo_target" readonly="1"/>
+                            <field name="helpdesk_csat" readonly="state == 'locked'"/>
+                            <field name="helpdesk_csat_target" readonly="1"/>
+                            <field name="helpdesk_ticket_kpi" readonly="state == 'locked'"/>
+                            <field name="helpdesk_ticket_kpi_target" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Remarks">
+                        <field name="remarks" placeholder="Enter monthly observations, explanations, or management notes..." readonly="state == 'locked'"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_it_helpdesk_monthly_summary_pivot" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.summary.pivot</field>
+        <field name="model">it.helpdesk.monthly.summary</field>
+        <field name="arch" type="xml">
+            <pivot string="Jr. IT and Helpdesk Monthly Summary">
+                <field name="period_date" type="row" interval="month"/>
+                <field name="projected_ongoing_projects" type="measure"/>
+                <field name="new_hire_pc_prepared" type="measure"/>
+                <field name="total_new_hires" type="measure"/>
+                <field name="fallout_count" type="measure"/>
+                <field name="neo_satisfaction_score" type="measure"/>
+                <field name="helpdesk_csat" type="measure"/>
+                <field name="helpdesk_ticket_kpi" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_it_helpdesk_monthly_summary_graph" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.summary.graph</field>
+        <field name="model">it.helpdesk.monthly.summary</field>
+        <field name="arch" type="xml">
+            <graph string="Monthly KPI Trend" type="line">
+                <field name="period_date" interval="month"/>
+                <field name="neo_satisfaction_score" type="measure"/>
+                <field name="helpdesk_csat" type="measure"/>
+                <field name="helpdesk_ticket_kpi" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_it_helpdesk_monthly_summary" model="ir.actions.act_window">
+        <field name="name">Jr. IT and Helpdesk Monthly Summary</field>
+        <field name="res_model">it.helpdesk.monthly.summary</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a monthly Jr. IT and Helpdesk summary.</p>
+            <p>Select the reporting month and year, select the matching monthly target, then enter the actual KPI values.</p>
+        </field>
+    </record>
+</odoo>

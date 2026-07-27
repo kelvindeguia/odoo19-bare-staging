@@ -23,3 +23,8 @@ access_highlight_admin,highlight admin,model_it_department_highlight,group_it_da
 access_project_update_user,project update user,model_it_project_update,group_it_dashboard_user,1,0,0,0
 access_project_update_encoder,project update encoder,model_it_project_update,group_it_dashboard_encoder,1,1,1,0
 access_project_update_admin,project update admin,model_it_project_update,group_it_dashboard_admin,1,1,1,1
+access_it_helpdesk_monthly_target_user,Jr IT Helpdesk Monthly Target User,model_it_helpdesk_monthly_target,group_it_dashboard_user,1,0,0,0
+access_it_helpdesk_monthly_target_admin,Jr IT Helpdesk Monthly Target Administrator,model_it_helpdesk_monthly_target,group_it_dashboard_admin,1,1,1,1
+access_it_helpdesk_monthly_summary_user,Jr IT Helpdesk Monthly Summary User,model_it_helpdesk_monthly_summary,group_it_dashboard_user,1,0,0,0
+access_it_helpdesk_monthly_summary_encoder,Jr IT Helpdesk Monthly Summary Encoder,model_it_helpdesk_monthly_summary,group_it_dashboard_encoder,1,1,1,0
+access_it_helpdesk_monthly_summary_admin,Jr IT Helpdesk Monthly Summary Administrator,model_it_helpdesk_monthly_summary,group_it_dashboard_admin,1,1,1,1

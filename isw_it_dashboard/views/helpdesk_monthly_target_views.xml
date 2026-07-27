@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_it_helpdesk_monthly_target_list" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.target.list</field>
+        <field name="model">it.helpdesk.monthly.target</field>
+        <field name="arch" type="xml">
+            <list string="Jr. IT and Helpdesk Targets" default_order="year desc, month desc">
+                <field name="name"/>
+                <field name="month"/>
+                <field name="year"/>
+                <field name="period_date" optional="hide"/>
+                <field name="neo_target"/>
+                <field name="helpdesk_csat_target"/>
+                <field name="helpdesk_ticket_kpi_target"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_it_helpdesk_monthly_target_form" model="ir.ui.view">
+        <field name="name">it.helpdesk.monthly.target.form</field>
+        <field name="model">it.helpdesk.monthly.target</field>
+        <field name="arch" type="xml">
+            <form string="Jr. IT and Helpdesk Monthly Target">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options="{'terminology': 'archive'}"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Applicable Reporting Period">
+                            <field name="month"/>
+                            <field name="year"/>
+                            <field name="period_date" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Monthly Targets">
+                            <field name="neo_target"/>
+                            <field name="helpdesk_csat_target"/>
+                            <field name="helpdesk_ticket_kpi_target"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+
+                    <group string="Notes">
+                        <field name="notes" placeholder="Enter the basis, approval details, or explanation for these monthly targets..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_it_helpdesk_monthly_target" model="ir.actions.act_window">
+        <field name="name">Jr. IT and Helpdesk Targets</field>
+        <field name="res_model">it.helpdesk.monthly.target</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create a monthly target configuration.</p>
+            <p>Select the applicable month and year, then enter the NEO, Helpdesk CSAT, and Helpdesk Ticket KPI targets.</p>
+        </field>
+    </record>
+</odoo>

@@ -150,41 +150,6 @@
         </field>
     </record>
 
-    <!-- <record id="view_it_zoho_ticket_search" model="ir.ui.view">
-        <field name="name">it.zoho.ticket.search</field>
-        <field name="model">it.zoho.ticket</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="ticket_number"/>
-                <field name="subject"/>
-                <field name="email"/>
-                <field name="status"/>
-                <field name="priority"/>
-                <field name="department_name"/>
-                <field name="assignee_name"/>
-                <filter name="open" string="Open" domain="[('status_type', '!=', 'Closed')]"/>
-                <filter name="closed" string="Closed" domain="[('status_type', '=', 'Closed')]"/>
-                <filter name="sla_violated" string="SLA Violated" domain="[('sla_violated', '=', True)]"/>
-                <filter name="metrics_success" string="Metrics Available" domain="[('metrics_sync_status', '=', 'success')]"/>
-                <filter name="metrics_failed" string="Metrics Failed" domain="[('metrics_sync_status', 'in', ['failed', 'not_available'])]"/>
-                <separator/>
-                <filter name="created_date" string="Created Date" date="created_time"/>
-                <filter name="closed_date" string="Closed Date" date="closed_time"/>
-                <filter name="metrics_sync_date" string="Metrics Sync Date" date="metrics_last_sync"/>
-                <group expand="0" string="Group By">
-                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
-                    <filter name="group_priority" string="Priority" context="{'group_by': 'priority'}"/>
-                    <filter name="group_channel" string="Channel" context="{'group_by': 'channel'}"/>
-                    <filter name="group_department" string="Department" context="{'group_by': 'department_name'}"/>
-                    <filter name="group_metrics" string="Metrics Status" context="{'group_by': 'metrics_sync_status'}"/>
-                    <filter name="group_created_day" string="Created Day" context="{'group_by': 'created_time:day'}"/>
-                    <filter name="group_created_week" string="Created Week" context="{'group_by': 'created_time:week'}"/>
-                    <filter name="group_created_month" string="Created Month" context="{'group_by': 'created_time:month'}"/>
-                </group>
-            </search>
-        </field>
-    </record> -->
-
     <record id="view_it_zoho_ticket_pivot" model="ir.ui.view">
         <field name="name">it.zoho.ticket.pivot</field>
         <field name="model">it.zoho.ticket</field>
