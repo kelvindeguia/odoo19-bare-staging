@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="neo_question_presentation" model="it.neo.question">
+        <field name="sequence">10</field>
+        <field name="name">The PowerPoint presentation was organized and visually entertaining</field>
+    </record>
+    <record id="neo_question_lively_orientation" model="it.neo.question">
+        <field name="sequence">20</field>
+        <field name="name">The facilitator made the orientation lively and engaging all throughout</field>
+    </record>
+    <record id="neo_question_prepared" model="it.neo.question">
+        <field name="sequence">30</field>
+        <field name="name">The facilitator came in prepared and was knowledgeable about the topics presented</field>
+    </record>
+    <record id="neo_question_responsive" model="it.neo.question">
+        <field name="sequence">40</field>
+        <field name="name">The facilitator was pleasant and responsive to the questions when asked</field>
+    </record>
+    <record id="neo_question_examples" model="it.neo.question">
+        <field name="sequence">50</field>
+        <field name="name">The facilitator provided specific examples and gave clear ideas about the topics being presented</field>
+    </record>
+</odoo>
