@@ -28,3 +28,6 @@ access_it_helpdesk_monthly_target_admin,Jr IT Helpdesk Monthly Target Administra
 access_it_helpdesk_monthly_summary_user,Jr IT Helpdesk Monthly Summary User,model_it_helpdesk_monthly_summary,group_it_dashboard_user,1,0,0,0
 access_it_helpdesk_monthly_summary_encoder,Jr IT Helpdesk Monthly Summary Encoder,model_it_helpdesk_monthly_summary,group_it_dashboard_encoder,1,1,1,0
 access_it_helpdesk_monthly_summary_admin,Jr IT Helpdesk Monthly Summary Administrator,model_it_helpdesk_monthly_summary,group_it_dashboard_admin,1,1,1,1
+access_neo_comment_user,neo comment user,model_it_neo_comment,group_it_dashboard_user,1,0,0,0
+access_neo_comment_encoder,neo comment encoder,model_it_neo_comment,group_it_dashboard_encoder,1,1,1,1
+access_neo_comment_admin,neo comment admin,model_it_neo_comment,group_it_dashboard_admin,1,1,1,1

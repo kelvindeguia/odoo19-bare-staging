@@ -1,6 +1,6 @@
 {
     "name": "ISW IT Dashboard",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "summary": "Operational data collection and reporting hub for IT, Helpdesk, NEO, and PC preparation",
     "category": "Operations/IT",
     "author": "ISW",
@@ -17,6 +17,7 @@
         "security/ir.model.access.csv",
         "data/sequence.xml",
         "data/kpi_data.xml",
+        "data/neo_question_data.xml",
         "views/helpdesk_monthly_target_views.xml",
         "views/helpdesk_monthly_summary_views.xml",
         "views/dashboard_period_views.xml",
