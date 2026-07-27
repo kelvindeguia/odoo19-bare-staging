@@ -71,6 +71,16 @@ class ITNeoSession(models.Model):
         tracking=True,
         index=True,
     )
+    period_id = fields.Many2one(
+        "it.dashboard.period",
+        string="Reporting Period",
+        ondelete="set null",
+        index=True,
+        tracking=True,
+        check_company=True,
+        domain="[('company_id', '=', company_id), ('period_type', '=', 'monthly')]",
+        help="Monthly IT Dashboard reporting period that contains the NEO session date.",
+    )
     target_id = fields.Many2one(
         "it.helpdesk.monthly.target",
         string="Monthly Target",
@@ -169,23 +179,98 @@ class ITNeoSession(models.Model):
             rec.response_count = len(scores)
             rec.overall_score = round(sum(scores) / len(scores), 2) if scores else 0.0
 
+    @api.model
+    def _find_monthly_period(self, session_date, company_id):
+        """Return the monthly dashboard period containing the session date."""
+        if not session_date or not company_id:
+            return self.env["it.dashboard.period"]
+
+        session_date = fields.Date.to_date(session_date)
+        return self.env["it.dashboard.period"].search(
+            [
+                ("period_type", "=", "monthly"),
+                ("date_from", "<=", session_date),
+                ("date_to", ">=", session_date),
+                ("company_id", "=", company_id),
+            ],
+            order="date_from desc, id desc",
+            limit=1,
+        )
+
+    @api.model
+    def _find_monthly_target(self, session_date, company_id):
+        """Return the active target matching the session month and company."""
+        if not session_date or not company_id:
+            return self.env["it.helpdesk.monthly.target"]
+
+        session_date = fields.Date.to_date(session_date)
+        return self.env["it.helpdesk.monthly.target"].search(
+            [
+                ("month", "=", str(session_date.month)),
+                ("year", "=", session_date.year),
+                ("company_id", "=", company_id),
+                ("active", "=", True),
+            ],
+            limit=1,
+        )
+
     @api.onchange("session_date", "company_id")
     def _onchange_session_period(self):
         for rec in self:
             rec.target_id = False
+            rec.period_id = False
+
             if not rec.session_date or not rec.company_id:
                 continue
-            session_date = fields.Date.to_date(rec.session_date)
-            target = self.env["it.helpdesk.monthly.target"].search(
-                [
-                    ("month", "=", str(session_date.month)),
-                    ("year", "=", session_date.year),
-                    ("company_id", "=", rec.company_id.id),
-                    ("active", "=", True),
-                ],
-                limit=1,
+
+            rec.target_id = rec._find_monthly_target(
+                rec.session_date,
+                rec.company_id.id,
             )
-            rec.target_id = target
+            rec.period_id = rec._find_monthly_period(
+                rec.session_date,
+                rec.company_id.id,
+            )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            session_date = vals.get("session_date")
+            company_id = vals.get("company_id") or self.env.company.id
+
+            if session_date and not vals.get("target_id"):
+                target = self._find_monthly_target(session_date, company_id)
+                if target:
+                    vals["target_id"] = target.id
+
+            if session_date and not vals.get("period_id"):
+                period = self._find_monthly_period(session_date, company_id)
+                if period:
+                    vals["period_id"] = period.id
+
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if any(rec.state == "locked" for rec in self) and not self.env.user.has_group(
+            "isw_it_dashboard.group_it_dashboard_admin"
+        ):
+            raise UserError(_("Locked NEO entries can only be modified by an IT Dashboard Administrator."))
+
+        result = super().write(vals)
+
+        if "session_date" in vals or "company_id" in vals:
+            for rec in self:
+                updates = {}
+                if "target_id" not in vals:
+                    target = rec._find_monthly_target(rec.session_date, rec.company_id.id)
+                    updates["target_id"] = target.id if target else False
+                if "period_id" not in vals:
+                    period = rec._find_monthly_period(rec.session_date, rec.company_id.id)
+                    updates["period_id"] = period.id if period else False
+                if updates:
+                    super(ITNeoSession, rec).write(updates)
+
+        return result
 
     @api.constrains("target_id", "session_date", "company_id")
     def _check_target_period(self):

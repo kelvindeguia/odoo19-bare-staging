@@ -1,6 +1,6 @@
 {
     "name": "ISW IT Dashboard",
-    "version": "19.0.1.6.0",
+    "version": "19.0.1.6.1",
     "summary": "Operational data collection and reporting hub for IT, Helpdesk, NEO, and PC preparation",
     "category": "Operations/IT",
     "author": "ISW",
