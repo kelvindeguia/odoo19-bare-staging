@@ -3,10 +3,12 @@
     <menuitem id="menu_it_dashboard_root" name="IT Dashboard" action="action_it_dashboard_client" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
 
     <menuitem id="menu_it_dashboard_reporting" name="Reporting" parent="menu_it_dashboard_root" sequence="20"/>
-    <menuitem id="menu_it_helpdesk_monthly_summary" name="Jr. IT and Helpdesk Summary" parent="menu_it_dashboard_reporting" action="action_it_helpdesk_monthly_summary" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
+    <menuitem id="menu_it_helpdesk_monthly_summary" name="Jr. IT and Helpdesk Summary" parent="menu_it_helpdesk" action="action_it_helpdesk_monthly_summary" sequence="10" groups="isw_it_dashboard.group_it_dashboard_user"/>
     <menuitem id="menu_it_dashboard_period" name="Reporting Periods" parent="menu_it_dashboard_reporting" action="action_it_dashboard_period" sequence="20"/>
 
-    <menuitem id="menu_it_dashboard_collection" name="Data Collection" parent="menu_it_dashboard_root" sequence="30"/>
+    <menuitem id="menu_it_helpdesk" name="Helpdesk" parent="menu_it_dashboard_root" sequence="30"/>
+
+    <menuitem id="menu_it_dashboard_collection" name="Data Collection" parent="menu_it_dashboard_root" sequence="40"/>
     <menuitem id="menu_it_neo_session" name="IT NEO Satisfaction" parent="menu_it_dashboard_collection" action="action_it_neo_session"/>
     <menuitem id="menu_it_pc_preparation" name="PC Preparations" parent="menu_it_dashboard_collection" action="action_it_pc_preparation"/>
     <menuitem id="menu_it_department_highlight" name="Department Highlights" parent="menu_it_dashboard_collection" action="action_it_department_highlight"/>
