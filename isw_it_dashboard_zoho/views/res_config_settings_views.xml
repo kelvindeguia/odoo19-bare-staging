@@ -50,6 +50,7 @@
                                 <button name="action_test_zoho_connection" type="object" string="Test Connection" class="btn-secondary" icon="fa-plug"/>
                                 <button name="action_sync_zoho_now" type="object" string="Run Ticket Batch" class="btn-secondary" icon="fa-refresh"/>
                                 <button name="action_sync_zoho_metrics_now" type="object" string="Run Metrics Batch" class="btn-secondary" icon="fa-tachometer"/>
+                                <button name="action_start_full_metrics_refresh" type="object" string="Start Full Metrics Refresh" class="btn-secondary" icon="fa-repeat" confirm="Queue all applicable tickets for a full metrics refresh?"/>
                                 <button name="action_disconnect_zoho" type="object" string="Disconnect" class="btn-secondary" icon="fa-unlink" confirm="Remove the Zoho authorization stored in Odoo?"/>
                             </div>
                         </setting>
@@ -59,8 +60,20 @@
                         <setting string="Ticket Batch Size" help="Number of tickets fetched in one cron execution. Zoho pagination is capped at 100 here; 50 is recommended.">
                             <field name="zoho_ticket_batch_size"/>
                         </setting>
-                        <setting string="Metrics Batch Size" help="Number of pending ticket metrics processed in one cron execution. 20 is recommended for the initial import.">
+                        <setting string="Metrics Batch Size" help="Maximum tickets selected per run. You may set up to 500, but the time budget can stop the run earlier to protect the Odoo worker.">
                             <field name="zoho_metrics_batch_size"/>
+                        </setting>
+                        <setting string="Metrics Time Budget" help="Maximum processing time for one metrics batch. Remaining tickets stay queued for the next cron run.">
+                            <field name="zoho_metrics_time_budget_seconds"/>
+                        </setting>
+                        <setting string="Refresh Successful Metrics After" help="Open ticket metrics older than this number of hours are refreshed automatically.">
+                            <field name="zoho_metrics_stale_hours"/>
+                        </setting>
+                        <setting string="Automatically Refresh Stale Metrics">
+                            <field name="zoho_refresh_stale_metrics"/>
+                        </setting>
+                        <setting string="Periodically Refresh Closed Ticket Metrics" help="Leave disabled unless closed-ticket metrics can still change in your Zoho process.">
+                            <field name="zoho_refresh_closed_metrics"/>
                         </setting>
                         <setting string="Synchronize Ticket Metrics" help="Retrieves first response, average response, resolution, response count, and SLA metrics for each applicable ticket.">
                             <field name="zoho_sync_metrics"/>

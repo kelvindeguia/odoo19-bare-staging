@@ -66,8 +66,31 @@ class ResConfigSettings(models.TransientModel):
     zoho_metrics_batch_size = fields.Integer(
         string="Metrics Batch Size",
         config_parameter="isw_it_dashboard_zoho.metrics_batch_size",
-        default=20,
-        help="Pending ticket metrics processed in one scheduled-action execution.",
+        default=100,
+        help="Maximum tickets selected in one metrics run. Supported range: 1 to 500.",
+    )
+    zoho_metrics_time_budget_seconds = fields.Integer(
+        string="Metrics Time Budget (Seconds)",
+        config_parameter="isw_it_dashboard_zoho.metrics_time_budget_seconds",
+        default=240,
+        help="Stops a metrics batch before the Odoo worker runs too long. Remaining tickets stay queued.",
+    )
+    zoho_metrics_stale_hours = fields.Integer(
+        string="Refresh Successful Metrics After (Hours)",
+        config_parameter="isw_it_dashboard_zoho.metrics_stale_hours",
+        default=6,
+        help="Open ticket metrics that are older than this value are refreshed automatically.",
+    )
+    zoho_refresh_stale_metrics = fields.Boolean(
+        string="Automatically Refresh Stale Metrics",
+        config_parameter="isw_it_dashboard_zoho.refresh_stale_metrics",
+        default=True,
+    )
+    zoho_refresh_closed_metrics = fields.Boolean(
+        string="Periodically Refresh Closed Ticket Metrics",
+        config_parameter="isw_it_dashboard_zoho.refresh_closed_metrics",
+        default=False,
+        help="Normally closed ticket metrics are final and do not need recurring refreshes.",
     )
     zoho_sync_metrics = fields.Boolean(
         string="Synchronize Ticket Metrics",
@@ -189,7 +212,9 @@ class ResConfigSettings(models.TransientModel):
     def action_sync_zoho_metrics_now(self):
         self.ensure_one()
         self._save_current_settings()
-        result = self.env["it.zoho.ticket"].sudo().sync_metrics_batch(raise_on_error=True)
+        result = self.env["it.zoho.ticket"].sudo().sync_metrics_batch(
+            raise_on_error=True, trigger="manual"
+        )
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
@@ -198,6 +223,22 @@ class ResConfigSettings(models.TransientModel):
                 "message": _("Processed %(processed)s; successful %(success)s; failed %(failed)s.") % result,
                 "type": "warning" if result["failed"] else "success",
                 "sticky": bool(result["failed"]),
+            },
+        }
+
+
+    def action_start_full_metrics_refresh(self):
+        self.ensure_one()
+        self._save_current_settings()
+        count = self.env["it.zoho.ticket"].sudo().start_full_metrics_refresh()
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Zoho Metrics Full Refresh"),
+                "message": _("Queued %(count)s ticket(s). Scheduled batches will continue automatically until the queue is complete.") % {"count": count},
+                "type": "success",
+                "sticky": False,
             },
         }
 

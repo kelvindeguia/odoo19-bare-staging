@@ -1,6 +1,6 @@
 {
     "name": "ISW IT Dashboard - Zoho Desk Integration",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.7.0",
     "summary": "Synchronize Zoho Desk tickets into the ISW IT Dashboard",
     "category": "Operations/IT",
     "author": "ISW",
@@ -14,6 +14,7 @@
         "views/res_config_settings_views.xml",
         "views/zoho_ticket_views.xml",
         "views/zoho_sync_state_views.xml",
+        "views/metrics_sync_views.xml",
         "views/sync_log_views.xml",
         "views/webhook_event_views.xml",
         "views/menu.xml"
