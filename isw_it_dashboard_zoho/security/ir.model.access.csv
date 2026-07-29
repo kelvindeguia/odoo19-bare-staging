@@ -9,3 +9,5 @@ access_it_zoho_ticket_stage_metric_manager,Zoho Ticket Stage Metric Manager,mode
 access_it_zoho_ticket_agent_metric_user,Zoho Ticket Agent Metric User,model_it_zoho_ticket_agent_metric,isw_it_dashboard.group_it_dashboard_user,1,0,0,0
 access_it_zoho_ticket_agent_metric_manager,Zoho Ticket Agent Metric Manager,model_it_zoho_ticket_agent_metric,group_zoho_integration_manager,1,1,1,1
 access_it_zoho_sync_state_manager,Zoho Sync State Manager,model_it_zoho_sync_state,group_zoho_integration_manager,1,1,1,1
+access_it_zoho_metrics_sync_state_manager,Zoho Metrics Sync State Manager,model_it_zoho_metrics_sync_state,group_zoho_integration_manager,1,1,1,1
+access_it_zoho_metrics_sync_history_manager,Zoho Metrics Sync History Manager,model_it_zoho_metrics_sync_history,group_zoho_integration_manager,1,1,1,0

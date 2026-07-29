@@ -3,3 +3,5 @@ from . import zoho_ticket
 from . import zoho_sync_state
 from . import sync_log
 from . import webhook_event
+from . import metrics_sync_state
+from . import metrics_sync_history

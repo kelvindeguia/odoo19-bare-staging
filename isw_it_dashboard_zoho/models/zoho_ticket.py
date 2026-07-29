@@ -2,11 +2,13 @@ import hashlib
 import json
 import logging
 import re
+import time
 from datetime import datetime, timedelta, timezone
 
 import requests
 
 from odoo import _, api, fields, models
+from odoo.osv import expression
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -726,31 +728,223 @@ class ITZohoTicket(models.Model):
             return counts
 
     @api.model
-    def sync_metrics_batch(self, batch_size=None, raise_on_error=False):
-        if self._config("sync_metrics") not in ("True", "1", True):
-            return {"processed": 0, "success": 0, "failed": 0}
-        if batch_size is None:
-            batch_size = int(self._config("metrics_batch_size", 20) or 20)
-        batch_size = max(1, min(int(batch_size), 100))
-        now = fields.Datetime.now()
-        domain = [
-            ("metrics_sync_status", "in", ["pending", "failed"]),
-            "|", ("metrics_next_retry", "=", False), ("metrics_next_retry", "<=", now),
-        ]
+    def _get_or_create_metrics_sync_state(self):
+        State = self.env["it.zoho.metrics.sync.state"].sudo()
+        state = State.search([("company_id", "=", self.env.company.id)], limit=1)
+        if not state:
+            state = State.create({
+                "name": _("Zoho Desk Metrics Sync"),
+                "company_id": self.env.company.id,
+                "batch_size": max(1, min(int(self._config("metrics_batch_size", 100) or 100), 500)),
+                "time_budget_seconds": max(30, min(int(self._config("metrics_time_budget_seconds", 240) or 240), 1800)),
+                "stale_after_hours": max(1, int(self._config("metrics_stale_hours", 6) or 6)),
+                "refresh_stale_metrics": self._config("refresh_stale_metrics") in ("True", "1", True),
+                "refresh_closed_metrics": self._config("refresh_closed_metrics") in ("True", "1", True),
+            })
+        return state
+
+    @api.model
+    def _metrics_eligible_domain(self):
+        domain = []
         if self._config("metrics_closed_only") in ("True", "1", True):
-            domain += ["|", ("status_type", "=", "Closed"), ("status", "=", "Closed")]
-        tickets = self.search(domain, order="metrics_sync_attempts asc, modified_time desc, id", limit=batch_size)
-        result = {"processed": len(tickets), "success": 0, "failed": 0}
-        for ticket in tickets:
-            try:
-                if ticket._sync_metrics(raise_on_error=False):
-                    result["success"] += 1
-                else:
+            domain = expression.OR([[('status_type', '=', 'Closed')], [('status', '=', 'Closed')]])
+        return domain
+
+    @api.model
+    def _pending_metrics_domain(self):
+        now = fields.Datetime.now()
+        return expression.AND([
+            self._metrics_eligible_domain(),
+            [
+                ("metrics_sync_status", "in", ["pending", "failed"]),
+                "|", ("metrics_next_retry", "=", False), ("metrics_next_retry", "<=", now),
+            ],
+        ])
+
+    @api.model
+    def _stale_metrics_domain(self, state):
+        if not state.refresh_stale_metrics:
+            return [("id", "=", 0)]
+        cutoff = fields.Datetime.now() - timedelta(hours=max(1, state.stale_after_hours or 6))
+        status_domain = []
+        if not state.refresh_closed_metrics:
+            status_domain = expression.AND([
+                [('status_type', '!=', 'Closed')],
+                [('status', '!=', 'Closed')],
+            ])
+        return expression.AND([
+            self._metrics_eligible_domain(),
+            status_domain,
+            [
+                ("metrics_sync_status", "=", "success"),
+                "|", ("metrics_last_sync", "=", False), ("metrics_last_sync", "<=", cutoff),
+            ],
+        ])
+
+    @api.model
+    def _update_metrics_sync_state(self, state=None):
+        state = state or self._get_or_create_metrics_sync_state()
+        eligible_domain = self._metrics_eligible_domain()
+        pending_domain = self._pending_metrics_domain()
+        values = {
+            "batch_size": max(1, min(int(self._config("metrics_batch_size", state.batch_size or 100) or 100), 500)),
+            "time_budget_seconds": max(30, min(int(self._config("metrics_time_budget_seconds", state.time_budget_seconds or 240) or 240), 1800)),
+            "stale_after_hours": max(1, int(self._config("metrics_stale_hours", state.stale_after_hours or 6) or 6)),
+            "refresh_stale_metrics": self._config("refresh_stale_metrics") in ("True", "1", True),
+            "refresh_closed_metrics": self._config("refresh_closed_metrics") in ("True", "1", True),
+            "total_eligible": self.search_count(eligible_domain),
+            "pending_count": self.search_count(pending_domain),
+            "success_count": self.search_count(expression.AND([eligible_domain, [("metrics_sync_status", "=", "success")]])),
+            "failed_count": self.search_count(expression.AND([eligible_domain, [("metrics_sync_status", "=", "failed")]])),
+            "not_available_count": self.search_count(expression.AND([eligible_domain, [("metrics_sync_status", "=", "not_available")]])),
+        }
+        if values["pending_count"] == 0 and state.status == "running":
+            values.update({"status": "completed", "completed_at": fields.Datetime.now()})
+        state.write(values)
+        return state
+
+    @api.model
+    def start_full_metrics_refresh(self):
+        if self._config("sync_metrics") not in ("True", "1", True):
+            raise UserError(_("Synchronize Ticket Metrics is disabled."))
+        domain = self._metrics_eligible_domain()
+        tickets = self.search(domain)
+        tickets.write({
+            "metrics_sync_status": "pending",
+            "metrics_sync_attempts": 0,
+            "metrics_next_retry": False,
+            "metrics_error": False,
+        })
+        state = self._get_or_create_metrics_sync_state()
+        state.write({
+            "status": "running",
+            "completed_at": False,
+            "last_error": False,
+        })
+        self._update_metrics_sync_state(state)
+        self.env["it.zoho.metrics.sync.history"].sudo().create({
+            "name": _("Zoho Metrics Full Refresh Queued"),
+            "trigger": "full_refresh",
+            "completed_at": fields.Datetime.now(),
+            "status": "success",
+            "selected_count": len(tickets),
+            "processed_count": 0,
+            "pending_after": len(tickets),
+            "company_id": self.env.company.id,
+        })
+        cron = self.env.ref(
+            "isw_it_dashboard_zoho.ir_cron_zoho_metrics_batch_sync",
+            raise_if_not_found=False,
+        )
+        if cron:
+            cron.sudo().write({"active": True, "nextcall": fields.Datetime.now()})
+        return len(tickets)
+
+    @api.model
+    def sync_metrics_batch(self, batch_size=None, raise_on_error=False, trigger="cron"):
+        empty = {"processed": 0, "success": 0, "failed": 0, "not_available": 0, "skipped": 0}
+        if self._config("sync_metrics") not in ("True", "1", True):
+            return empty
+
+        state = self._get_or_create_metrics_sync_state()
+        self._update_metrics_sync_state(state)
+        if trigger == "cron" and state.status == "paused":
+            return empty
+
+        if batch_size is None:
+            batch_size = int(self._config("metrics_batch_size", state.batch_size or 100) or 100)
+        batch_size = max(1, min(int(batch_size), 500))
+        time_budget = max(30, min(int(self._config("metrics_time_budget_seconds", state.time_budget_seconds or 240) or 240), 1800))
+
+        pending_before = self.search_count(self._pending_metrics_domain())
+        tickets = self.search(
+            self._pending_metrics_domain(),
+            order="metrics_sync_attempts asc, modified_time desc, id",
+            limit=batch_size,
+        )
+        if len(tickets) < batch_size:
+            stale = self.search(
+                expression.AND([self._stale_metrics_domain(state), [("id", "not in", tickets.ids)]]),
+                order="metrics_last_sync asc nulls first, modified_time desc, id",
+                limit=batch_size - len(tickets),
+            )
+            tickets |= stale
+
+        history = self.env["it.zoho.metrics.sync.history"].sudo().create({
+            "name": _("Zoho Metrics Batch"),
+            "trigger": trigger if trigger in ("cron", "manual", "full_refresh") else "cron",
+            "requested_batch_size": batch_size,
+            "selected_count": len(tickets),
+            "pending_before": pending_before,
+            "company_id": self.env.company.id,
+        })
+        started = time.monotonic()
+        result = dict(empty)
+        state.write({"status": "running", "last_run_at": fields.Datetime.now(), "last_error": False})
+        batch_error = False
+
+        try:
+            for ticket in tickets:
+                if time.monotonic() - started >= time_budget:
+                    result["skipped"] += len(tickets) - result["processed"]
+                    break
+                result["processed"] += 1
+                try:
+                    ok = ticket._sync_metrics(raise_on_error=False)
+                    if ok:
+                        result["success"] += 1
+                    elif ticket.metrics_sync_status == "not_available":
+                        result["not_available"] += 1
+                    else:
+                        result["failed"] += 1
+                except Exception as exc:
                     result["failed"] += 1
-            except Exception:
-                result["failed"] += 1
-                _logger.exception("Unexpected metric batch failure for %s", ticket.zoho_ticket_id)
-        return result
+                    batch_error = str(exc.args[0] if exc.args else exc)[:4000]
+                    _logger.exception("Unexpected metric batch failure for %s", ticket.zoho_ticket_id)
+
+            pending_after = self.search_count(self._pending_metrics_domain())
+            duration = time.monotonic() - started
+            status = "partial" if result["failed"] or result["skipped"] else "success"
+            history.write({
+                "completed_at": fields.Datetime.now(),
+                "status": status,
+                "processed_count": result["processed"],
+                "success_count": result["success"],
+                "failed_count": result["failed"],
+                "not_available_count": result["not_available"],
+                "skipped_count": result["skipped"],
+                "pending_after": pending_after,
+                "duration_seconds": duration,
+                "error_message": batch_error or False,
+            })
+            state.write({
+                "last_batch_selected": len(tickets),
+                "last_batch_processed": result["processed"],
+                "last_batch_success": result["success"],
+                "last_batch_failed": result["failed"],
+                "last_batch_not_available": result["not_available"],
+                "last_error": batch_error or False,
+            })
+            self._update_metrics_sync_state(state)
+            return result
+        except Exception as exc:
+            safe_error = str(exc.args[0] if exc.args else exc)[:4000]
+            history.write({
+                "completed_at": fields.Datetime.now(),
+                "status": "failed",
+                "processed_count": result["processed"],
+                "success_count": result["success"],
+                "failed_count": result["failed"],
+                "not_available_count": result["not_available"],
+                "skipped_count": result["skipped"],
+                "duration_seconds": time.monotonic() - started,
+                "error_message": safe_error,
+            })
+            state.write({"status": "failed", "last_error": safe_error})
+            _logger.exception("Zoho metrics batch synchronization failed")
+            if raise_on_error:
+                raise
+            return result
 
     @api.model
     def sync_tickets(self, raise_on_error=False):
@@ -768,7 +962,7 @@ class ITZohoTicket(models.Model):
 
     @api.model
     def cron_sync_metrics_batch(self):
-        return self.sync_metrics_batch(raise_on_error=False)
+        return self.sync_metrics_batch(raise_on_error=False, trigger="cron")
 
     @api.model
     def cron_sync_tickets(self):
