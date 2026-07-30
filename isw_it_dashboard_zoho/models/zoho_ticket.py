@@ -332,6 +332,83 @@ class ITZohoTicket(models.Model):
             labels = {"bad": 1.0, "poor": 1.0, "okay": 3.0, "neutral": 3.0, "good": 5.0, "happy": 5.0}
             return labels.get(str(value).strip().lower(), 0.0)
 
+
+    @api.model
+    def _extract_classification(self, data):
+        """Extract the Zoho Desk Classification pick-list value.
+
+        Zoho can return this field at the top level or inside a custom-field
+        container depending on the endpoint, layout, and API response shape.
+        """
+        if not isinstance(data, dict):
+            return ""
+
+        value = data.get("classification")
+        if value not in (None, False, ""):
+            return str(value).strip()
+
+        for container_name in ("cf", "customFields", "custom_fields"):
+            custom_fields = data.get(container_name)
+
+            if isinstance(custom_fields, dict):
+                value = custom_fields.get("classification")
+                if value not in (None, False, ""):
+                    return str(value).strip()
+
+            if isinstance(custom_fields, list):
+                for item in custom_fields:
+                    if not isinstance(item, dict):
+                        continue
+                    api_name = (
+                        item.get("apiName")
+                        or item.get("api_name")
+                        or item.get("name")
+                    )
+                    if api_name == "classification":
+                        value = item.get("value")
+                        if value not in (None, False, ""):
+                            return str(value).strip()
+
+        return ""
+
+    @api.model
+    def _get_complete_ticket_data(self, data):
+        """Fetch ticket details when the list response omits Classification.
+
+        The Zoho ticket list endpoint commonly returns a reduced payload.
+        The individual ticket endpoint is used only when Classification is not
+        already present in the list response.
+        """
+        if not isinstance(data, dict):
+            return data
+
+        if self._extract_classification(data):
+            return data
+
+        ticket_id = data.get("id")
+        if not ticket_id:
+            return data
+
+        try:
+            response = self._request(
+                "GET",
+                f"tickets/{ticket_id}",
+                timeout=30,
+            )
+            detail = response.json()
+            if isinstance(detail, dict):
+                # Preserve list values if the detail response omits any of them.
+                merged = dict(data)
+                merged.update(detail)
+                return merged
+        except Exception:
+            _logger.exception(
+                "Unable to fetch complete Zoho ticket details for %s",
+                ticket_id,
+            )
+
+        return data
+
     @api.model
     def _ticket_values(self, data):
         assignee = data.get("assignee") if isinstance(data.get("assignee"), dict) else {}
@@ -368,7 +445,7 @@ class ITZohoTicket(models.Model):
             "status": data.get("status") or "",
             "status_type": data.get("statusType") or "",
             "priority": data.get("priority") or "",
-            "classification": data.get("classification") or "",
+            "classification": self._extract_classification(data),
             "category": data.get("category") or "",
             "subcategory": data.get("subCategory") or "",
             "language": data.get("language") or "",
@@ -533,6 +610,38 @@ class ITZohoTicket(models.Model):
         record.write(vals)
         return record, "updated"
 
+    def action_sync_ticket_details(self):
+        counts = {"updated": 0, "failed": 0}
+        for record in self:
+            try:
+                response = self._request(
+                    "GET",
+                    f"tickets/{record.zoho_ticket_id}",
+                    timeout=30,
+                )
+                data = response.json()
+                self._upsert_ticket(data)
+                counts["updated"] += 1
+            except Exception:
+                counts["failed"] += 1
+                _logger.exception(
+                    "Unable to synchronize Zoho ticket details for %s",
+                    record.zoho_ticket_id,
+                )
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Zoho Ticket Details"),
+                "message": _(
+                    "Updated %(updated)s ticket(s); %(failed)s failed."
+                ) % counts,
+                "type": "warning" if counts["failed"] else "success",
+                "sticky": bool(counts["failed"]),
+            },
+        }
+
     def action_sync_metrics(self):
         for record in self:
             record._sync_metrics(raise_on_error=True)
@@ -686,6 +795,7 @@ class ITZohoTicket(models.Model):
             counts["received"] = len(tickets)
             for data in tickets:
                 try:
+                    data = self._get_complete_ticket_data(data)
                     record, outcome = self._upsert_ticket(data)
                     counts[outcome] += 1
                     if record and not self._metrics_candidate(record):
