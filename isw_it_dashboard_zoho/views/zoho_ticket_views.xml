@@ -9,6 +9,7 @@
                 <field name="subject"/>
                 <field name="status"/>
                 <field name="priority"/>
+                <field name="classification" optional="show"/>
                 <field name="channel"/>
                 <field name="department_name" optional="show"/>
                 <field name="assignee_name" optional="show"/>
@@ -44,6 +45,7 @@
                             <field name="status" readonly="1"/>
                             <field name="status_type" readonly="1"/>
                             <field name="priority" readonly="1"/>
+                            <field name="classification" readonly="1"/>
                             <field name="channel" readonly="1"/>
                             <field name="category" readonly="1"/>
                             <field name="subcategory" readonly="1"/>
