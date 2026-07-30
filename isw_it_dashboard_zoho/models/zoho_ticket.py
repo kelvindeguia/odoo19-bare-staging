@@ -32,6 +32,12 @@ class ITZohoTicket(models.Model):
     status = fields.Char(index=True)
     status_type = fields.Char(index=True)
     priority = fields.Char(index=True)
+    classification = fields.Char(
+        string="Classification",
+        index=True,
+        tracking=True,
+        help="Ticket classification captured from Zoho Desk (for example Request or Problem).",
+    )
     category = fields.Char(index=True)
     subcategory = fields.Char()
     language = fields.Char()
@@ -362,6 +368,7 @@ class ITZohoTicket(models.Model):
             "status": data.get("status") or "",
             "status_type": data.get("statusType") or "",
             "priority": data.get("priority") or "",
+            "classification": data.get("classification") or "",
             "category": data.get("category") or "",
             "subcategory": data.get("subCategory") or "",
             "language": data.get("language") or "",
@@ -499,7 +506,7 @@ class ITZohoTicket(models.Model):
 
         record = self.search([("zoho_ticket_id", "=", external_id)], limit=1)
         tracked = (
-            "status", "status_type", "closed_time", "modified_time",
+            "status", "status_type", "classification", "closed_time", "modified_time",
             "assignee_id_external", "department_id_external",
             "thread_count", "comment_count",
         )
